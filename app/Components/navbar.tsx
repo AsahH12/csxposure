@@ -9,13 +9,13 @@ const Navbar: React.FC = () => {
     <nav className="navbar navbar-dark bg-primary text-white p-4">
         <div className="nabar-start">
             <div className="navbar-logo">
-                <Link href="/SignUp" className="text-white">
+                <Link href="/Home" className="text-white">
                     CSXposure
                 </Link>
             </div>
         </div>
         <ul className="navbar-end">
-            <Link href="/" className="text-white mx-2">Profile</Link>
+            <Link href="/SignUp" className="text-white mx-2">Profile</Link>
             <Link href="/" className="text-white mx-2">Notifications</Link>
         </ul>
     </nav>
