@@ -9,7 +9,7 @@ const HomePage = () => {
 
   useEffect(() => {
     // Redirect to the sign_in page as soon as the app loads
-    router.push("/Auth/signuplogin"); 
+    router.push("/Auth"); 
   }, [router]);
 
   return null; // You don't need to render anything here; it just redirects.
