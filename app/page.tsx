@@ -1,6 +1,10 @@
-'use client';
-import {useRouter} from 'next/navigation'
-const Page1: React.FC = () => {
+// src/app/page.tsx
+"use client"; // Add this line at the very top if it's a client-side component
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+const Page1 = () => {
   const router = useRouter();
   const navigateToPageSignUPTemp = () => {
     router.push('/Home');
