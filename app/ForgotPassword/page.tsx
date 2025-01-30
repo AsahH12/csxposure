@@ -24,7 +24,7 @@ const ForgotPassword = () => {
     }
   };
 const handlerBacktoSignIn = async() =>{
-    router.push('/Auth');
+    router.push('/Authentication');
 }
   return (
     <div className="container" style={{ maxWidth: "400px", margin: "0 auto" }}>
