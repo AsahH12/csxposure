@@ -1,8 +1,12 @@
 // page.tsx
+'use client';
 import React from 'react';
+import Link from 'next/link';
 
-const HomePage: React.FC = () => {
-  return <div>Home</div>;
+const DashboardPage: React.FC = () => {
+  return (
+    <div></div>
+);
 };
 
-export default HomePage;  // Ensure you're exporting it as a module
+export default DashboardPage; 
