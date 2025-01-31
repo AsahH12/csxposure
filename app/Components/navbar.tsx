@@ -3,6 +3,7 @@ import React from 'react';
 import Link from 'next/link';
 // import './navbar.css';
 
+const profilePhotoUrl = '/placeholder-profile.jpg';
 
 const Navbar: React.FC = () => {
     return (
@@ -15,15 +16,24 @@ const Navbar: React.FC = () => {
                             alt="Logo"
                             width={210} 
                             height={50}
-                            className="d-inline-block align-text-top"
+                            className=""
                         />
                 </Link>
             </div>
         </div>
         <ul className="navbar-end">
-            <Link href="/Authentication" className="text-white mx-2">
+        <Link href="/Authentication" className="text-white mx-2">
+            <img
+              src="placeholder-profile.jpg" // Placeholder for now, will be replaced with Firebase URL
+              alt="Profile"
+              width={50}
+              height={50}
+              className="rounded-circle" 
+            />
+        </Link>
+            {/* <Link href="/Authentication" className="text-white mx-2">
                 Profile
-            </Link>
+            </Link> */}
             <Link href="/" className="text-white mx-2">
                 Notifications
             </Link>

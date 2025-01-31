@@ -7,7 +7,7 @@ interface CardProps {
   lastName: string;
   school: string;
   description: string;
-  profileImageUrl?: string; // Optional profile image URL
+  profileImageUrl?: string; 
 }
 
 const CardComponent: React.FC<CardProps> = ({ firstName, lastName, school, description, profileImageUrl }) => {

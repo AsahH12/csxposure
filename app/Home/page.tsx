@@ -21,7 +21,6 @@ const HomePage: React.FC = () => {
         lastName="Doe"
         school="Harvard University"
         description="A passionate student with a love for learning."
-        profileImageUrl="/path/to/image.jpg"
       />
       <CardComponent
         firstName="Jane"
