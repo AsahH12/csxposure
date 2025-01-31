@@ -1,0 +1,13 @@
+.home-page {
+    padding: 20px;
+  }
+  
+  .project-stats-section, .school-info-section {
+    margin-bottom: 30px;
+  }
+  
+  .project-stats, .school-info {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 10px;
+  }
