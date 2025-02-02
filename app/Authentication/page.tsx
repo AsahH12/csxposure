@@ -1,8 +1,8 @@
-"use client";
+"use client"; 
 import React, { useState } from "react";
 import { auth, db } from "../../firebaseconfig";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "firebase/auth";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 
 // SignUp Component
@@ -141,9 +141,30 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
 
     try {
       setLoading(true);
-      await signInWithEmailAndPassword(auth, email, password);
-      setStatus("Login successful!");
-      router.push("/Dashboard");
+
+      // Sign in the user with email and password
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      
+      // Fetch user type from Firestore to verify if it's a business or student
+      const userDoc = doc(db, "users", userCredential.user.uid);
+      const userSnapshot = await getDoc(userDoc);
+
+      if (userSnapshot.exists()) {
+        const userData = userSnapshot.data();
+        const userType = userData.userType;
+
+        // Check if the user type matches the selected type (business or student)
+        if ((isBusiness && userType !== "business") || (!isBusiness && userType !== "student")) {
+          setStatus("This account is not a valid " + (isBusiness ? "business" : "student") + " account.");
+          await signOut(auth); // Sign out the user if account type doesn't match
+          return;
+        }
+
+        setStatus("Login successful!");
+        router.push("/Dashboard");
+      } else {
+        setStatus("User not found.");
+      }
     } catch (error) {
       setStatus("Error: Incorrect email or password.");
     } finally {
