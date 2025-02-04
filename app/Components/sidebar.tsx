@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect } from 'react';
 import Link from 'next/link';
+import styles from './sidebar.module.css';
 
 const Sidebar: React.FC = () => {
   useEffect(() => {
@@ -9,7 +10,8 @@ const Sidebar: React.FC = () => {
 
   return (
     <div>
-        <button className="btn btn-primary">Button</button>
+        <div className={styles.sidebar}>
+        </div>
     </div>
   );
 };

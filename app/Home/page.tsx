@@ -4,11 +4,12 @@ import React from 'react';
 import Link from 'next/link';
 import CardComponent from '../Components/profileCard';
 import Sidebar from '../Components/sidebar';
+import styles from './home.module.css';
 
 
 const HomePage: React.FC = () => {
   return (
-    <div className="container">
+    <div className={styles.container}>
       <div className="row">
           <div className="col-md-auto">
             <Sidebar />
