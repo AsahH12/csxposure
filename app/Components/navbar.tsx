@@ -1,34 +1,36 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './navbar.module.css';
+import ChatOverlay from './ChatOverlay'; // Import ChatOverlay
 
 const profilePhotoUrl = '/placeholder-profile.jpg';
 
 const Navbar: React.FC = () => {
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
   useEffect(() => {
     import('bootstrap/dist/js/bootstrap.bundle.min');
   }, []);
+
+  // Toggle chat open/close
+  const toggleChat = () => {
+    setIsChatOpen((prev) => !prev);
+  };
 
   return (
     <nav className={styles.navbar}>
       <div className="navbar-start">
         <div className="navbar-logo">
           <Link href="/Home" className="text-white">
-            <img
-              src="/logo.png"
-              alt="Logo"
-              width={210}
-              height={50}
-              className=""
-            />
+            <img src="/logo.png" alt="Logo" width={210} height={50} />
           </Link>
         </div>
       </div>
-      <ul className="navbar-end d-flex align-items-center ">
 
-         {/* Profile Dropdown */}
-         <div className="nav-item dropdown mx-2">
+      <ul className="navbar-end d-flex align-items-center">
+        {/* Profile Dropdown */}
+        <div className="nav-item dropdown mx-2">
           <a
             className="nav-link dropdown-toggle"
             href="#"
@@ -59,19 +61,22 @@ const Navbar: React.FC = () => {
             </Link>
           </div>
         </div>
-        {/* Notification Icon */}
+
+        {/* Notification Icon - Toggles Chat */}
         <div className="nav-item">
-          <Link href="/" className="text-white mx-2 me-5">
+          <button onClick={toggleChat} className="btn p-0 border-0 bg-transparent me-5 mx-2">
             <img
               src="Notification_White_False.png"
               alt="Notifications"
               width={50}
               height={50}
             />
-          </Link>
+          </button>
         </div>
-
       </ul>
+
+      {/* Show ChatOverlay when isChatOpen is true */}
+      {isChatOpen && <ChatOverlay onClose={() => setIsChatOpen(false)} />}
     </nav>
   );
 };
