@@ -1,4 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
+import "tailwindcss";
 import Navbar from './Components/navbar';
 
 import type { Metadata } from "next";
