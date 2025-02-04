@@ -15,7 +15,7 @@ import {
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 
-type ResizeDirection = 
+type ResizeDirection =
   | "top"
   | "bottom"
   | "left"
@@ -25,7 +25,11 @@ type ResizeDirection =
   | "bottom-left"
   | "bottom-right";
 
-const ChatOverlay: React.FC = () => {
+interface ChatOverlayProps {
+  onClose: () => void;
+}
+
+const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [chatId, setChatId] = useState<string | null>(null);
@@ -33,7 +37,7 @@ const ChatOverlay: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [users, setUsers] = useState<any[]>([]); // Store users list
-  const [resizeDirection, setResizeDirection] = useState<ResizeDirection | null>(null); 
+  const [resizeDirection, setResizeDirection] = useState<ResizeDirection | null>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [size, setSize] = useState({ width: 400, height: 400 });
   const chatRef = useRef<HTMLDivElement | null>(null);
@@ -224,16 +228,13 @@ const ChatOverlay: React.FC = () => {
       }}
       onMouseDown={handleMouseDown}
     >
+      {/* Chat header with user info */}
       <div className="flex justify-between items-center bg-gray-200 px-4 py-3 rounded-t-lg cursor-move">
         <h3 className="text-lg font-semibold">Chat</h3>
-        <button onClick={() => setSelectedUser(null)} className="p-1 hover:bg-gray-300 rounded">
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
+        <h2 className="text-black">{selectedUser && `You are chatting with ${selectedUser}`}</h2>
       </div>
 
+      {/* User selection */}
       <div className="flex flex-col p-3">
         <select
           onChange={(e) => setSelectedUser(e.target.value)}
@@ -250,7 +251,6 @@ const ChatOverlay: React.FC = () => {
 
         {selectedUser && (
           <>
-            <h2>Chat with {selectedUser}</h2>
             {/* Scrollable messages container */}
             <div
               style={{
@@ -266,13 +266,14 @@ const ChatOverlay: React.FC = () => {
                   style={{
                     padding: "10px",
                     margin: "10px 0",
-                    backgroundColor: message.sender === userEmail ? "#d3f8e2" : "#f0f0f0",
+                    backgroundColor: message.sender === userEmail ? "#007aff" : "#e5e5ea", // Blue for sender, gray for receiver
                     borderRadius: "10px",
                     textAlign: message.sender === userEmail ? "right" : "left",
+                    color: message.sender === userEmail ? "white" : "black", // White text for sender, black for receiver
                   }}
                 >
                   <p>{message.text}</p>
-                  <span style={{ fontSize: "12px", color: "#888" }}>
+                  <span style={{ fontSize: "12px", color: "#555" }}>
                     {message.timestamp
                       ? new Date(message.timestamp.seconds * 1000).toLocaleString()
                       : "Just now"}

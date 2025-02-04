@@ -24,15 +24,6 @@ const Dashboard: React.FC = () => {
     <div className="relative min-h-screen p-4">
       <h1 className="text-2xl">Dashboard</h1>
 
-      {/* Example Button to Open Chat */}
-      <button
-        onClick={() => openChat({ id: "1", name: "John Doe" })}
-        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-      >
-        Open Chat with John
-      </button>
-
-      {/* Chat Overlay Component */}
     </div>
   );
 };
