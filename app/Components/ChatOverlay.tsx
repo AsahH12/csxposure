@@ -220,7 +220,7 @@ const ChatOverlay: React.FC = () => {
         top: `${position.y}px`,
         left: `${position.x}px`,
         width: `${size.width}px`,
-        height: `${size.height}px`,
+        height: "auto", // Make the height dynamic
       }}
       onMouseDown={handleMouseDown}
     >
@@ -251,37 +251,65 @@ const ChatOverlay: React.FC = () => {
         {selectedUser && (
           <>
             <h2>Chat with {selectedUser}</h2>
-            <div style={{ maxHeight: "200px", overflowY: "scroll" }}>
+            {/* Scrollable messages container */}
+            <div
+              style={{
+                maxHeight: "200px",
+                overflowY: "auto",
+                paddingBottom: "10px",
+                marginBottom: "10px",
+              }}
+            >
               {messages.map((message, index) => (
-                <div key={index} style={{ padding: "10px", margin: "10px 0", backgroundColor: message.sender === userEmail ? "#d3f8e2" : "#f0f0f0", borderRadius: "10px", textAlign: message.sender === userEmail ? "right" : "left" }}>
+                <div
+                  key={index}
+                  style={{
+                    padding: "10px",
+                    margin: "10px 0",
+                    backgroundColor: message.sender === userEmail ? "#d3f8e2" : "#f0f0f0",
+                    borderRadius: "10px",
+                    textAlign: message.sender === userEmail ? "right" : "left",
+                  }}
+                >
                   <p>{message.text}</p>
                   <span style={{ fontSize: "12px", color: "#888" }}>
-                    {message.timestamp ? new Date(message.timestamp.seconds * 1000).toLocaleString() : "Just now"}
+                    {message.timestamp
+                      ? new Date(message.timestamp.seconds * 1000).toLocaleString()
+                      : "Just now"}
                   </span>
                 </div>
               ))}
             </div>
 
-            <textarea
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Type your message..."
-              style={{ width: "100%", height: "80px", padding: "10px" }}
-            />
-            <button
-              onClick={handleSendMessage}
-              disabled={!newMessage.trim()}
-              style={{
-                backgroundColor: "#007bff",
-                color: "white",
-                padding: "10px 20px",
-                border: "none",
-                cursor: "pointer",
-                marginTop: "10px",
-              }}
-            >
-              Send
-            </button>
+            {/* Message input area */}
+            <div style={{ display: "flex", flexDirection: "column", paddingBottom: "20px" }}>
+              <textarea
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                placeholder="Type your message..."
+                style={{
+                  width: "100%",
+                  height: "80px",
+                  padding: "10px",
+                  boxSizing: "border-box",
+                }}
+              />
+              <button
+                onClick={handleSendMessage}
+                disabled={!newMessage.trim()}
+                style={{
+                  backgroundColor: "#007bff",
+                  color: "white",
+                  padding: "10px 20px",
+                  border: "none",
+                  cursor: "pointer",
+                  marginTop: "10px",
+                  alignSelf: "flex-end",
+                }}
+              >
+                Send
+              </button>
+            </div>
           </>
         )}
       </div>
