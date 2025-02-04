@@ -14,16 +14,14 @@ const CardComponent: React.FC<CardProps> = ({ firstName, lastName, school, descr
   return (
     <div className={styles.card}>
       <div className={styles.cardBody}>
-        <div className={styles.nameContainer}>
-          <div className={styles.profileImageContainer}>
-            {profileImageUrl ? (
-              <img src={profileImageUrl} alt="Profile" className={styles.profileImage} />
-            ) : (
-              <span className={styles.initials}>{firstName[0]}{lastName[0]}</span>
-            )}
-          </div>
-          <h5 className={styles.cardTitle}>{firstName} {lastName}</h5>
+        <div className={styles.profileImageContainer}>
+          {profileImageUrl ? (
+            <img src={profileImageUrl} alt="Profile" className={styles.profileImage} />
+          ) : (
+            <span className={styles.initials}>{firstName[0]}{lastName[0]}</span>
+          )}
         </div>
+        <h5 className={styles.cardTitle}>{firstName} {lastName}</h5>
         <h6 className={styles.cardSubtitle}>{school}</h6>
         <p className={styles.cardText}>{description}</p>
       </div>

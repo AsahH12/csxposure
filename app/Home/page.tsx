@@ -23,8 +23,8 @@ const HomePage: React.FC = () => {
         description="A passionate student with a love for learning."
       />
       <CardComponent
-        firstName="Jane"
-        lastName="Smith"
+        firstName="Emily"
+        lastName="Underwood"
         school="Stanford University"
         description="An enthusiastic learner with a focus on computer science."
       />
