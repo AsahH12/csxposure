@@ -2,15 +2,15 @@
 import React, { useEffect } from 'react';
 import Link from 'next/link';
 
-const profilePhotoUrl = '/placeholder-profile.jpg';
-
 const Sidebar: React.FC = () => {
   useEffect(() => {
     import('bootstrap/dist/js/bootstrap.bundle.min');
   }, []);
 
   return (
-    <div></div>
+    <div>
+        <button className="btn btn-primary">Button</button>
+    </div>
   );
 };
 

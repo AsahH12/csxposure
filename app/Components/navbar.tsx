@@ -1,17 +1,17 @@
 'use client';
 import React, { useEffect } from 'react';
 import Link from 'next/link';
+import styles from './navbar.module.css';
 
 const profilePhotoUrl = '/placeholder-profile.jpg';
 
 const Navbar: React.FC = () => {
-  // Dynamically import Bootstrap's JavaScript on the client side
   useEffect(() => {
     import('bootstrap/dist/js/bootstrap.bundle.min');
   }, []);
 
   return (
-    <nav className="navbar navbar-dark bg-primary text-white p-4">
+    <nav className={styles.navbar}>
       <div className="navbar-start">
         <div className="navbar-logo">
           <Link href="/Home" className="text-white">
