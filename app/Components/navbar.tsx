@@ -15,7 +15,7 @@ const Navbar: React.FC = () => {
             </div>
         </div>
         <ul className="navbar-end">
-            <Link href="/SignUp" className="text-white mx-2">Profile</Link>
+            <Link href="/Authentication" className="text-white mx-2">Profile</Link>
             <Link href="/" className="text-white mx-2">Notifications</Link>
         </ul>
     </nav>
