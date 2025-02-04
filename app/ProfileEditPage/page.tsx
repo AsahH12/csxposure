@@ -12,6 +12,18 @@ const ProfileEditPage: React.FC = () => {
   const [school, setSchool] = useState('');
   const [bio, setBio] = useState('');
   const [links, setLinks] = useState([{ type: '', url: '' }]);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   // add a new link
   const addLink = () => {
@@ -30,6 +42,7 @@ const ProfileEditPage: React.FC = () => {
         school,
         bio,
         links,
+        profileImage,
       });
 
       alert("Profile saved successfully!");
@@ -46,13 +59,29 @@ const ProfileEditPage: React.FC = () => {
         <div className="project-section">
           <div className="project-grid">
             {[...Array(4)].map((__, index) => (
+              <Link className="link" href="/StudentProjectPage">
               <button key={index} className="add-project">+ Add Project</button>
+              </Link>
             ))}
           </div>
         </div> 
 
         <div className="profile-form">
-          <div className="profile-picture"></div>
+          <label className="profile-picture" htmlFor="imageUpload">
+            {profileImage ? (
+              <img src={profileImage} alt="Profile" className="profile-img" />
+            ) : (
+              <span>Click to upload</span>
+            )}
+          </label>
+          <input
+            type="file"
+            id="imageUpload"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={handleImageUpload}
+          />
+
 
           <div className="input-group">
             <input

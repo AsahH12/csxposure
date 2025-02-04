@@ -30,8 +30,9 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
   }
-  
-  .add-project {
+
+  .link {
+    text-decoration: none;
     background: #6b7280;
     color: white;
     display: flex;
