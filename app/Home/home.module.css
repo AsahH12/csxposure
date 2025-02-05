@@ -1,3 +1,9 @@
 .container{
   padding-right: 10px;
 }
+
+.scrollableContainer{
+  max-height: 785px;
+  overflow-y: auto;
+  padding-right: 10px;
+}

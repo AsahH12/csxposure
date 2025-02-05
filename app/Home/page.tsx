@@ -15,24 +15,44 @@ const HomePage: React.FC = () => {
             <Sidebar />
           </div>
           <div className="col">
-            <CardComponent
-              firstName="John"
-              lastName="Doe"
-              school="Harvard University"
-              description="A passionate student with a love for learning."
-            />
-            <CardComponent
-              firstName="Emily"
-              lastName="Underwood"
-              school="Stanford University"
-              description="An enthusiastic learner with a focus on computer science."
-            />
-            <CardComponent
-              firstName="Jane"
-              lastName="Smith"
-              school="MIT"
-              description="A dedicated student with a passion for technology."
-            />
+            <div className={styles.scrollableContainer}>
+              <CardComponent
+                firstName="John"
+                lastName="Doe"
+                school="Harvard University"
+                description="A passionate student with a love for learning."
+              />
+              <CardComponent
+                firstName="Emily"
+                lastName="Underwood"
+                school="Stanford University"
+                description="An enthusiastic learner with a focus on computer science."
+              />
+              <CardComponent
+                firstName="Jane"
+                lastName="Smith"
+                school="MIT"
+                description="A dedicated student with a passion for technology."
+              />
+              <CardComponent
+                firstName="John"
+                lastName="Doe"
+                school="Harvard University"
+                description="A passionate student with a love for learning."
+              />
+              <CardComponent
+                firstName="Emily"
+                lastName="Underwood"
+                school="Stanford University"
+                description="An enthusiastic learner with a focus on computer science."
+              />
+              <CardComponent
+                firstName="Jane"
+                lastName="Smith"
+                school="MIT"
+                description="A dedicated student with a passion for technology."
+              />
+            </div>
           </div>
         </div>
     </div>
