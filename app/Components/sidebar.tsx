@@ -1,49 +1,107 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import styles from './sidebar.module.css';
 
 const Sidebar: React.FC = () => {
+  const [selectedSchool, setSelectedSchool] = useState(''); // State to manage selected school
+
   useEffect(() => {
     import('bootstrap/dist/js/bootstrap.bundle.min');
   }, []);
 
+  const handleSchoolChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedSchool(event.target.value); // Update state on change
+  };
+
   return (
     <div className={styles.sidebar}>
       {/* Name Search Section */}
-      <input 
-        type="text" 
-        placeholder="Search..." 
-        className={styles.searchName} 
-      />
-      <button className={styles.searchButton}>Search</button>
+      {/* Search Bar */}
+      <div className={styles.searchContainer}>
+        <input 
+          type="text" 
+          placeholder="Search name..." 
+          className={styles.searchbar} 
+        />
+        <button className={styles.searchButton}>Search</button>
+      </div>
 
       {/* Filter Section */}
       <div className={styles.filterSection}>
-        <h5 className={styles.filterTitle}>Filters:</h5>
-        {/* Dropdown */}
-        <select className={`form-select ${styles.schoolSelect}`} id="schoolSelect">
-          <option value="" disabled selected>
-            Select a school
-          </option>
-          <option value="any">Any</option>
-          <option value="school1">School 1</option>
-          <option value="school2">School 2</option>
-          <option value="school3">School 3</option>
-        </select>
-        {/* Checkboxes */}
-        {['Websites', 'Volunteer', 'Apps', 'Graduated', 'Games'].map((item, index) => (
-          <div className="form-check" key={index}>
-            <input 
-              className="form-check-input" 
-              type="checkbox" 
-              id={`filterCheck${index}`} 
-            />
-            <label className="form-check-label" htmlFor={`filterCheck${index}`}>
-              {item}
-            </label>
+        <h5 className={styles.filterTitle}>Filter by:</h5>
+        <div className={styles.filterGrid}>
+
+          <div className={styles.leftColumn}>
+            <select 
+              className={`form-select ${styles.schoolSelect}`} 
+              id="schoolSelect" 
+              value={selectedSchool} // Use value prop here
+              onChange={handleSchoolChange} // Handle change event
+            >              
+            <option value="" disabled>
+                Select a school
+              </option>
+              <option value="any">Any</option>
+              <option value="school1">Full Sail University</option>
+              <option value="school2">Harvard University</option>
+              <option value="school3">Stanford University</option>
+            </select>
+            <div className="form-check">
+              <input 
+                className="form-check-input" 
+                type="checkbox" 
+                id="filterVolunteer" 
+              />
+              <label className="form-check-label" htmlFor="filterVolunteer">
+                Volunteer
+              </label>
+            </div>
+            <div className="form-check">
+              <input 
+                className="form-check-input" 
+                type="checkbox" 
+                id="filterGraduated" 
+              />
+              <label className="form-check-label" htmlFor="filterGraduated">
+                Graduated
+              </label>
+            </div>
           </div>
-        ))}
+
+          <div className={styles.rightColumn}>
+            <div className="form-check">
+              <input 
+                className="form-check-input" 
+                type="checkbox" 
+                id="filterWebsites" 
+              />
+              <label className="form-check-label" htmlFor="filterWebsites">
+                Websites
+              </label>
+            </div>
+            <div className="form-check">
+              <input 
+                className="form-check-input" 
+                type="checkbox" 
+                id="filterApps" 
+              />
+              <label className="form-check-label" htmlFor="filterApps">
+                Apps
+              </label>
+            </div>
+            <div className="form-check">
+              <input 
+                className="form-check-input" 
+                type="checkbox" 
+                id="filterGames" 
+              />
+              <label className="form-check-label" htmlFor="filterGames">
+                Games
+              </label>
+            </div>
+          </div>
+        </div>
       </div>
 
         {/* Divider */}
@@ -55,15 +113,15 @@ const Sidebar: React.FC = () => {
         {/* Divider */}
         <div className={styles.divider}></div>
 
-        {/* Search Bar */}
-        <div className={styles.searchContainer}>
+       {/* Search Bar */}
+       <div className={styles.searchContainer}>
         <input 
-            type="text" 
-            placeholder="Search discussions..." 
-            className={styles.searchName} 
+          type="text" 
+          placeholder="Search discussions..." 
+          className={styles.searchbar} 
         />
         <button className={styles.searchButton}>Search</button>
-        </div>
+      </div>
 
         {/* Scrollable Container for Discussion Posts */}
         <div className={styles.scrollableContainer}>

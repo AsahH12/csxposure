@@ -5,14 +5,13 @@
     padding: 20px;
 }
 
-.searchName {
-    margin-top: 15px;
+.searchbar {
     height: 40px; 
     width: 100%; 
     font-size: 16px; 
     padding: 10px; 
     border: 1px solid #ccc; 
-    border-radius: 5px; 
+    border-radius: 0;
 }
 
 .searchButton {
@@ -20,9 +19,8 @@
     background-color: #007bff;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 0;
     cursor: pointer;
-    margin-top: 10px; 
 }
 
 .searchButton:hover {
@@ -45,26 +43,50 @@
 }
 
 .discussionTitle {
-    font-size: 20px;
+    font-size: 30px;
     font-weight: bold;
     margin: 20px 0 10px 0;
+    text-align: center;
+    color: white;
 }
 
 .scrollableContainer {
-    max-height: 300px; /* Set a max height for scrolling */
-    overflow-y: auto; /* Enable vertical scrolling */
-    padding-right: 10px; /* Add some padding to the right */
+    max-height: 400px; 
+    overflow-y: auto; 
+    padding-right: 10px; 
 }
 
 .discussionPost {
-    border-bottom: 1px solid #ccc; /* Add a border between posts */
-    padding: 10px 0; /* Provide space within each post */
+    border-bottom: 1px solid #ccc; 
+    padding: 10px 0; 
 }
 
 .discussionPost h6 {
-    margin: 0; /* Remove default margin */
+    margin: 0; 
 }
 
 .discussionPost p {
-    margin: 5px 0 0 0; /* Add margin for description */
+    margin: 5px 0 0 0; 
+}
+
+.searchContainer {
+    display: flex; 
+    margin-bottom: 20px;
+}
+
+.filterGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two equal columns */
+    gap: 20px; /* Space between columns */
+}
+
+.leftColumn {
+    display: flex;
+    flex-direction: column;
+}
+
+.rightColumn {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
 }
