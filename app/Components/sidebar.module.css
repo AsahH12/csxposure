@@ -1,5 +1,70 @@
-.sidebar{
+.sidebar {
     height: 100vh;
     width: 400px;
-    background-color: grey
+    background-color: grey;
+    padding: 20px;
+}
+
+.searchName {
+    margin-top: 15px;
+    height: 40px; 
+    width: 100%; 
+    font-size: 16px; 
+    padding: 10px; 
+    border: 1px solid #ccc; 
+    border-radius: 5px; 
+}
+
+.searchButton {
+    height: 40px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px; 
+}
+
+.searchButton:hover {
+    background-color: #0056b3; 
+}
+
+.filterSection {
+    margin-top: 20px; 
+}
+
+.schoolSelect {
+    margin-top: 10px; 
+    width: 200px;
+}
+
+.divider {
+    height: 1px;
+    background-color: #ccc;
+    margin: 10px 0;
+}
+
+.discussionTitle {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 20px 0 10px 0;
+}
+
+.scrollableContainer {
+    max-height: 300px; /* Set a max height for scrolling */
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding-right: 10px; /* Add some padding to the right */
+}
+
+.discussionPost {
+    border-bottom: 1px solid #ccc; /* Add a border between posts */
+    padding: 10px 0; /* Provide space within each post */
+}
+
+.discussionPost h6 {
+    margin: 0; /* Remove default margin */
+}
+
+.discussionPost p {
+    margin: 5px 0 0 0; /* Add margin for description */
 }
