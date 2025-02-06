@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import './studentProfile.css'; 
 import Footer from '../Components/footer';
-
+import Link from 'next/link'
 const ProfileEditPage: React.FC = () => {
   const [links, setLinks] = useState([{ type: '', url: '' }]);
 
@@ -15,7 +15,11 @@ const ProfileEditPage: React.FC = () => {
         <div className="project-section">
            <div className="project-grid">
        {[...Array(4)].map((__, index) => (
-         <button key={index} className="show-project">Project</button> ))}
+         
+         <Link className="link" href="/StudentProjectPage" key={index}>
+               <button key={index} className="show-project">Project</button>
+              </Link>
+         ))}
      </div>
     </div> 
 
