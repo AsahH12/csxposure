@@ -1,12 +1,14 @@
 'use client';
 import React, { useState } from 'react';
 import './studentProfile.css'; 
+import Footer from '../Components/footer';
 
 const ProfileEditPage: React.FC = () => {
   const [links, setLinks] = useState([{ type: '', url: '' }]);
 
 
   return (
+    <div>
     <div className="student-profile-container">
       <div className="student-profile-card">
         
@@ -53,6 +55,8 @@ const ProfileEditPage: React.FC = () => {
           </div>
         </div>
       </div>
+    </div>
+    <Footer />
     </div>
   );
 };

@@ -2,16 +2,17 @@
 'use client';
 import React from 'react';
 import Link from 'next/link';
-import CardComponent from '../Components/profileCard';
+import CardComponent from '../HomeComponents/profileCard';
 import Sidebar from '../Components/sidebar';
 import styles from './home.module.css';
+import Footer from '../Components/footer';
 
 
 const HomePage: React.FC = () => {
   return (
     <div className={styles.container}>
       <div className="row">
-          <div className="col-md-auto">
+          <div className={`col-md-auto ${styles.columnleft}`}>
             <Sidebar />
           </div>
           <div className="col">
@@ -52,6 +53,7 @@ const HomePage: React.FC = () => {
                 school="MIT"
                 description="A dedicated student with a passion for technology."
               />
+              <Footer />
             </div>
           </div>
         </div>

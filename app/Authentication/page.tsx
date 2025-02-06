@@ -4,6 +4,7 @@ import { auth, db } from "../../firebaseconfig";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
+import Footer from '../Components/footer';
 
 // SignUp Component
 const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusiness: React.Dispatch<React.SetStateAction<boolean>> }) => {
@@ -268,6 +269,7 @@ const AuthPage = () => {
   const [isBusiness, setIsBusiness] = useState(false);
 
   return (
+    <div>
     <div
       className="d-flex justify-content-center align-items-center min-vh-100"
       style={{
@@ -279,6 +281,8 @@ const AuthPage = () => {
         <SignUp isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
         <Login isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
       </div>
+    </div>
+    <Footer />
     </div>
   );
 };
