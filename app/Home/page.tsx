@@ -162,26 +162,26 @@ const HomePage: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <div className="row">
-        <div className={`col-md-auto ${styles.columnleft}`}>
-          <Sidebar />
-        </div>
-        <div className="col">
-          <div className={styles.scrollableContainer}>
-            {loading ? (
-              <p>Loading...</p>
-            ) : (
-              <div className={styles.cardGrid}>
-                {cards.map((card, index) => (
-                  <CardComponent key={index} {...card} />
-                ))}
-              </div>
-            )}
-            <Footer />
-          </div>
+    <div className="row">
+      <div className={`col-md-auto ${styles.columnleft}`}>
+        <Sidebar />
+      </div>
+      <div className="col">
+        <div className={styles.scrollableContainer}>
+          {loading ? (
+            <p>Loading...</p>
+          ) : (
+            <div className={styles.cardContainer}>
+              {cards.map((card, index) => (
+                <CardComponent key={index} {...card} />
+              ))}
+            </div>
+          )}
+          <Footer />
         </div>
       </div>
     </div>
+  </div>
   );
 };
 

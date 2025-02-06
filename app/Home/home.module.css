@@ -25,3 +25,9 @@
 .cardLink {
   text-decoration: none;
 }
+
+.cardContainer {
+  display: flex; 
+  flex-wrap: wrap; 
+  justify-content: space-between; 
+}
