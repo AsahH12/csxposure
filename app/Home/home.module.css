@@ -1,3 +1,33 @@
-.container{
+.container {
   padding-right: 10px;
+}
+
+.scrollableContainer {
+  max-height: 785px;
+  overflow-y: auto;
+}
+
+.columnleft {
+  width: 400px;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 2fr)); 
+  gap: 10px; 
+}
+
+.card {
+  width: 100%; 
+  margin: 10px 0; 
+}
+
+.cardLink {
+  text-decoration: none;
+}
+
+.cardContainer {
+  display: flex; 
+  flex-wrap: wrap; 
+  justify-content: space-between; 
 }

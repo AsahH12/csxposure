@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { auth, db } from "../../firebaseconfig";
 import { setDoc, doc } from "firebase/firestore"; 
 import './profileEdit.css';
-import Link from 'next/link';
+import Link from 'next/link'
+import Footer from '../Components/footer';
 
 const ProfileEditPage: React.FC = () => {
   const [firstName, setFirstName] = useState('');
@@ -51,6 +52,7 @@ const ProfileEditPage: React.FC = () => {
   };
 
   return (
+    <div>
     <div className="profile-edit-container">
       <div className="profile-edit-card">
         <div className="project-section">
@@ -162,6 +164,8 @@ const ProfileEditPage: React.FC = () => {
           </div>
         </div>
       </div>
+    </div>
+    <Footer />
     </div>
   );
 };

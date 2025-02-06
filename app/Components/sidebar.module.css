@@ -1,5 +1,92 @@
-.sidebar{
-    height: 100vh;
+.sidebar {
+    height: 785px;
     width: 400px;
-    background-color: grey
+    background-color: grey;
+    padding: 20px;
+}
+
+.searchbar {
+    height: 40px; 
+    width: 100%; 
+    font-size: 16px; 
+    padding: 10px; 
+    border: 1px solid #ccc; 
+    border-radius: 0;
+}
+
+.searchButton {
+    height: 40px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+}
+
+.searchButton:hover {
+    background-color: #0056b3; 
+}
+
+.filterSection {
+    margin-top: 20px; 
+}
+
+.schoolSelect {
+    margin-top: 10px; 
+    width: 200px;
+}
+
+.divider {
+    height: 1px;
+    background-color: #ccc;
+    margin: 10px 0;
+}
+
+.discussionTitle {
+    font-size: 30px;
+    font-weight: bold;
+    margin: 20px 0 10px 0;
+    text-align: center;
+    color: white;
+}
+
+.scrollableContainer {
+    max-height: 400px; 
+    overflow-y: auto; 
+    padding-right: 10px; 
+}
+
+.discussionPost {
+    border-bottom: 1px solid #ccc; 
+    padding: 10px 0; 
+}
+
+.discussionPost h6 {
+    margin: 0; 
+}
+
+.discussionPost p {
+    margin: 5px 0 0 0; 
+}
+
+.searchContainer {
+    display: flex; 
+    margin-bottom: 20px;
+}
+
+.filterGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two equal columns */
+    gap: 20px; /* Space between columns */
+}
+
+.leftColumn {
+    display: flex;
+    flex-direction: column;
+}
+
+.rightColumn {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
 }

@@ -1,0 +1,24 @@
+  .footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    background-color: #192e5b;
+    color: white;
+    height: 100px;
+  }
+  
+  .footerLinks {
+    display: flex;
+    gap: 50px;
+  }
+  
+  .footerLink {
+    color: white;
+    text-decoration: none;
+    font-size: 1rem;
+  }
+  
+  .footerLink:hover {
+    text-decoration: underline;
+  }
