@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { auth, db } from "../../firebaseconfig";
 import { setDoc, doc } from "firebase/firestore"; 
 import './profileEdit.css';
-import Link from 'next/link'
+import Link from 'next/link';
 
 const ProfileEditPage: React.FC = () => {
   const [firstName, setFirstName] = useState('');
@@ -25,12 +25,10 @@ const ProfileEditPage: React.FC = () => {
     }
   };
 
-  // add a new link
   const addLink = () => {
     setLinks([...links, { type: '', url: '' }]);
   };
 
-  // save profile data to Firebase
   const saveProfile = async () => {
     try {
       const userId = "user_123"; 
@@ -55,12 +53,11 @@ const ProfileEditPage: React.FC = () => {
   return (
     <div className="profile-edit-container">
       <div className="profile-edit-card">
-        
         <div className="project-section">
           <div className="project-grid">
             {[...Array(4)].map((__, index) => (
-              <Link className="link" href="/StudentProjectPage">
-              <button key={index} className="add-project">+ Add Project</button>
+              <Link className="link" href="/StudentProjectPage" key={index}>
+                <button className="add-project">+ Add Project</button>
               </Link>
             ))}
           </div>
@@ -71,7 +68,7 @@ const ProfileEditPage: React.FC = () => {
             {profileImage ? (
               <img src={profileImage} alt="Profile" className="profile-img" />
             ) : (
-              <span>Click to upload</span>
+              <span className="text">Click to upload</span>
             )}
           </label>
           <input
@@ -81,7 +78,6 @@ const ProfileEditPage: React.FC = () => {
             style={{ display: "none" }}
             onChange={handleImageUpload}
           />
-
 
           <div className="input-group">
             <input
@@ -171,3 +167,4 @@ const ProfileEditPage: React.FC = () => {
 };
 
 export default ProfileEditPage;
+  
