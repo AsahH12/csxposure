@@ -5,6 +5,9 @@
 .scrollableContainer {
   max-height: 785px;
   overflow-y: auto;
+  &::-webkit-scrollbar {
+    display: none; /* Hide scrollbar */
+  }
 }
 
 .columnleft {
