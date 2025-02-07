@@ -1,7 +1,8 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { auth, db } from "../../firebaseconfig";
 import { setDoc, doc, updateDoc, getDoc } from "firebase/firestore"; 
+import { onAuthStateChanged } from "firebase/auth";
 import './profileEdit.css';
 import Link from 'next/link'
 import Footer from '../Components/footer';
@@ -14,7 +15,39 @@ const ProfileEditPage: React.FC = () => {
   const [bio, setBio] = useState('');
   const [links, setLinks] = useState([{ type: '', url: '' }]);
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
+  //Fetch profile data
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const userDocRef = doc(db, "users", user.uid, "details", "profileData");
+          const userDocSnap = await getDoc(userDocRef);
+
+          if (userDocSnap.exists()) {
+            const data = userDocSnap.data();
+            setFirstName(data.firstName || '');
+            setLastName(data.lastName || '');
+            setStatus(data.status || '');
+            setSchool(data.school || '');
+            setBio(data.bio || '');
+            setLinks(data.links || [{ type: '', url: '' }]);
+            setProfileImage(data.profileImage || null);
+          }
+        } catch (error) {
+          console.error("Error fetching profile:", error);
+          alert("Failed to fetch profile data.");
+        }
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe(); 
+  }, []);
+
+
+  //Convert image to URL
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -30,6 +63,7 @@ const ProfileEditPage: React.FC = () => {
     setLinks([...links, { type: '', url: '' }]);
   };
 
+  //Save profile information into the database
   const saveProfile = async () => {
     try {
       const user = auth.currentUser; 
@@ -68,6 +102,10 @@ const ProfileEditPage: React.FC = () => {
       alert("Failed to save profile.");
     }
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div>
