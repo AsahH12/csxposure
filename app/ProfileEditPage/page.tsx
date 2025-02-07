@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { auth, db } from "../../firebaseconfig";
-import { setDoc, doc } from "firebase/firestore"; 
+import { setDoc, doc, updateDoc, getDoc } from "firebase/firestore"; 
 import './profileEdit.css';
 import Link from 'next/link'
 import Footer from '../Components/footer';
@@ -32,17 +32,35 @@ const ProfileEditPage: React.FC = () => {
 
   const saveProfile = async () => {
     try {
-      const userId = "user_123"; 
+      const user = auth.currentUser; 
+      const userId = user.uid;
 
-      await setDoc(doc(db, "profiles", userId), {
-        firstName,
-        lastName,
-        status,
-        school,
-        bio,
-        links,
-        profileImage,
-      });
+      const userDocRef = doc(db, "users", userId, "details", "profileData");
+      const userDocSnap = await getDoc(userDocRef);
+
+      if (userDocSnap.exists()) {
+        // Update only the provided fields if the document exists
+        await updateDoc(userDocRef, {
+          firstName,
+          lastName,
+          status,
+          school,
+          bio,
+          links,
+          profileImage,
+        });
+      } else {
+        // If the document doesn't exist, create it and merge fields
+        await setDoc(userDocRef, {
+          firstName,
+          lastName,
+          status,
+          school,
+          bio,
+          links,
+          profileImage,
+        }, { merge: true });
+      }
 
       alert("Profile saved successfully!");
     } catch (error) {
