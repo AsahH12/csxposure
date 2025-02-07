@@ -1,5 +1,4 @@
-'use client'; // Ensure it's treated as a client component
-
+"use client";
 import React, { useState, useEffect, useRef } from "react";
 import { db } from "../../firebaseconfig";
 import {
@@ -15,8 +14,6 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { Router } from "express";
-import { useRouter } from "next/router";
 
 type ResizeDirection =
   | "top"
@@ -36,7 +33,7 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [chatId, setChatId] = useState<string | null>(null);
-  const [userEmail, setUserEmail] = useState<string | null>(null); // Change to null initially
+  const [userEmail, setUserEmail] = useState<string>("");
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [users, setUsers] = useState<any[]>([]); // Store users list
@@ -48,17 +45,14 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   const resizeOffset = useRef({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
-  // Get current user's email and check for authentication
+
+  // Get current user's email
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUserEmail(user.email);
-      } else {
-        setUserEmail(null); // Ensure it's null when not authenticated
-        
       }
-  
     });
 
     return () => unsubscribe();
@@ -67,8 +61,6 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   // Fetch all users except the current user
   useEffect(() => {
     const fetchUsers = async () => {
-      if (!userEmail) return; // Don't fetch users if not signed in
-
       const usersRef = collection(db, "users");
       const usersSnapshot = await getDocs(usersRef);
       const usersList = usersSnapshot.docs
@@ -77,7 +69,7 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
       setUsers(usersList);
     };
 
-    fetchUsers();
+    if (userEmail) fetchUsers();
   }, [userEmail]);
 
   // Find or create a chat when a user is selected
@@ -223,10 +215,6 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
     };
   }, [isDragging, isResizing]);
 
-  if (!userEmail) {
-    return <div></div>; // Optional message if not signed in
-  }
-
   return (
     <div
       ref={chatRef}
@@ -236,20 +224,17 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
         top: `${position.y}px`,
         left: `${position.x}px`,
         width: `${size.width}px`,
-        height: `${size.height}px`,
+        height: "auto", // Make the height dynamic
       }}
       onMouseDown={handleMouseDown}
     >
+      {/* Chat header with user info */}
       <div className="flex justify-between items-center bg-gray-200 px-4 py-3 rounded-t-lg cursor-move">
         <h3 className="text-lg font-semibold">Chat</h3>
-        <button onClick={() => setSelectedUser(null)} className="p-1 hover:bg-gray-300 rounded">
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
+        <h2 className="text-black">{selectedUser && `You are chatting with ${selectedUser}`}</h2>
       </div>
 
+      {/* User selection */}
       <div className="flex flex-col p-3">
         <select
           onChange={(e) => setSelectedUser(e.target.value)}
@@ -266,47 +251,66 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
 
         {selectedUser && (
           <>
-            <h2>Chat with {selectedUser}</h2>
-            <div style={{ maxHeight: "200px", overflowY: "scroll" }}>
+            {/* Scrollable messages container */}
+            <div
+              style={{
+                maxHeight: "200px",
+                overflowY: "auto",
+                paddingBottom: "10px",
+                marginBottom: "10px",
+              }}
+            >
               {messages.map((message, index) => (
                 <div
                   key={index}
                   style={{
                     padding: "10px",
                     margin: "10px 0",
-                    backgroundColor: message.sender === userEmail ? "#d3f8e2" : "#f0f0f0",
+                    backgroundColor: message.sender === userEmail ? "#007aff" : "#e5e5ea", // Blue for sender, gray for receiver
                     borderRadius: "10px",
                     textAlign: message.sender === userEmail ? "right" : "left",
+                    color: message.sender === userEmail ? "white" : "black", // White text for sender, black for receiver
                   }}
                 >
                   <p>{message.text}</p>
-                  <span style={{ fontSize: "12px", color: "#888" }}>
-                    {message.timestamp ? new Date(message.timestamp.seconds * 1000).toLocaleString() : "Just now"}
+                  <span style={{ fontSize: "12px", color: "#555" }}>
+                    {message.timestamp
+                      ? new Date(message.timestamp.seconds * 1000).toLocaleString()
+                      : "Just now"}
                   </span>
                 </div>
               ))}
             </div>
 
-            <textarea
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Type your message..."
-              style={{ width: "100%", height: "80px", padding: "10px" }}
-            />
-            <button
-              onClick={handleSendMessage}
-              disabled={!newMessage.trim()}
-              style={{
-                backgroundColor: "#007bff",
-                color: "white",
-                padding: "10px 20px",
-                border: "none",
-                cursor: "pointer",
-                marginTop: "10px",
-              }}
-            >
-              Send
-            </button>
+            {/* Message input area */}
+            <div style={{ display: "flex", flexDirection: "column", paddingBottom: "20px" }}>
+              <textarea
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                placeholder="Type your message..."
+                style={{
+                  width: "100%",
+                  height: "80px",
+                  padding: "10px",
+                  boxSizing: "border-box",
+                }}
+              />
+              <button
+                onClick={handleSendMessage}
+                disabled={!newMessage.trim()}
+                style={{
+                  backgroundColor: "#007bff",
+                  color: "white",
+                  padding: "10px 20px",
+                  border: "none",
+                  cursor: "pointer",
+                  marginTop: "10px",
+                  alignSelf: "flex-end",
+                }}
+              >
+                Send
+              </button>
+            </div>
           </>
         )}
       </div>
