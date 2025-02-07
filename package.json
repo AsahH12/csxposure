@@ -8,9 +8,11 @@
   "dependencies": {
     "bootstrap": "^5.3.3",
     "firebase": "^11.2.0",
+    "lucide-react": "^0.474.0",
     "next": "latest",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-draggable": "^4.4.6",
     "webpacks": "^1.0.0"
   },
   "devDependencies": {

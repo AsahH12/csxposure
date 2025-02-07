@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import { db } from "../../firebaseconfig";
+import { ArrowLeft, User } from "lucide-react"; // Back Arrow icon
 import {
   collection,
   addDoc,
@@ -14,6 +15,8 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { UserInfo } from "firebase-admin/auth";
+import { userInfo } from "os";
 
 type ResizeDirection =
   | "top"
@@ -45,7 +48,9 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   const resizeOffset = useRef({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
-
+  const [showDiscussionForm, setShowDiscussionForm] = useState(false);
+  const [discussionTitle, setDiscussionTitle] = useState("");
+  const [discussionDescription, setDiscussionDescription] = useState("");
   // Get current user's email
   useEffect(() => {
     const auth = getAuth();
@@ -61,13 +66,29 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   // Fetch all users except the current user
   useEffect(() => {
     const fetchUsers = async () => {
-      const usersRef = collection(db, "users");
-      const usersSnapshot = await getDocs(usersRef);
-      const usersList = usersSnapshot.docs
-        .map((doc) => doc.data())
-        .filter((user) => user.email !== userEmail); // Exclude self
-      setUsers(usersList);
+      if (!userEmail) return;
+    
+      const chatQuery = query(collection(db, "chats"), where("participants", "array-contains", userEmail));
+      const chatSnapshot = await getDocs(chatQuery);
+    
+      const usersList = await Promise.all(
+        chatSnapshot.docs.map(async (chatDoc) => {
+          const chatData = chatDoc.data();
+          const messagesRef = collection(db, "chats", chatDoc.id, "messages");
+          const messagesSnapshot = await getDocs(messagesRef);
+    
+          // Check if messages exist between current user and other participant
+          if (!messagesSnapshot.empty) {
+            const otherUserEmail = chatData.participants.find((email: string) => email !== userEmail);
+            return { email: otherUserEmail, chatId: chatDoc.id, hasMessages: true };
+          }
+          return null;
+        })
+      );
+    
+      setUsers(usersList.filter((user) => user !== null));
     };
+    
 
     if (userEmail) fetchUsers();
   }, [userEmail]);
@@ -133,7 +154,6 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
       text: newMessage,
       timestamp: serverTimestamp(),
     });
-
     // Update chat with the last message and increment unread count for the receiver
     const chatDoc = doc(db, "chats", chatId);
     await updateDoc(chatDoc, {
@@ -143,7 +163,21 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
 
     setNewMessage("");
   };
+  const handleCreateDiscussionPost = async () => {
+    if (!discussionTitle.trim() || !discussionDescription.trim()) return;
 
+    const discussionRef = collection(db, "discussionPosts");
+    await addDoc(discussionRef, {
+      title: discussionTitle,
+      description: discussionDescription,
+      createdAt: new Date(),
+      createdBy: userEmail,
+    });
+
+    setDiscussionTitle("");
+    setDiscussionDescription("");
+    setShowDiscussionForm(false);
+  };
   // Handle mouse down for dragging
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
@@ -230,27 +264,83 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
     >
       {/* Chat header with user info */}
       <div className="flex justify-between items-center bg-gray-200 px-4 py-3 rounded-t-lg cursor-move">
-        <h3 className="text-lg font-semibold">Chat</h3>
-        <h2 className="text-black">{selectedUser && `You are chatting with ${selectedUser}`}</h2>
-      </div>
+        
+  {selectedUser && (
+    <button
+      className="text-black font-bold p-2 rounded hover:bg-gray-300 transition"
+      onClick={() => setSelectedUser(null)} // Go back to chat list
 
-      {/* User selection */}
-      <div className="flex flex-col p-3">
-        <select
-          onChange={(e) => setSelectedUser(e.target.value)}
-          value={selectedUser || ""}
-          style={{ padding: "10px", marginBottom: "20px", width: "100%" }}
+    >
+      ← Back
+    </button>
+  )}
+  
+  <h3 className="text-black text-lg font-semibold">
+    {selectedUser ? `Chatting with ${selectedUser}` : "Chats"}
+  </h3>
+</div>
+<div className="flex justify-between items-center bg-gray-200 px-4 py-3 rounded-t-lg cursor-move">
+<button
+      onClick={() => setShowDiscussionForm(true)} // Show discussion form when clicked
+      className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition"
+    >
+      Create Discussion Post
+    </button>
+</div>
+ {/* Discussion Post Form */}
+ {showDiscussionForm && (
+          <div className="space-y-4">
+            <input
+              type="text"
+              value={discussionTitle}
+              onChange={(e) => setDiscussionTitle(e.target.value)}
+              placeholder="Post Title"
+              className="w-full p-2 border rounded-lg"
+            />
+            <textarea
+              value={discussionDescription}
+              onChange={(e) => setDiscussionDescription(e.target.value)}
+              placeholder="Post Description"
+              className="w-full p-2 border rounded-lg"
+            />
+            <button
+              onClick={handleCreateDiscussionPost}
+              className="w-full py-2 bg-blue-500 text-white rounded-lg"
+            >
+              Create Post
+            </button>
+          </div>
+        )}
+
+{/* User selection */}
+<div className="flex flex-col p-3">
+<div className="flex flex-col p-3">
+  {users.length === 0 ? (
+    <p className="text-gray-500">No active chats</p>
+  ) : (
+    users
+      .filter((user) => user.hasMessages) // Only show users with messages
+      .map((user) => (
+        <button
+          key={user.email}
+          className="p-3 bg-gray-200 rounded-lg text-left mb-2 hover:bg-gray-300 transition cursor-pointer"
+          onClick={() => {
+            setChatId(user.chatId);
+            setSelectedUser(user.email);
+          }}
         >
-          <option value="">Select a user</option>
-          {users.map((user) => (
-            <option key={user.email} value={user.email}>
-              {user.email}
-            </option>
-          ))}
-        </select>
+          {user.email}
+        </button>
+        
+      ))
+      
+  )}
+</div>
 
-        {selectedUser && (
+  {selectedUser && (
+          
           <>
+          
             {/* Scrollable messages container */}
             <div
               style={{
@@ -312,8 +402,10 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
               </button>
             </div>
           </>
+          
         )}
       </div>
+      
 
       {/* Resize handles */}
       <div className="w-6 h-6 bg-gray-300 absolute top-0 left-0 cursor-nwse-resize" onMouseDown={(e) => handleResizeMouseDown(e, "top-left")} />
@@ -321,6 +413,7 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
       <div className="w-6 h-6 bg-gray-300 absolute bottom-0 left-0 cursor-sws-resize" onMouseDown={(e) => handleResizeMouseDown(e, "bottom-left")} />
       <div className="w-6 h-6 bg-gray-300 absolute bottom-0 right-0 cursor-se-resize" onMouseDown={(e) => handleResizeMouseDown(e, "bottom-right")} />
     </div>
+  
   );
 };
 
