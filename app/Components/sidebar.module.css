@@ -93,3 +93,38 @@
     flex-direction: column;
     margin-top: 20px;
 }
+/* Style for the button */
+.discussionButton {
+    background-color: #808080; /* Gray button color */
+    border: none;
+    padding: 1px; /* Same padding for consistency */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    width: 100%; /* Make the button fill its container */
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    box-sizing: border-box;
+  }
+  
+
+  /* Style for the card (discussion post content) */
+  .discussionPost {
+    background-color: #fff; /* White background for the post */
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    width: 100%; /* Full width of the button */
+  }
+  
+  /* Title and description styles */
+  .discussionPost h6 {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+  
+  .discussionPost p {
+    font-size: 1rem;
+    color: #555;}

@@ -1,29 +1,41 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
-import styles from './sidebar.module.css';
+import { useEffect, useState } from "react";
+import { db } from "../../firebaseconfig"; // Adjust this based on your Firebase setup
+import { collection, getDocs } from "firebase/firestore";
+import styles from "./sidebar.module.css"; // Adjust based on your styles
 
 const Sidebar: React.FC = () => {
-  const [selectedSchool, setSelectedSchool] = useState(''); // State to manage selected school
+  const [selectedSchool, setSelectedSchool] = useState("");
+  const [discussionPosts, setDiscussionPosts] = useState([]); // State for discussion posts
 
   useEffect(() => {
-    import('bootstrap/dist/js/bootstrap.bundle.min');
+    import("bootstrap/dist/js/bootstrap.bundle.min");
+
+    const fetchDiscussions = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "discussionPosts"));
+        const posts = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setDiscussionPosts(posts);
+      } catch (error) {
+        console.error("Error fetching discussion posts:", error);
+      }
+    };
+
+    fetchDiscussions();
   }, []);
 
   const handleSchoolChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedSchool(event.target.value); // Update state on change
+    setSelectedSchool(event.target.value);
   };
 
   return (
     <div className={styles.sidebar}>
       {/* Name Search Section */}
-      {/* Search Bar */}
       <div className={styles.searchContainer}>
-        <input 
-          type="text" 
-          placeholder="Search name..." 
-          className={styles.searchbar} 
-        />
+        <input type="text" placeholder="Search name..." className={styles.searchbar} />
         <button className={styles.searchButton}>Search</button>
       </div>
 
@@ -31,107 +43,75 @@ const Sidebar: React.FC = () => {
       <div className={styles.filterSection}>
         <h5 className={styles.filterTitle}>Filter by:</h5>
         <div className={styles.filterGrid}>
-
           <div className={styles.leftColumn}>
-            <select 
-              className={`form-select ${styles.schoolSelect}`} 
-              id="schoolSelect" 
-              value={selectedSchool} // Use value prop here
-              onChange={handleSchoolChange} // Handle change event
-            >              
-            <option value="" disabled>
-                Select a school
-              </option>
+            <select
+              className={`form-select ${styles.schoolSelect}`}
+              id="schoolSelect"
+              value={selectedSchool}
+              onChange={handleSchoolChange}
+            >
+              <option value="" disabled>Select a school</option>
               <option value="any">Any</option>
               <option value="school1">Full Sail University</option>
               <option value="school2">Harvard University</option>
               <option value="school3">Stanford University</option>
             </select>
             <div className="form-check">
-              <input 
-                className="form-check-input" 
-                type="checkbox" 
-                id="filterVolunteer" 
-              />
-              <label className="form-check-label" htmlFor="filterVolunteer">
-                Volunteer
-              </label>
+              <input className="form-check-input" type="checkbox" id="filterVolunteer" />
+              <label className="form-check-label" htmlFor="filterVolunteer">Volunteer</label>
             </div>
             <div className="form-check">
-              <input 
-                className="form-check-input" 
-                type="checkbox" 
-                id="filterGraduated" 
-              />
-              <label className="form-check-label" htmlFor="filterGraduated">
-                Graduated
-              </label>
+              <input className="form-check-input" type="checkbox" id="filterGraduated" />
+              <label className="form-check-label" htmlFor="filterGraduated">Graduated</label>
             </div>
           </div>
 
           <div className={styles.rightColumn}>
             <div className="form-check">
-              <input 
-                className="form-check-input" 
-                type="checkbox" 
-                id="filterWebsites" 
-              />
-              <label className="form-check-label" htmlFor="filterWebsites">
-                Websites
-              </label>
+              <input className="form-check-input" type="checkbox" id="filterWebsites" />
+              <label className="form-check-label" htmlFor="filterWebsites">Websites</label>
             </div>
             <div className="form-check">
-              <input 
-                className="form-check-input" 
-                type="checkbox" 
-                id="filterApps" 
-              />
-              <label className="form-check-label" htmlFor="filterApps">
-                Apps
-              </label>
+              <input className="form-check-input" type="checkbox" id="filterApps" />
+              <label className="form-check-label" htmlFor="filterApps">Apps</label>
             </div>
             <div className="form-check">
-              <input 
-                className="form-check-input" 
-                type="checkbox" 
-                id="filterGames" 
-              />
-              <label className="form-check-label" htmlFor="filterGames">
-                Games
-              </label>
+              <input className="form-check-input" type="checkbox" id="filterGames" />
+              <label className="form-check-label" htmlFor="filterGames">Games</label>
             </div>
           </div>
         </div>
       </div>
 
-        {/* Divider */}
-        <div className={styles.divider}></div>
+      {/* Divider */}
+      <div className={styles.divider}></div>
 
-        {/* Discussion Board Section */}
-        <h5 className={styles.discussionTitle}>Discussion Board</h5>
+      {/* Discussion Board Section */}
+      <h5 className={styles.discussionTitle}>Discussion Board</h5>
+      <div className={styles.divider}></div>
 
-        {/* Divider */}
-        <div className={styles.divider}></div>
-
-       {/* Search Bar */}
-       <div className={styles.searchContainer}>
-        <input 
-          type="text" 
-          placeholder="Search discussions..." 
-          className={styles.searchbar} 
-        />
+      {/* Search Bar */}
+      <div className={styles.searchContainer}>
+        <input type="text" placeholder="Search discussions..." className={styles.searchbar} />
         <button className={styles.searchButton}>Search</button>
       </div>
 
-        {/* Scrollable Container for Discussion Posts */}
-        <div className={styles.scrollableContainer}>
-        {['Discussion Post 1', 'Discussion Post 2', 'Discussion Post 3', 'Discussion Post 4', 'Discussion Post 5', 'Discussion Post 6', 'Discussion Post 7', 'Discussion Post 8', , 'Discussion Post 9', 'Discussion Post 10'].map((post, index) => (
-            <div className={styles.discussionPost} key={index}>
-            <h6>{post}</h6>
-            <p>This is a brief description of {post}.</p>
+      {/* Scrollable Container for Discussion Posts */}
+      <div className={styles.scrollableContainer}>
+       
+        {discussionPosts.length > 0 ? (
+          discussionPosts.map((post) => (
+            <button className= {styles.discussionButton} key={post.id}>
+            <div className={styles.discussionPost} key={post.id}>
+              <h6>{post.title}</h6>
+              <p>{post.description}</p>
             </div>
-        ))}
-        </div>
+            </button>
+          ))
+        ) : (
+          <p>No discussion posts available.</p>
+        )}
+      </div>
     </div>
   );
 };
