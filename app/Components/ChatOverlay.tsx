@@ -305,7 +305,7 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
             />
             <button
               onClick={handleCreateDiscussionPost}
-              className="w-full py-2 bg-blue-500 text-white rounded-lg"
+              className="w-full py-2 bg-blue-500 text-dark rounded-lg"
             >
               Create Post
             </button>
