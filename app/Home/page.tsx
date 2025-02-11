@@ -12,14 +12,18 @@ const HomePage: React.FC = () => {
   const [cards, setCards] = useState<CardProps[]>([]); // State for cards
   const [loading, setLoading] = useState(true); // Loading state
 
+  
+
   useEffect(() => {
     import('bootstrap/dist/js/bootstrap.bundle.min');
-
+    
     // Simulate fetching data
     const fetchCards = async () => {
       // Simulating a delay to mimic fetching
       await new Promise((resolve) => setTimeout(resolve, 1000));
       const fetchedCards: CardProps[] = [
+
+        
         {
           firstName: "John",
           lastName: "Doe",
