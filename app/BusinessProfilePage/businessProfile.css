@@ -1,0 +1,128 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.business-profile-container {
+    width: 100%;
+    max-width: 800px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+}
+
+.business-profile-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.profile-form {
+    width: 100%;
+    text-align: center;
+}
+
+.profile-picture {
+    width: 120px;
+    height: 120px;
+    background: lightgray;
+    border-radius: 50%;
+    margin: 10px auto;
+    border: 2px solid #000;
+}
+
+.name-group {
+    margin-top: 10px;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.form-group {
+    margin: 15px 0;
+    text-align: center;
+}
+
+label {
+    font-weight: bold;
+    display: block;
+}
+
+.input-field, .bio-field {
+    background: #f0f0f0;
+    padding: 10px;
+    border-radius: 5px;
+    width: 80%;
+    margin: auto;
+}
+
+.bio-field {
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+a {
+    display: inline-block;
+    margin: 5px 10px;
+    text-decoration: none;
+    color: #6d5b97;
+    font-weight: bold;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.chat-button-container {
+    margin-top: 15px;
+}
+
+.chat-button {
+    padding: 10px 20px;
+    border: none;
+    background: #6d5b97;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.chat-button:hover {
+    background: #56437c;
+}
+
+/* Header styles */
+.header {
+    background-color: #6d5b97;
+    color: white;
+    padding: 10px;
+    text-align: left;
+    font-size: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-icons {
+    display: flex;
+    gap: 15px;
+    margin-right: 20px;
+}
+
+/* Social media checkbox styles */
+.form-group input[type="checkbox"] {
+    margin-right: 5px;
+}

@@ -114,9 +114,10 @@ const ProfileEditPage: React.FC = () => {
         <div className="project-section">
           <div className="project-grid">
             {[...Array(4)].map((__, index) => (
-              <Link className="link" href="/StudentProjectPage" key={index}>
-                <button className="add-project">+ Add Project</button>
-              </Link>
+                <Link className="link" href="/ProjectEditPage" key={index}>
+                 <button key={index} className="add-project">+ Add Project</button>
+               </Link>
+               
             ))}
           </div>
         </div> 
