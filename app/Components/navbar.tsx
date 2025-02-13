@@ -1,12 +1,12 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
+import React, { useState, useEffect } from 'react';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { db } from '../../firebaseconfig'; // Assuming you have firebase initialized here
 import { doc, getDoc } from "firebase/firestore";
-import styles from "./navbar.module.css";
-import ChatOverlay from "./ChatOverlay";
-import { db } from "../../firebaseconfig";
-
+import Link from 'next/link';
+import styles from './navbar.module.css'; // Assuming you have a CSS module for styling
+import ChatOverlay from "./ChatOverlay"; // Adjust the path as needed
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 // Function to get initials from first and last name
 const getInitials = (firstName: string | null, lastName: string | null) => {
@@ -17,10 +17,12 @@ const getInitials = (firstName: string | null, lastName: string | null) => {
 
 const Navbar: React.FC = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [user, setUser] = useState(null); // Track user authentication state
+  const [user, setUser] = useState<any>(null); // Track user authentication state
   const [firstName, setFirstName] = useState<string | null>(null); // Track first name
   const [lastName, setLastName] = useState<string | null>(null); // Track last name
   const [userType, setUserType] = useState<string | null>(null); // Track userType
+  const [profileImage, setProfileImage] = useState<string | null>(null); // Track profile image
+
   useEffect(() => {
     import("bootstrap/dist/js/bootstrap.bundle.min");
 
@@ -28,37 +30,44 @@ const Navbar: React.FC = () => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       console.log("User data:", currentUser); // Log current user to check if it's coming through
-
       if (currentUser) {
-        setUser(currentUser); // Set user to the current Firebase user
+        setUser(currentUser);
 
-        // Fetch user data from Firestore (profileData)
+        // Fetch userType from users/{uid}
         const userRef = doc(db, "users", currentUser.uid);
         const userSnap = await getDoc(userRef);
+
         if (userSnap.exists()) {
           const userData = userSnap.data();
-          const firstName = userData?.profileData?.firstName || '';
-          const lastName = userData?.profileData?.lastName || '';
-
-          console.log("Fetched User Data from Firestore:", userData); // Check the fetched data
-          console.log("First Name:", firstName); // Debugging: Check the first name
-          console.log("Last Name:", lastName); // Debugging: Check the last name
-
-          setFirstName(firstName); // Set first name
-          setLastName(lastName); // Set last name
+          setUserType(userData?.userType || null);
         } else {
-          console.log("No profile data found in Firestore"); // Debugging: Log if no data is found
-          setFirstName(currentUser.displayName?.split(" ")[0] || ""); // Fallback first name
-          setLastName(currentUser.displayName?.split(" ")[1] || ""); // Fallback last name
+          setUserType(null);
+        }
+        
+        const profileRef = doc(db, "users", currentUser.uid, "details", "profileData");
+        const profileSnap = await getDoc(profileRef);
+
+        if (profileSnap.exists()) {
+          const profileData = profileSnap.data();
+          setFirstName(profileData?.firstName || "");
+          setLastName(profileData?.lastName || "");
+          setProfileImage(profileData?.profileImage || null); // Store profile image
+        } else {
+          console.log("No profile data found in Firestore");
+          setFirstName(currentUser.displayName?.split(" ")[0] || "");
+          setLastName(currentUser.displayName?.split(" ")[1] || "");
+          setProfileImage(null);
         }
       } else {
-        setUser(null); // No user is logged in
-        setFirstName(null); // Reset first name
-        setLastName(null); // Reset last name
+        setUser(null);
+        setFirstName(null);
+        setLastName(null);
+        setUserType(null);
+        setProfileImage(null);
       }
     });
 
-    return () => unsubscribe(); // Cleanup listener on component unmount
+    return () => unsubscribe();
   }, []);
 
   // Get initials from the user's first and last name
@@ -83,60 +92,84 @@ const Navbar: React.FC = () => {
 
       <ul className="navbar-end d-flex align-items-center">
         {/* Profile Dropdown */}
-        <div className="nav-item dropdown mx-2">
-          <a
-            className="nav-link dropdown-toggle"
-            href="#"
-            id="navbarDropdown"
-            role="button"
-            data-bs-toggle="dropdown"
-            aria-haspopup="true"
-            aria-expanded="false"
-          >
-            {/* Display initials directly in gray */}
-            {initials ? (
-              <span
-                style={{
-                  fontSize: "20px",
-                  fontWeight: "bold",
-                  color: "gray", // Set text color to gray
-                }}
-              >
-                {initials}
-              </span>
-            ) : (
-              <span
-                style={{
-                  fontSize: "20px",
-                  fontWeight: "bold",
-                  color: "gray", // Set text color to gray
-                }}
-              >
-                ?
-              </span>
-            )}
-          </a>
-          <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-            {!user && (
-              <Link href="/Authentication" className="dropdown-item">
-                Login/SignUp
-              </Link>
-            )}
-            {user && userType && (
-              <>
-                <Link href={userType === "business" ? "/BusinessEditPage" : "/ProfileEditPage"} className="dropdown-item">
-                  My Profile
-                </Link>
-                <div className="dropdown-divider"></div>
-                <Link href="/logout" className="dropdown-item">
-                  Logout
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
+<div className="nav-item dropdown mx-2">
+  <a
+    className="nav-link dropdown-toggle"
+    href="#"
+    id="navbarDropdown"
+    role="button"
+    data-bs-toggle="dropdown"
+    aria-haspopup="true"
+    aria-expanded="true"
+  >
+    {/* Display Profile Image or Initials */}
+    {profileImage ? (
+      <img
+        src={profileImage}
+        alt="Profile"
+        width={50}
+        height={50}
+        style={{
+          borderRadius: "100%", // Makes the image circular
+          objectFit: "cover", // Ensures the image covers the area
+          border: "2px solid gray",
+        }}
+      />
+    ) : user ? (
+      <div
+        style={{
+          width: "50px",
+          height: "50px",
+          borderRadius: "50%",
+          backgroundColor: "#ccc", // Light gray background
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          fontSize: "20px",
+          fontWeight: "bold",
+          color: "white",
+          textTransform: "uppercase",
+          border: "2px solid gray",
+        }}
+      >
+        {initials}
+      </div>
+    ) : (
+      <img
+        src="/placeholder-profile.jpg" // Default profile image
+        alt="Default Profile"
+        width={50}
+        height={50}
+        style={{
+          borderRadius: "50%", 
+          objectFit: "cover",
+          border: "2px solid gray",
+        }}
+      />
+    )}
+  </a>
 
-        {/* Notification Icon - Toggles Chat or Redirects to Authentication */}
+  <div className="dropdown-menu" aria-labelledby="navbarDropdown">
+    {!user && (
+      <Link href="/Authentication" className="dropdown-item">
+        Login/SignUp
+      </Link>
+    )}
+    {user && userType && (
+      <>
+        <Link href={userType === "business" ? "/BusinessEditPage" : "/ProfileEditPage"} className="dropdown-item">
+          My Profile
+        </Link>
+        <div className="dropdown-divider"></div>
+        <Link href="/logout" className="dropdown-item">
+          Logout
+        </Link>
+      </>
+    )}
+  </div>
+</div>
+
+        {/* Notification Icon */}
         <div className="nav-item">
           {user ? (
             <button
