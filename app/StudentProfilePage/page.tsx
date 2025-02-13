@@ -1,10 +1,26 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './studentProfile.css'; 
 import Footer from '../Components/footer';
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation';
+
+
 const ProfileEditPage: React.FC = () => {
   const [links, setLinks] = useState([{ type: '', url: '' }]);
+  
+  // get userId
+  const searchParams = useSearchParams();
+  const userId = searchParams.get('userId');
+
+  useEffect(() => {
+    if (userId) {
+      // Test if the userId was passed
+      console.log("Received userID:", userId)
+    } else {
+      console.log("No userID received");
+    }
+  }, [userId]);
 
 
   return (
