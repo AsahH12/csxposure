@@ -121,15 +121,16 @@ const Sidebar: React.FC<SidebarProps> = ({onSearchChange}) => {
 
       {/* Scrollable Container for Discussion Posts */}
       <div className={styles.scrollableContainer}>
-       
         {discussionPosts.length > 0 ? (
           discussionPosts.map((post) => (
-            <button className= {styles.discussionButton} key={post.id}>
-            <div className={styles.discussionPost} key={post.id}>
-              <h6>{post.title}</h6>
-              <p>{post.description}</p>
-            </div>
-            </button>
+            <Link className={styles.discussionLink} key={post.id} href={`/Discussion/${post.id}`} passHref>
+              <button className={styles.discussionButton}>
+                <div className={styles.discussionPost}>
+                  <h6>{post.title}</h6>
+                  <p>{post.description}</p>
+                </div>
+              </button>
+            </Link>
           ))
         ) : (
           <p>No discussion posts available.</p>

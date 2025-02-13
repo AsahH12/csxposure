@@ -93,6 +93,11 @@
     flex-direction: column;
     margin-top: 20px;
 }
+
+.discussionLink{
+    text-decoration: none;
+}
+
 /* Style for the button */
 .discussionButton {
     background-color: #808080; /* Gray button color */
