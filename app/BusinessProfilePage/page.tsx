@@ -13,12 +13,16 @@ const ProfileEditPage: React.FC = () => {
             <div className="profile-picture"></div>
 
             <div className="name-group">
+              <div className="name-container">
+                <div className="name-field first-name">First Name</div>
+                <div className="name-field last-name">Last Name</div>
+              </div>
               <div className="business-name">Business Name</div>  
             </div>
 
             <div className="form-group">
-              <label>Status:</label>
-              <div className="input-field">Active</div> 
+            <label>Ocupation:</label>
+              <div className="input-field">Programmer Recruiter</div> 
             </div>
 
             <div className="form-group">
@@ -34,7 +38,6 @@ const ProfileEditPage: React.FC = () => {
             <div className="form-group">
               <h2 className="section-title">Links</h2>
               <a href="https://www.instagram.com/" className="insta">Instagram</a>
-              <a href="https://github.com/" className="github">Github</a>
               <a href="https://www.linkedin.com/" className="linkedin">LinkedIn</a>
             </div>
 

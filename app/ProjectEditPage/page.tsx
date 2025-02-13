@@ -1,5 +1,7 @@
 "use client";
 import React, { useState } from "react";
+import { doc, setDoc, collection } from "firebase/firestore";
+import { db } from "../../firebaseconfig"; // Ensure correct Firebase config path
 import "./projectEdit.css";
 
 const ProjectEditPage: React.FC = () => {
@@ -22,6 +24,31 @@ const ProjectEditPage: React.FC = () => {
     const newCollaborator = prompt("Enter collaborator's name:");
     if (newCollaborator) {
       setCollaborators([...collaborators, newCollaborator]);
+    }
+  };
+
+  const saveProjectToFirebase = async () => {
+    if (!projectName || !description) {
+      alert("Project name and description are required!");
+      return;
+    }
+
+    try {
+      const projectRef = doc(collection(db, "Projects")); // Generates a unique ID
+      await setDoc(projectRef, {
+        projectName,
+        description,
+        websiteLink,
+        githubLink,
+        collaborators,
+        images: images.filter((img) => img !== null), // Store only non-null images
+        createdAt: new Date(),
+      });
+
+      alert("Project saved successfully!");
+    } catch (error) {
+      console.error("Error saving project:", error);
+      alert("Failed to save project. Check console for errors.");
     }
   };
 
@@ -102,7 +129,7 @@ const ProjectEditPage: React.FC = () => {
             <button className="add-collaborator" onClick={addCollaborator}>+ Add Collaborator</button>
           </div>
 
-          <button className="save-button">Save Changes</button>
+          <button className="save-button" onClick={saveProjectToFirebase}>Save Changes</button>
         </div>
       </div>
     </div>
