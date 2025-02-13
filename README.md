@@ -1,25 +1,38 @@
-# Welcome to Next.js
+# CSXposure
 
-This is the most minimal starter for your Next.js project.
+Showcasing and Connecting Students Through Projects and Discussions
 
-## Deploy your own
+# Overview
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/next.js/tree/canary/examples/hello-world&project-name=hello-world&repository-name=hello-world)
+CSXposure is a platform designed to connect students, showcase their projects, and facilitate working and helping each other. The application allows users to search for student profiles, communicate with the student, participate in discussions.
 
-## How to use
+# Features
 
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init), [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/), or [pnpm](https://pnpm.io) to bootstrap the example:
+- **Search and Filter:** Find students by name and filter by school
+- **User Profiles:** View profiles with bios, school details, and project descriptions
+- **Discussion Board:** Request help or enlist a student to do a volunteer work project
+- **Project Catagories:** Browse by websites, apps and games
 
+# Tech Stack
+- **Frontend:** Next.js, React, TypeScript, Boostrap, CSS Modules
+- **Backend:** Firebase Firestore for database
+- **Authentication:** Firebase Auth
+  
+## Installation
+
+TBD
 ```bash
-npx create-next-app --example hello-world hello-world-app
+TBD
 ```
 
-```bash
-yarn create next-app --example hello-world hello-world-app
-```
+## Contributing
 
-```bash
-pnpm create next-app --example hello-world hello-world-app
-```
+TBD
 
-Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
+# Authors and acknowledgment
+
+TBD
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
