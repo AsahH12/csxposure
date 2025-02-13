@@ -1,8 +1,8 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { db } from '../../firebaseconfig'; // Ensure correct Firebase config path
-import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import { db } from '../../firebaseconfig'; 
+import { collection, getDocs, doc, getDoc, query } from "firebase/firestore";
 import Sidebar from '../Components/sidebar';
 import styles from './home.module.css';
 import cardstyles from './profileCard.module.css';
@@ -11,6 +11,7 @@ import Footer from '../Components/footer';
 const HomePage: React.FC = () => {
   const [cards, setCards] = useState<CardProps[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   //Grab users from database
   useEffect(() => {
@@ -51,6 +52,16 @@ const HomePage: React.FC = () => {
     fetchUsers();
   }, []);
 
+  //Filter cards based on search name
+  const filteredCards = cards.filter((card) =>
+  `${card.firstName} ${card.lastName}`.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  //Handle search updates from sidebar
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+  };
+
   // Card Component
   const CardComponent: React.FC<CardProps> = ({ firstName, lastName, school, description, profileImageUrl }) => {
     return (
@@ -86,7 +97,7 @@ const HomePage: React.FC = () => {
     <div className={styles.container}>
       <div className="row">
         <div className={`col-md-auto ${styles.columnleft}`}>
-          <Sidebar />
+          <Sidebar onSearchChange={handleSearchChange}/>
         </div>
         <div className="col">
           <div className={styles.scrollableContainer}>
@@ -94,7 +105,7 @@ const HomePage: React.FC = () => {
               <p>Loading...</p>
             ) : (
               <div className={styles.cardContainer}>
-                {cards.map((card, index) => (
+                {filteredCards.map((card, index) => (
                   <CardComponent key={index} {...card} />
                 ))}
               </div>

@@ -1,13 +1,20 @@
 'use client';
 import { useEffect, useState } from "react";
-import { db } from "../../firebaseconfig"; // Adjust this based on your Firebase setup
+import { db } from "../../firebaseconfig"; 
 import { collection, getDocs } from "firebase/firestore";
-import styles from "./sidebar.module.css"; // Adjust based on your styles
+import styles from "./sidebar.module.css"; 
 
-const Sidebar: React.FC = () => {
+//Handle search
+interface SidebarProps{
+  onSearchChange: (query: string) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({onSearchChange}) => {
   const [selectedSchool, setSelectedSchool] = useState("");
   const [discussionPosts, setDiscussionPosts] = useState([]); // State for discussion posts
+  const [searchInput, setSearchInput] = useState("");
 
+  //Populate discussion posts
   useEffect(() => {
     import("bootstrap/dist/js/bootstrap.bundle.min");
 
@@ -27,15 +34,30 @@ const Sidebar: React.FC = () => {
     fetchDiscussions();
   }, []);
 
+  //Filter school dropdown
   const handleSchoolChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedSchool(event.target.value);
   };
+
+  //Handle search input change
+  const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const query = event.target.value;
+    setSearchInput(query);
+    onSearchChange(query); // Pass search query to HomePage
+  };
+
 
   return (
     <div className={styles.sidebar}>
       {/* Name Search Section */}
       <div className={styles.searchContainer}>
-        <input type="text" placeholder="Search name..." className={styles.searchbar} />
+        <input 
+          type="text" 
+          placeholder="Search name..." 
+          className={styles.searchbar} 
+          value={searchInput}
+          onChange={handleSearchInputChange}
+        />
         <button className={styles.searchButton}>Search</button>
       </div>
 
