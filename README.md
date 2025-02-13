@@ -30,8 +30,7 @@ TBD
 TBD
 
 # Authors and acknowledgment
-
-TBD
+Asah Hayes, Huy Vu, Payton de Veyra
 
 ## License
 
