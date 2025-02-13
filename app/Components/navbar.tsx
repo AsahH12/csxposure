@@ -1,23 +1,36 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import styles from "./navbar.module.css";
 import ChatOverlay from "./ChatOverlay";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { db } from '../../firebaseconfig'; // Ensure correct Firebase config path
 
 const profilePhotoUrl = "/placeholder-profile.jpg";
 
 const Navbar: React.FC = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [user, setUser] = useState<boolean>(false); // Track user authentication state
+  const [user, setUser] = useState<any>(null); // Track user authentication state
+  const [userType, setUserType] = useState<string | null>(null); // Track userType
 
   useEffect(() => {
-    import("bootstrap/dist/js/bootstrap.bundle.min");
-
-    // Check Firebase authentication state
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(!!currentUser); // Set user state to true if logged in, false otherwise
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser); // Set the user state to current user object
+      if (currentUser) {
+        // Fetch user type from Firestore to verify if it's a business or student
+        const userDoc = doc(db, "users", currentUser.uid);
+        const userSnapshot = await getDoc(userDoc);
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.data();
+          setUserType(userData.userType); // Set the userType state here
+        } else {
+          console.log("No user document found!");
+        }
+      } else {
+        setUserType(null); // Reset userType if no user is logged in
+      }
     });
 
     return () => unsubscribe(); // Cleanup listener on component unmount
@@ -66,9 +79,9 @@ const Navbar: React.FC = () => {
                 Login/SignUp
               </Link>
             )}
-            {user && (
+            {user && userType && (
               <>
-                <Link href="/ProfileEditPage" className="dropdown-item">
+                <Link href={userType === "business" ? "/BusinessEditPage" : "/ProfileEditPage"} className="dropdown-item">
                   My Profile
                 </Link>
                 <div className="dropdown-divider"></div>
@@ -115,4 +128,3 @@ const Navbar: React.FC = () => {
 };
 
 export default Navbar;
-

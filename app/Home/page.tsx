@@ -52,6 +52,7 @@ const HomePage: React.FC = () => {
   }, []);
 
   // Card Component
+   
   const CardComponent: React.FC<CardProps> = ({ firstName, lastName, school, description, profileImageUrl }) => {
     return (
       <Link className={cardstyles.cardLink} href="/StudentProfilePage">
@@ -99,6 +100,11 @@ const HomePage: React.FC = () => {
                 ))}
               </div>
             )}
+
+                
+          <Link className="link" href="/BusinessProfilePage">
+               <button  className="business-page" >Business Page</button>
+           </Link>
             <Footer />
           </div>
         </div>
