@@ -4,24 +4,63 @@ import Link from "next/link";
 import styles from "./navbar.module.css";
 import ChatOverlay from "./ChatOverlay";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { db } from "../../firebaseconfig";
+import { doc, getDoc } from "firebase/firestore";
 
-const profilePhotoUrl = "/placeholder-profile.jpg";
+// Function to get initials from first and last name
+const getInitials = (firstName: string | null, lastName: string | null) => {
+  const firstInitial = firstName?.charAt(0).toUpperCase() || "";
+  const lastInitial = lastName?.charAt(0).toUpperCase() || "";
+  return firstInitial + lastInitial;
+};
 
 const Navbar: React.FC = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [user, setUser] = useState<boolean>(false); // Track user authentication state
+  const [user, setUser] = useState(null); // Track user authentication state
+  const [firstName, setFirstName] = useState<string | null>(null); // Track first name
+  const [lastName, setLastName] = useState<string | null>(null); // Track last name
 
   useEffect(() => {
     import("bootstrap/dist/js/bootstrap.bundle.min");
 
-    // Check Firebase authentication state
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(!!currentUser); // Set user state to true if logged in, false otherwise
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      console.log("User data:", currentUser); // Log current user to check if it's coming through
+
+      if (currentUser) {
+        setUser(currentUser); // Set user to the current Firebase user
+
+        // Fetch user data from Firestore (profileData)
+        const userRef = doc(db, "users", currentUser.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          const firstName = userData?.profileData?.firstName || '';
+          const lastName = userData?.profileData?.lastName || '';
+
+          console.log("Fetched User Data from Firestore:", userData); // Check the fetched data
+          console.log("First Name:", firstName); // Debugging: Check the first name
+          console.log("Last Name:", lastName); // Debugging: Check the last name
+
+          setFirstName(firstName); // Set first name
+          setLastName(lastName); // Set last name
+        } else {
+          console.log("No profile data found in Firestore"); // Debugging: Log if no data is found
+          setFirstName(currentUser.displayName?.split(" ")[0] || ""); // Fallback first name
+          setLastName(currentUser.displayName?.split(" ")[1] || ""); // Fallback last name
+        }
+      } else {
+        setUser(null); // No user is logged in
+        setFirstName(null); // Reset first name
+        setLastName(null); // Reset last name
+      }
     });
 
     return () => unsubscribe(); // Cleanup listener on component unmount
   }, []);
+
+  // Get initials from the user's first and last name
+  const initials = getInitials(firstName, lastName);
 
   // Toggle chat open/close
   const toggleChat = () => {
@@ -52,13 +91,28 @@ const Navbar: React.FC = () => {
             aria-haspopup="true"
             aria-expanded="false"
           >
-            <img
-              src={profilePhotoUrl}
-              alt="Profile"
-              width={50}
-              height={50}
-              className="rounded-circle"
-            />
+            {/* Display initials directly in gray */}
+            {initials ? (
+              <span
+                style={{
+                  fontSize: "20px",
+                  fontWeight: "bold",
+                  color: "gray", // Set text color to gray
+                }}
+              >
+                {initials}
+              </span>
+            ) : (
+              <span
+                style={{
+                  fontSize: "20px",
+                  fontWeight: "bold",
+                  color: "gray", // Set text color to gray
+                }}
+              >
+                ?
+              </span>
+            )}
           </a>
           <div className="dropdown-menu" aria-labelledby="navbarDropdown">
             {!user && (
@@ -115,4 +169,3 @@ const Navbar: React.FC = () => {
 };
 
 export default Navbar;
-

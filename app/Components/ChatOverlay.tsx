@@ -51,6 +51,15 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   const [showDiscussionForm, setShowDiscussionForm] = useState(false);
   const [discussionTitle, setDiscussionTitle] = useState("");
   const [discussionDescription, setDiscussionDescription] = useState("");
+  const questions = [
+    "What’s the title of your discussion post?",
+    "Please provide a description for your post."
+  ];
+
+  const [discussionPost, setDiscussionPost] = useState<any>({
+    title: "",
+    description: "",
+  });
   // Get current user's email
   useEffect(() => {
     const auth = getAuth();
@@ -165,7 +174,7 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   };
   const handleCreateDiscussionPost = async () => {
     if (!discussionTitle.trim() || !discussionDescription.trim()) return;
-
+  
     const discussionRef = collection(db, "discussionPosts");
     await addDoc(discussionRef, {
       title: discussionTitle,
@@ -173,11 +182,13 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
       createdAt: new Date(),
       createdBy: userEmail,
     });
-
+  
+    // Reset the fields and close the form
     setDiscussionTitle("");
     setDiscussionDescription("");
     setShowDiscussionForm(false);
   };
+  
   // Handle mouse down for dragging
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
@@ -280,37 +291,47 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   </h3>
 </div>
 <div className="flex justify-between items-center bg-gray-200 px-4 py-3 rounded-t-lg cursor-move">
-<button
-      onClick={() => setShowDiscussionForm(true)} // Show discussion form when clicked
-      className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition"
-    >
-      Create Discussion Post
-    </button>
 </div>
  {/* Discussion Post Form */}
  {showDiscussionForm && (
-          <div className="space-y-4">
-            <input
-              type="text"
-              value={discussionTitle}
-              onChange={(e) => setDiscussionTitle(e.target.value)}
-              placeholder="Post Title"
-              className="w-full p-2 border rounded-lg"
-            />
-            <textarea
-              value={discussionDescription}
-              onChange={(e) => setDiscussionDescription(e.target.value)}
-              placeholder="Post Description"
-              className="w-full p-2 border rounded-lg"
-            />
-            <button
-              onClick={handleCreateDiscussionPost}
-              className="w-full py-2 bg-blue-500 text-dark rounded-lg"
-            >
-              Create Post
-            </button>
-          </div>
-        )}
+  
+  <div  style={{
+    maxHeight: "200px",
+    overflowY: "auto",
+    paddingBottom: "10px",
+    marginBottom: "10px",
+  }}>
+    <input
+      type="text"
+      placeholder="Enter the title of your discussion"
+      value={discussionTitle}
+      onChange={(e) => setDiscussionTitle(e.target.value)}
+      style={{
+        padding: "5px",
+        marginBottom: "10px",
+        borderRadius: "4px",
+        border: "1px solid #ddd",
+      }}
+    />
+    <textarea
+      placeholder="Enter the description of your discussion"
+      value={discussionDescription}
+      onChange={(e) => setDiscussionDescription(e.target.value)}
+      style={{
+        padding: "5px",
+        marginBottom: "10px",
+        borderRadius: "4px",
+        border: "1px solid #ddd",
+        minHeight: "100px",
+      }}
+    />
+    <button onClick={handleCreateDiscussionPost}>Create Discussion</button>
+  </div>
+)}
+
+<button onClick={() => setShowDiscussionForm(!showDiscussionForm)}>
+  {showDiscussionForm ? "Cancel" : "Create Discussion Post"}
+</button>
 
 {/* User selection */}
 <div className="flex flex-col p-3">
