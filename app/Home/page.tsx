@@ -32,6 +32,7 @@ const HomePage: React.FC = () => {
           if (profileDocSnap.exists()) {
             const profileData = profileDocSnap.data();
             fetchedUsers.push({
+              userId,
               firstName: profileData.firstName || "N/A",
               lastName: profileData.lastName || "N/A",
               school: profileData.school || "Unknown School",
@@ -63,9 +64,9 @@ const HomePage: React.FC = () => {
   };
 
   // Card Component
-  const CardComponent: React.FC<CardProps> = ({ firstName, lastName, school, description, profileImageUrl }) => {
+  const CardComponent: React.FC<CardProps> = ({userId, firstName, lastName, school, description, profileImageUrl }) => {
     return (
-      <Link className={cardstyles.cardLink} href="/StudentProfilePage">
+      <Link className={cardstyles.cardLink}  href={`/StudentProfilePage?userId=${userId}`}>
         <div className={cardstyles.card}>
           <div className={cardstyles.cardBody}>
             <div className={cardstyles.profileImageContainer}>
@@ -86,6 +87,7 @@ const HomePage: React.FC = () => {
 
   // CardProps interface
   interface CardProps {
+    userId: string;
     firstName: string;
     lastName: string;
     school: string;
@@ -93,6 +95,7 @@ const HomePage: React.FC = () => {
     profileImageUrl?: string;
   }
 
+  //Home page layout
   return (
     <div className={styles.container}>
       <div className="row">
