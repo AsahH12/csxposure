@@ -17,17 +17,6 @@ CSXposure is a platform designed to connect students, showcase their projects, a
 - **Frontend:** Next.js, React, TypeScript, Boostrap, CSS Modules
 - **Backend:** Firebase Firestore for database
 - **Authentication:** Firebase Auth
-  
-## Installation
-
-TBD
-```bash
-TBD
-```
-
-## Contributing
-
-TBD
 
 # Authors and acknowledgment
 Asah Hayes, Huy Vu, Payton de Veyra
