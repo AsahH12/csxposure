@@ -18,6 +18,31 @@ CSXposure is a platform designed to connect students, showcase their projects, a
 - **Backend:** Firebase Firestore for database
 - **Authentication:** Firebase Auth
 
+# Installation
+1. Clone the repository:
+      ```bash
+      git clone https://github.com/your-username/CSXposure.git
+      cd CSXposure
+      ```
+
+2. Install dependencies:
+      ```bash
+      npm install
+      ```
+
+3. Configure Firebase:
+   - Create a `.env.local` file and add Firebase credentials.
+   - Ensure `firebaseconfig.ts` is set up correctly
+   
+5. Run the project:
+      ```bash
+      npm run dev
+      ```
+      Open http://localhost:3000 in your browser.
+
+# Project Status
+CSXposure is currently in **Pre-Alpha** stage. We are still implementing all the key features and functionalities for the app to work.
+
 # Authors and acknowledgment
 Asah Hayes, Huy Vu, Payton de Veyra
 
