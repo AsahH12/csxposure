@@ -43,10 +43,11 @@ const Navbar: React.FC = () => {
         } else {
           setUserType(null);
         }
-        
+
         const profileRef = doc(db, "users", currentUser.uid, "details", "profileData");
         const profileSnap = await getDoc(profileRef);
 
+        // Set profile image
         if (profileSnap.exists()) {
           const profileData = profileSnap.data();
           setFirstName(profileData?.firstName || "");
@@ -91,83 +92,51 @@ const Navbar: React.FC = () => {
       </div>
 
       <ul className="navbar-end d-flex align-items-center">
-        {/* Profile Dropdown */}
-<div className="nav-item dropdown mx-2">
-  <a
-    className="nav-link dropdown-toggle"
-    href="#"
-    id="navbarDropdown"
-    role="button"
-    data-bs-toggle="dropdown"
-    aria-haspopup="true"
-    aria-expanded="true"
-  >
-    {/* Display Profile Image or Initials */}
-    {profileImage ? (
-      <img
-        src={profileImage}
-        alt="Profile"
-        width={50}
-        height={50}
-        style={{
-          borderRadius: "100%", // Makes the image circular
-          objectFit: "cover", // Ensures the image covers the area
-          border: "2px solid gray",
-        }}
-      />
-    ) : user ? (
-      <div
-        style={{
-          width: "50px",
-          height: "50px",
-          borderRadius: "50%",
-          backgroundColor: "#ccc", // Light gray background
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          fontSize: "20px",
-          fontWeight: "bold",
-          color: "white",
-          textTransform: "uppercase",
-          border: "2px solid gray",
-        }}
-      >
-        {initials}
-      </div>
-    ) : (
-      <img
-        src="/placeholder-profile.jpg" // Default profile image
-        alt="Default Profile"
-        width={50}
-        height={50}
-        style={{
-          borderRadius: "50%", 
-          objectFit: "cover",
-          border: "2px solid gray",
-        }}
-      />
-    )}
-  </a>
 
-  <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-    {!user && (
-      <Link href="/Authentication" className="dropdown-item">
-        Login/SignUp
-      </Link>
-    )}
-    {user && userType && (
-      <>
-        <Link href={userType === "business" ? "/BusinessEditPage" : "/ProfileEditPage"} className="dropdown-item">
-          My Profile
-        </Link>
-        <div className="dropdown-divider"></div>
-        <Link href="/logout" className="dropdown-item">
-          Logout
-        </Link>
-      </>
-    )}
-  </div>
-</div>
+        {/* Profile Dropdown */}
+        <div className="nav-item dropdown mx-2">
+          <a
+            className="nav-link dropdown-toggle"
+            href="#"
+            id="navbarDropdown"
+            role="button"
+            data-bs-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="true"
+          >
+            {/* Display Profile Image or Initials */}
+            {profileImage ? (
+              <img src={profileImage} alt="Profile" className={styles.profileImage} />
+            ) : user ? (
+              initials ? (
+                <span className={styles.profileInitials}>{initials}</span>
+              ) : (
+                <img src="/placeholder-profile.jpg" alt="Default Profile" className={styles.profileImage} />
+              )
+            ) : (
+              <img src="/placeholder-profile.jpg" alt="Default Profile" className={styles.profileImage} />
+            )}
+          </a>
+
+          <div className="dropdown-menu" aria-labelledby="navbarDropdown">
+            {!user && (
+              <Link href="/Authentication" className="dropdown-item">
+                Login/SignUp
+              </Link>
+            )}
+            {user && userType && (
+              <>
+                <Link href={userType === "business" ? "/BusinessEditPage" : "/ProfileEditPage"} className="dropdown-item">
+                  My Profile
+                </Link>
+                <div className="dropdown-divider"></div>
+                <Link href="/logout" className="dropdown-item">
+                  Logout
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
 
         {/* Notification Icon */}
         <div className="nav-item">
