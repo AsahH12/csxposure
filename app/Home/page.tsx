@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { db } from '../../firebaseconfig'; 
+import { db } from '../../firebaseconfig';
 import { collection, getDocs, doc, getDoc, query } from "firebase/firestore";
 import Sidebar from '../Components/sidebar';
 import styles from './home.module.css';
@@ -12,6 +12,7 @@ const HomePage: React.FC = () => {
   const [cards, setCards] = useState<CardProps[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedSchool, setSelectedSchool] = useState("");
 
   //Grab users from database
   useEffect(() => {
@@ -21,7 +22,7 @@ const HomePage: React.FC = () => {
       try {
         const usersCollection = collection(db, "users");
         const userDocs = await getDocs(usersCollection);
-        
+
         const fetchedUsers: CardProps[] = [];
 
         for (const userDoc of userDocs.docs) {
@@ -53,20 +54,26 @@ const HomePage: React.FC = () => {
     fetchUsers();
   }, []);
 
-  //Filter cards based on search name
+  // Filter cards based on search name
   const filteredCards = cards.filter((card) =>
-  `${card.firstName} ${card.lastName}`.toLowerCase().includes(searchQuery.toLowerCase())
+    `${card.firstName} ${card.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) &&
+    (selectedSchool === "" || card.school.toLowerCase().includes(selectedSchool.toLowerCase()))
   );
 
-  //Handle search updates from sidebar
+  // Handle search updates from sidebar
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
   };
 
+  // Handle filter updates from sidebar
+  const handleSchoolChange = (school: string) => {
+    setSelectedSchool(school);
+  };
+
   // Card Component
-  const CardComponent: React.FC<CardProps> = ({userId, firstName, lastName, school, description, profileImageUrl }) => {
+  const CardComponent: React.FC<CardProps> = ({ userId, firstName, lastName, school, description, profileImageUrl }) => {
     return (
-      <Link className={cardstyles.cardLink}  href={`/StudentProfilePage?userId=${userId}`}>
+      <Link className={cardstyles.cardLink} href={`/StudentProfilePage?userId=${userId}`}>
         <div className={cardstyles.card}>
           <div className={cardstyles.cardBody}>
             <div className={cardstyles.profileImageContainer}>
@@ -100,7 +107,7 @@ const HomePage: React.FC = () => {
     <div className={styles.container}>
       <div className="row">
         <div className={`col-md-auto ${styles.columnleft}`}>
-          <Sidebar onSearchChange={handleSearchChange}/>
+          <Sidebar onSearchChange={handleSearchChange} onSchoolChange={handleSchoolChange}/>
         </div>
         <div className="col">
           <div className={styles.scrollableContainer}>
@@ -114,10 +121,10 @@ const HomePage: React.FC = () => {
               </div>
             )}
 
-                
-          <Link className="link" href="/BusinessProfilePage">
-               <button  className="business-page" >Business Page</button>
-           </Link>
+
+            <Link className="link" href="/BusinessProfilePage">
+              <button className="business-page" >Business Page</button>
+            </Link>
             <Footer />
           </div>
         </div>
