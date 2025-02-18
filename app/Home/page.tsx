@@ -57,7 +57,7 @@ const HomePage: React.FC = () => {
   // Filter cards based on search name
   const filteredCards = cards.filter((card) =>
     `${card.firstName} ${card.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) &&
-    (selectedSchool === "" || card.school.toLowerCase().includes(selectedSchool.toLowerCase()))
+    (selectedSchool.trim() === "" || selectedSchool.toLowerCase() === "any" || card.school.toLowerCase().includes(selectedSchool.toLowerCase()))
   );
 
   // Handle search updates from sidebar
@@ -67,7 +67,7 @@ const HomePage: React.FC = () => {
 
   // Handle filter updates from sidebar
   const handleSchoolChange = (school: string) => {
-    setSelectedSchool(school);
+    setSelectedSchool(school.trim());
   };
 
   // Card Component
@@ -107,7 +107,7 @@ const HomePage: React.FC = () => {
     <div className={styles.container}>
       <div className="row">
         <div className={`col-md-auto ${styles.columnleft}`}>
-          <Sidebar onSearchChange={handleSearchChange} onSchoolChange={handleSchoolChange}/>
+          <Sidebar onSearchChange={handleSearchChange} onSchoolChange={handleSchoolChange} />
         </div>
         <div className="col">
           <div className={styles.scrollableContainer}>

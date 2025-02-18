@@ -59,15 +59,18 @@ const Sidebar: React.FC<SidebarProps> = ({ onSearchChange, onSchoolChange }) => 
     const query = event.target.value;
     setSchoolInput(query);
 
-    // Filter school suggestions based on input
-    if (query.length > 0) {
-      const filteredSchools = allSchools.filter((school) =>
-        school.toLowerCase().includes(query.toLowerCase())
-      );
-      setSchoolSuggestions(filteredSchools.slice(0, 5)); // Limit suggestions to 5
-    } else {
+    // Reset filter when input is empty
+    if (query.trim() === "") {
+      onSchoolChange("");
       setSchoolSuggestions([]);
+      return;
     }
+
+    // Filter school suggestions based on input
+    const filteredSchools = allSchools.filter((school) =>
+      school.toLowerCase().includes(query.toLowerCase())
+    );
+    setSchoolSuggestions(filteredSchools.slice(0, 5)); // Limit to 5 suggestions
   };
 
   // Select a school from suggestions
