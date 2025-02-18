@@ -63,7 +63,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onSearchChange, onSchoolChange }) => 
       return;
     }
 
-
     // Filter school suggestions based on input
     const filteredSchools = allSchools.filter((school) =>
       school.toLowerCase().includes(query.toLowerCase())

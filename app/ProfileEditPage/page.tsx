@@ -6,6 +6,8 @@ import { onAuthStateChanged } from "firebase/auth";
 import './profileEdit.css';
 import Link from 'next/link'
 import Footer from '../Components/footer';
+import { fetchUniversities } from "../Utility/fetchUniversities"; // Import the utility function
+
 
 const ProfileEditPage: React.FC = () => {
   const [firstName, setFirstName] = useState('');
@@ -16,6 +18,8 @@ const ProfileEditPage: React.FC = () => {
   const [links, setLinks] = useState([{ type: '', url: '' }]);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [schoolSuggestions, setSchoolSuggestions] = useState<string[]>([]); // Hold schools based on input
+  const [allSchools, setAllSchools] = useState<string[]>([]); // Hold all schools from API
 
   //Fetch profile data
   useEffect(() => {
@@ -45,6 +49,38 @@ const ProfileEditPage: React.FC = () => {
 
     return () => unsubscribe(); 
   }, []);
+
+  // Fetch university list
+    useEffect(() => {
+      const loadUniversities = async () => {
+        const universities = await fetchUniversities();
+        setAllSchools(universities);
+      };
+      loadUniversities();
+    }, []);
+  
+    // Filter school dropdown
+    const handleSchoolInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const query = event.target.value;
+      setSchool(query);
+
+      if (query.trim() === "") {
+        setSchoolSuggestions([]); // Hide suggestions when input is empty
+        return;
+      }
+    
+      // Filter school suggestions based on input
+      const filteredSchools = allSchools.filter((school) =>
+        school.toLowerCase().includes(query.toLowerCase())
+      );
+    
+      setSchoolSuggestions(filteredSchools.slice(0, 5)); // Limit to 5 suggestions
+    };
+  
+    const handleSelectSchool = (school: string) => {
+      setSchool(school);
+      setSchoolSuggestions([]); // Hide suggestions after selection
+    };    
 
 
   //Convert image to URL
@@ -172,8 +208,18 @@ const ProfileEditPage: React.FC = () => {
               placeholder="University"
               className="input-field"
               value={school}
-              onChange={(e) => setSchool(e.target.value)}
+              onChange={handleSchoolInputChange}
             />
+            {/* Show suggestions only if available */}
+  {schoolSuggestions.length > 0 && (
+    <ul className="suggestions-list">
+      {schoolSuggestions.map((suggestion, index) => (
+        <li key={index} onClick={() => handleSelectSchool(suggestion)}>
+          {suggestion}
+        </li>
+      ))}
+    </ul>
+  )}
           </div>
 
           <div className="form-group">
