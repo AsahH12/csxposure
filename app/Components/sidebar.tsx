@@ -4,6 +4,8 @@ import Link from "next/link";
 import { db } from "../../firebaseconfig"; // Adjust this based on your Firebase setup
 import { collection, getDocs } from "firebase/firestore";
 import styles from "./sidebar.module.css";
+import { fetchUniversities } from "../Utility/fetchUniversities"; // Import the utility function
+
 
 // Handle search
 interface SidebarProps {
@@ -38,20 +40,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onSearchChange, onSchoolChange }) => 
     fetchDiscussions();
   }, []);
 
-  // Fetch university list from API
+  // Fetch university list
   useEffect(() => {
-    const fetchUniversities = async () => {
-      try {
-        const response = await fetch("https://raw.githubusercontent.com/Hipo/university-domains-list/master/world_universities_and_domains.json");
-        const data = await response.json();
-        const schoolNames = data.map((school: any) => school.name);
-        setAllSchools(schoolNames);
-      } catch (error) {
-        console.error("Error fetching universities:", error);
-      }
+    const loadUniversities = async () => {
+      const universities = await fetchUniversities();
+      setAllSchools(universities);
     };
-
-    fetchUniversities();
+    loadUniversities();
   }, []);
 
   // Filter school dropdown
@@ -59,12 +54,15 @@ const Sidebar: React.FC<SidebarProps> = ({ onSearchChange, onSchoolChange }) => 
     const query = event.target.value;
     setSchoolInput(query);
 
+    // Update the school filter dynamically as the user types
+    onSchoolChange(query);
+
     // Reset filter when input is empty
     if (query.trim() === "") {
-      onSchoolChange("");
       setSchoolSuggestions([]);
       return;
     }
+
 
     // Filter school suggestions based on input
     const filteredSchools = allSchools.filter((school) =>
