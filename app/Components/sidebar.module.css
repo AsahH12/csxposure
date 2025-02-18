@@ -117,7 +117,7 @@
   /* Style for the card (discussion post content) */
   .discussionPost {
     background-color: #fff; /* White background for the post */
-    padding: 15px;
+    padding: 12px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
     width: 100%; /* Full width of the button */
