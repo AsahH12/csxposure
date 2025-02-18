@@ -156,4 +156,28 @@
   .save-button:hover {
     background: #fa7b36;
   }
+
+  .suggestions-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    position: absolute;
+    width: 41%;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 10;
+  }
+  
+  .suggestions-list li {
+    padding: 10px;
+    cursor: pointer;
+  }
+  
+  .suggestions-list li:hover {
+    background: #f0f0f0;
+  }
+  
   

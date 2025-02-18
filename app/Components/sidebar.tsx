@@ -3,19 +3,24 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { db } from "../../firebaseconfig"; // Adjust this based on your Firebase setup
 import { collection, getDocs } from "firebase/firestore";
-import styles from "./sidebar.module.css"; 
+import styles from "./sidebar.module.css";
+import { fetchUniversities } from "../Utility/fetchUniversities"; // Import the utility function
 
-//Handle search
-interface SidebarProps{
+
+// Handle search
+interface SidebarProps {
   onSearchChange: (query: string) => void;
+  onSchoolChange: (school: string) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({onSearchChange}) => {
-  const [selectedSchool, setSelectedSchool] = useState("");
-  const [discussionPosts, setDiscussionPosts] = useState([]); // State for discussion posts
+const Sidebar: React.FC<SidebarProps> = ({ onSearchChange, onSchoolChange }) => {
+  const [discussionPosts, setDiscussionPosts] = useState([]);
   const [searchInput, setSearchInput] = useState("");
+  const [schoolInput, setSchoolInput] = useState("");
+  const [schoolSuggestions, setSchoolSuggestions] = useState<string[]>([]);
+  const [allSchools, setAllSchools] = useState<string[]>([]);
 
-  //Populate discussion posts
+  // Populate discussion posts
   useEffect(() => {
     import("bootstrap/dist/js/bootstrap.bundle.min");
 
@@ -35,12 +40,44 @@ const Sidebar: React.FC<SidebarProps> = ({onSearchChange}) => {
     fetchDiscussions();
   }, []);
 
-  //Filter school dropdown
-  const handleSchoolChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedSchool(event.target.value);
+  // Fetch university list
+  useEffect(() => {
+    const loadUniversities = async () => {
+      const universities = await fetchUniversities();
+      setAllSchools(universities);
+    };
+    loadUniversities();
+  }, []);
+
+  // Filter school dropdown
+  const handleSchoolInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const query = event.target.value;
+    setSchoolInput(query);
+
+    // Update the school filter dynamically as the user types
+    onSchoolChange(query);
+
+    // Reset filter when input is empty
+    if (query.trim() === "") {
+      setSchoolSuggestions([]);
+      return;
+    }
+
+    // Filter school suggestions based on input
+    const filteredSchools = allSchools.filter((school) =>
+      school.toLowerCase().includes(query.toLowerCase())
+    );
+    setSchoolSuggestions(filteredSchools.slice(0, 5)); // Limit to 5 suggestions
   };
 
-  //Handle search input change
+  // Select a school from suggestions
+  const handleSelectSchool = (school: string) => {
+    setSchoolInput(school);
+    setSchoolSuggestions([]);
+    onSchoolChange(school); // Pass selected school to HomePage
+  };
+
+  // Handle search input change
   const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
     setSearchInput(query);
@@ -52,14 +89,13 @@ const Sidebar: React.FC<SidebarProps> = ({onSearchChange}) => {
     <div className={styles.sidebar}>
       {/* Name Search Section */}
       <div className={styles.searchContainer}>
-        <input 
-          type="text" 
-          placeholder="Search name..." 
-          className={styles.searchbar} 
+        <input
+          type="text"
+          placeholder="Search name..."
+          className={styles.searchbar}
           value={searchInput}
           onChange={handleSearchInputChange}
         />
-        <button className={styles.searchButton}>Search</button>
       </div>
 
       {/* Filter Section */}
@@ -67,18 +103,29 @@ const Sidebar: React.FC<SidebarProps> = ({onSearchChange}) => {
         <h5 className={styles.filterTitle}>Filter by:</h5>
         <div className={styles.filterGrid}>
           <div className={styles.leftColumn}>
-            <select
-              className={`form-select ${styles.schoolSelect}`}
-              id="schoolSelect"
-              value={selectedSchool}
-              onChange={handleSchoolChange}
-            >
-              <option value="" disabled>Select a school</option>
-              <option value="any">Any</option>
-              <option value="school1">Full Sail University</option>
-              <option value="school2">Harvard University</option>
-              <option value="school3">Stanford University</option>
-            </select>
+
+            {/* School Filter */}
+            <div className={styles.searchContainer}>
+              <input
+                type="text"
+                placeholder="Search school..."
+                className={styles.searchbar}
+                value={schoolInput}
+                onChange={handleSchoolInputChange}
+              />
+              {/* Autocomplete Suggestions */}
+              {schoolSuggestions.length > 0 && (
+                <ul className={styles.suggestionsList}>
+                  {schoolSuggestions.map((school, index) => (
+                    <li key={index} onClick={() => handleSelectSchool(school)}>
+                      {school}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* CheckBox Filters */}
             <div className="form-check">
               <input className="form-check-input" type="checkbox" id="filterVolunteer" />
               <label className="form-check-label" htmlFor="filterVolunteer">Volunteer</label>
@@ -116,7 +163,6 @@ const Sidebar: React.FC<SidebarProps> = ({onSearchChange}) => {
       {/* Search Bar */}
       <div className={styles.searchContainer}>
         <input type="text" placeholder="Search discussions..." className={styles.searchbar} />
-        <button className={styles.searchButton}>Search</button>
       </div>
 
       {/* Scrollable Container for Discussion Posts */}
