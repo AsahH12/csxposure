@@ -9,21 +9,22 @@ import { fetchUniversities } from "../Utility/fetchUniversities"; // Import the 
 
 // Handle search
 interface SidebarProps {
-  onSearchChange: (query: string) => void;
+  onNameSearchChange: (query: string) => void;
   onSchoolChange: (school: string) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ onSearchChange, onSchoolChange }) => {
-  const [discussionPosts, setDiscussionPosts] = useState([]);
-  const [searchInput, setSearchInput] = useState("");
-  const [schoolInput, setSchoolInput] = useState("");
-  const [schoolSuggestions, setSchoolSuggestions] = useState<string[]>([]);
-  const [allSchools, setAllSchools] = useState<string[]>([]);
+const Sidebar: React.FC<SidebarProps> = ({ onNameSearchChange, onSchoolChange }) => {
+  const [discussionPosts, setDiscussionPosts] = useState([]); // Stores discussion posts from database
+  const [nameSearch, setNameInput] = useState("");  // Name search input
+  const [allSchools, setAllSchools] = useState<string[]>([]); // All schools from API
+  const [schoolInput, setSchoolInput] = useState(""); // School search input
+  const [schoolSuggestions, setSchoolSuggestions] = useState<string[]>([]); // Schools based on search
+  const [discussionSearch, setDiscussionSearch] = useState(""); // Discussion search input
+  const [filteredDiscussions, setFilteredDiscussions] = useState([]); // Discussions based on search
 
+  //////////////////////////////////// Discussion Board ////////////////////////////////////
   // Populate discussion posts
   useEffect(() => {
-    import("bootstrap/dist/js/bootstrap.bundle.min");
-
     const fetchDiscussions = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, "discussionPosts"));
@@ -32,6 +33,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSearchChange, onSchoolChange }) => 
           ...doc.data(),
         }));
         setDiscussionPosts(posts);
+        setFilteredDiscussions(posts); // Default to all discussions
       } catch (error) {
         console.error("Error fetching discussion posts:", error);
       }
@@ -40,6 +42,22 @@ const Sidebar: React.FC<SidebarProps> = ({ onSearchChange, onSchoolChange }) => 
     fetchDiscussions();
   }, []);
 
+  const handleDiscussionSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const query = event.target.value.toLowerCase();
+    setDiscussionSearch(query);
+
+    // Filter discussion posts based on title or description
+    const filteredPosts = discussionPosts.filter(
+      (post) =>
+        post.title.toLowerCase().includes(query) ||
+        post.description.toLowerCase().includes(query)
+    );
+
+    setFilteredDiscussions(filteredPosts);
+  };
+
+
+  //////////////////////////////////// School Filter ////////////////////////////////////
   // Fetch university list
   useEffect(() => {
     const loadUniversities = async () => {
@@ -77,11 +95,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onSearchChange, onSchoolChange }) => 
     onSchoolChange(school); // Pass selected school to HomePage
   };
 
+  //////////////////////////////////// Name Filter ////////////////////////////////////
   // Handle search input change
   const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
-    setSearchInput(query);
-    onSearchChange(query); // Pass search query to HomePage
+    setNameInput(query);
+    onNameSearchChange(query); // Pass search query to HomePage
   };
 
 
@@ -93,7 +112,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSearchChange, onSchoolChange }) => 
           type="text"
           placeholder="Search name..."
           className={styles.searchbar}
-          value={searchInput}
+          value={nameSearch}
           onChange={handleSearchInputChange}
         />
       </div>
@@ -160,15 +179,21 @@ const Sidebar: React.FC<SidebarProps> = ({ onSearchChange, onSchoolChange }) => 
       <h5 className={styles.discussionTitle}>Discussion Board</h5>
       <div className={styles.divider}></div>
 
-      {/* Search Bar */}
+      {/* Discussion Post Search */}
       <div className={styles.searchContainer}>
-        <input type="text" placeholder="Search discussions..." className={styles.searchbar} />
+        <input
+          type="text"
+          placeholder="Search discussions..."
+          className={styles.searchbar}
+          value={discussionSearch}
+          onChange={handleDiscussionSearch}
+        />
       </div>
 
-      {/* Scrollable Container for Discussion Posts */}
+      {/* Display Filtered Discussions */}
       <div className={styles.scrollableContainer}>
-        {discussionPosts.length > 0 ? (
-          discussionPosts.map((post) => (
+        {filteredDiscussions.length > 0 ? (
+          filteredDiscussions.map((post) => (
             <Link className={styles.discussionLink} key={post.id} href={`/Discussion/${post.id}`} passHref>
               <button className={styles.discussionButton}>
                 <div className={styles.discussionPost}>
@@ -179,7 +204,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSearchChange, onSchoolChange }) => 
             </Link>
           ))
         ) : (
-          <p>No discussion posts available.</p>
+          <p>No matching discussions found.</p>
         )}
       </div>
     </div>
