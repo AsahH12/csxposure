@@ -120,11 +120,6 @@ const HomePage: React.FC = () => {
                 ))}
               </div>
             )}
-
-
-            <Link className="link" href="/BusinessProfilePage">
-              <button className="business-page" >Business Page</button>
-            </Link>
             <Footer />
           </div>
         </div>
