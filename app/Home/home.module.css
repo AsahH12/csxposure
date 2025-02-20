@@ -3,7 +3,10 @@
 }
 
 .scrollableContainer {
-  max-height: 785px;
+  display: flex;
+  flex-direction: column; /* Stack children (content + footer) */
+  min-height: 86.55vh; /* Ensures container fills the screen */
+  max-height: 86.55vh; /* Prevents overflow beyond screen */
   overflow-y: auto;
   &::-webkit-scrollbar {
     display: none; /* Hide scrollbar */
@@ -32,10 +35,13 @@
 .cardContainer {
   display: flex; 
   flex-wrap: wrap; 
-  justify-content: space-between; 
+  justify-content: left; 
 }
+
+
 .footer {
   width: 100%;
+  height: 100px;
   background-color: #f8f9fa; /* Light gray background */
   padding: 15px;
   text-align: center;
