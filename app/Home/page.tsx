@@ -107,7 +107,7 @@ const HomePage: React.FC = () => {
     <div className={styles.container}>
       <div className="row">
         <div className={`col-md-auto ${styles.columnleft}`}>
-          <Sidebar onSearchChange={handleSearchChange} onSchoolChange={handleSchoolChange} />
+          <Sidebar onNameSearchChange={handleSearchChange} onSchoolChange={handleSchoolChange} />
         </div>
         <div className="col">
           <div className={styles.scrollableContainer}>
