@@ -27,6 +27,7 @@ const HomePage: React.FC = () => {
 
         for (const userDoc of userDocs.docs) {
           const userId = userDoc.id;
+          const userType = userDoc.data().userType;
           const profileDocRef = doc(db, "users", userId, "details", "profileData");
           const profileDocSnap = await getDoc(profileDocRef);
 
@@ -34,6 +35,7 @@ const HomePage: React.FC = () => {
             const profileData = profileDocSnap.data();
             fetchedUsers.push({
               userId,
+              userType,
               firstName: profileData.firstName || "N/A",
               lastName: profileData.lastName || "N/A",
               school: profileData.school || "Unknown School",
@@ -71,9 +73,13 @@ const HomePage: React.FC = () => {
   };
 
   // Card Component
-  const CardComponent: React.FC<CardProps> = ({ userId, firstName, lastName, school, description, profileImageUrl }) => {
+  const CardComponent: React.FC<CardProps> = ({ userId, userType, firstName, lastName, school, description, profileImageUrl }) => {
+    const profileUrl = userType === 'student' 
+    ? `/StudentProfilePage?userId=${userId}` 
+    : `/BusinessProfilePage?userId=${userId}`;
+
     return (
-      <Link className={cardstyles.cardLink} href={`/StudentProfilePage?userId=${userId}`}>
+      <Link className={cardstyles.cardLink} href={profileUrl}>
         <div className={cardstyles.card}>
           <div className={cardstyles.cardBody}>
             <div className={cardstyles.profileImageContainer}>
@@ -95,6 +101,7 @@ const HomePage: React.FC = () => {
   // CardProps interface
   interface CardProps {
     userId: string;
+    userType: string;
     firstName: string;
     lastName: string;
     school: string;
