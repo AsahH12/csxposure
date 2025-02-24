@@ -1,7 +1,7 @@
 .sidebar {
     height: 785px;
     width: 400px;
-    background-color: grey;
+    background-color: #70D0C2;
     padding: 20px;
 }
 
@@ -38,7 +38,7 @@
 
 .divider {
     height: 1px;
-    background-color: #ccc;
+    background-color: #cccccc;
     margin: 10px 0;
 }
 
@@ -47,7 +47,7 @@
     font-weight: bold;
     margin: 20px 0 10px 0;
     text-align: center;
-    color: white;
+    color:black;
 }
 
 .scrollableContainer {

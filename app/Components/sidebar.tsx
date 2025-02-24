@@ -1,31 +1,43 @@
-'use client';
+"use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { db } from "../../firebaseconfig"; // Adjust this based on your Firebase setup
+import { db } from "../../firebaseconfig";
 import { collection, getDocs } from "firebase/firestore";
-import styles from "./sidebar.module.css"; 
+import styles from "./sidebar.module.css";
 
-//Handle search
-interface SidebarProps{
+interface SidebarProps {
   onSearchChange: (query: string) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({onSearchChange}) => {
+const Sidebar: React.FC<SidebarProps> = ({ onSearchChange }) => {
   const [selectedSchool, setSelectedSchool] = useState("");
-  const [discussionPosts, setDiscussionPosts] = useState([]); // State for discussion posts
-  const [searchInput, setSearchInput] = useState("");
+  const [discussionPosts, setDiscussionPosts] = useState([]);
+  const [searchInput, setSearchInput] = useState(""); // For "Search discussions..." only
 
-  //Populate discussion posts
   useEffect(() => {
     import("bootstrap/dist/js/bootstrap.bundle.min");
 
     const fetchDiscussions = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, "discussionPosts"));
-        const posts = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+
+        const posts = await Promise.all(
+          querySnapshot.docs.map(async (doc) => {
+            const data = doc.data();
+            const commentsSnapshot = await getDocs(
+              collection(db, "discussionPosts", doc.id, "comments")
+            );
+
+            return {
+              id: doc.id,
+              title: data.title,
+              description: data.description,
+              createdAt: data.createdAt?.toDate() || null,
+              commentCount: commentsSnapshot.size,
+            };
+          })
+        );
+
         setDiscussionPosts(posts);
       } catch (error) {
         console.error("Error fetching discussion posts:", error);
@@ -35,41 +47,45 @@ const Sidebar: React.FC<SidebarProps> = ({onSearchChange}) => {
     fetchDiscussions();
   }, []);
 
-  //Filter school dropdown
   const handleSchoolChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedSchool(event.target.value);
   };
 
-  //Handle search input change
-  const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const query = event.target.value;
-    setSearchInput(query);
-    onSearchChange(query); // Pass search query to HomePage
+  // Method for handling "Search name..." input
+  const handleSearchNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    onSearchChange(event.target.value); // Calls the prop function for name search
   };
 
+  // Method for handling "Search discussions..." input
+  const handleSearchDiscussionsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const query = event.target.value;
+    setSearchInput(query); // Update "Search discussions..." query
+  };
+
+  // Filter the posts based on the search input (only search in title and description)
+  const filteredPosts = discussionPosts.filter((post) =>
+    post.title.toLowerCase().includes(searchInput.toLowerCase()) ||
+    post.description.toLowerCase().includes(searchInput.toLowerCase())
+  );
 
   return (
     <div className={styles.sidebar}>
-      {/* Name Search Section */}
       <div className={styles.searchContainer}>
-        <input 
-          type="text" 
-          placeholder="Search name..." 
-          className={styles.searchbar} 
-          value={searchInput}
-          onChange={handleSearchInputChange}
+        <input
+          type="text"
+          placeholder="Search name..."
+          className={styles.searchbar}
+          onChange={handleSearchNameChange} // Handle "Search name..." input
         />
         <button className={styles.searchButton}>Search</button>
       </div>
 
-      {/* Filter Section */}
       <div className={styles.filterSection}>
         <h5 className={styles.filterTitle}>Filter by:</h5>
         <div className={styles.filterGrid}>
           <div className={styles.leftColumn}>
             <select
               className={`form-select ${styles.schoolSelect}`}
-              id="schoolSelect"
               value={selectedSchool}
               onChange={handleSchoolChange}
             >
@@ -106,28 +122,37 @@ const Sidebar: React.FC<SidebarProps> = ({onSearchChange}) => {
         </div>
       </div>
 
-      {/* Divider */}
       <div className={styles.divider}></div>
-
-      {/* Discussion Board Section */}
       <h5 className={styles.discussionTitle}>Discussion Board</h5>
       <div className={styles.divider}></div>
 
-      {/* Search Bar */}
       <div className={styles.searchContainer}>
-        <input type="text" placeholder="Search discussions..." className={styles.searchbar} />
+        <input
+          type="text"
+          placeholder="Search discussions..."
+          className={styles.searchbar}
+          value={searchInput}
+          onChange={handleSearchDiscussionsChange} // Handle "Search discussions..." input
+        />
         <button className={styles.searchButton}>Search</button>
       </div>
 
-      {/* Scrollable Container for Discussion Posts */}
       <div className={styles.scrollableContainer}>
-        {discussionPosts.length > 0 ? (
-          discussionPosts.map((post) => (
+        {filteredPosts.length > 0 ? (
+          filteredPosts.map((post) => (
             <Link className={styles.discussionLink} key={post.id} href={`/Discussion/${post.id}`} passHref>
               <button className={styles.discussionButton}>
                 <div className={styles.discussionPost}>
                   <h6>{post.title}</h6>
                   <p>{post.description}</p>
+                  <div className={styles.postInfo}>
+                    <div>
+                      <span>Created At: {post.createdAt ? post.createdAt.toLocaleDateString() : "No date"}</span>
+                    </div>
+                    <div>
+                      <span>Comment Count: {post.commentCount} {post.commentCount === 1 ? "message" : "messages"}</span>
+                    </div>
+                  </div>
                 </div>
               </button>
             </Link>
