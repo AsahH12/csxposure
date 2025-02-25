@@ -99,7 +99,7 @@ const Navbar: React.FC = () => {
 
         // Log the readMessages for both users
         console.log(`📥 ${userEmail}'s read messages:`, userReadMessages);
-        console.log(`📤 Other user's read messages:`, otherUserReadMessages);
+        console.log(`📤 ${otherUserEmail}'s read messages:`, otherUserReadMessages);
 
         // Compare the number of read messages
         if (userReadMessages.com && otherUserReadMessages.com && userReadMessages.com.length < otherUserReadMessages.com.length) {
