@@ -125,7 +125,7 @@ const ProjectEditPage: React.FC = () => {
       await setDoc(globalProjectRef, projectData);
   
       // 2️⃣ Save to User's personal Projects collection
-      const userProjectRef = doc(db, "Users", user.uid, "Projects", newProjectId);
+      const userProjectRef = doc(db, "users", user.uid, "Projects", newProjectId);
       await setDoc(userProjectRef, projectData);
   
       setProjectId(newProjectId); // Update state if it was a new project
