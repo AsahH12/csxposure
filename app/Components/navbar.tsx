@@ -1,38 +1,35 @@
-"use client";
+'use client'
 import React, { useState, useEffect } from 'react';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { db } from '../../firebaseconfig'; // Assuming you have firebase initialized here
-import { doc, getDoc } from "firebase/firestore";
+import { db } from '../../firebaseconfig';
+import { doc, getDoc, collection, getDocs, onSnapshot, query, where } from "firebase/firestore";
 import Link from 'next/link';
-import styles from './navbar.module.css'; // Assuming you have a CSS module for styling
-import ChatOverlay from "./ChatOverlay"; // Adjust the path as needed
+import styles from './navbar.module.css';
+import ChatOverlay from "./ChatOverlay";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { updateDoc } from "firebase/firestore";
 
-// Function to get initials from first and last name
-const getInitials = (firstName: string | null, lastName: string | null) => {
-  const firstInitial = firstName?.charAt(0).toUpperCase() || "";
-  const lastInitial = lastName?.charAt(0).toUpperCase() || "";
-  return firstInitial + lastInitial;
-};
+const getInitials = (firstName: string | null, lastName: string | null) =>
+  `${firstName?.charAt(0).toUpperCase() ?? ""}${lastName?.charAt(0).toUpperCase() ?? ""}`;
 
 const Navbar: React.FC = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [user, setUser] = useState<any>(null); // Track user authentication state
-  const [firstName, setFirstName] = useState<string | null>(null); // Track first name
-  const [lastName, setLastName] = useState<string | null>(null); // Track last name
-  const [userType, setUserType] = useState<string | null>(null); // Track userType
-  const [profileImage, setProfileImage] = useState<string | null>(null); // Track profile image
+  const [user, setUser] = useState<any>(null);
+  const [firstName, setFirstName] = useState<string | null>(null);
+  const [lastName, setLastName] = useState<string | null>(null);
+  const [userType, setUserType] = useState<string | null>(null);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [hasUnreadMessages, setHasUnreadMessages] = useState(false); // Set default to false
+  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
 
   useEffect(() => {
     import("bootstrap/dist/js/bootstrap.bundle.min");
-
-    // Check Firebase authentication state
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      console.log("User data:", currentUser); // Log current user to check if it's coming through
       if (currentUser) {
         setUser(currentUser);
-
+        await fetchUserData(currentUser.uid);
+        const unread = await checkUnreadMessages(currentUser.email, setHasUnreadMessages); // Await the promise
         // Fetch userType from users/{uid}
         const userRef = doc(db, "users", currentUser.uid);
         const userSnap = await getDoc(userRef);
@@ -43,11 +40,10 @@ const Navbar: React.FC = () => {
         } else {
           setUserType(null);
         }
-
+        
         const profileRef = doc(db, "users", currentUser.uid, "details", "profileData");
         const profileSnap = await getDoc(profileRef);
 
-        // Set profile image
         if (profileSnap.exists()) {
           const profileData = profileSnap.data();
           setFirstName(profileData?.firstName || "");
@@ -61,36 +57,114 @@ const Navbar: React.FC = () => {
         }
       } else {
         setUser(null);
-        setFirstName(null);
-        setLastName(null);
-        setUserType(null);
-        setProfileImage(null);
+        resetUserData();
       }
     });
-
     return () => unsubscribe();
   }, []);
 
-  // Get initials from the user's first and last name
-  const initials = getInitials(firstName, lastName);
+  const selectChat = (chatId: string) => {
+    setCurrentChatId(chatId);
+  };
 
-  // Toggle chat open/close
-  const toggleChat = () => {
-    if (user) {
-      setIsChatOpen((prev) => !prev); // Open chat if user is logged in
+  const fetchUserData = async (uid: string) => {
+    const userRef = doc(db, "users", uid);
+    const userSnap = await getDoc(userRef);
+    setUserType(userSnap.exists() ? userSnap.data()?.userType ?? null : null);
+
+    const profileRef = doc(db, "users", uid, "details", "profileData");
+    const profileSnap = await getDoc(profileRef);
+    if (profileSnap.exists()) {
+      const { firstName, lastName, profileImage } = profileSnap.data();
+      setFirstName(firstName ?? "");
+      setLastName(lastName ?? "");
+      setProfileImage(profileImage ?? null);
+    } else {
+      const [first, last] = user?.displayName?.split(" ") ?? ["", ""];
+      setFirstName(first);
+      setLastName(last);
+      setProfileImage(null);
     }
   };
+
+  const resetUserData = () => {
+    setFirstName(null);
+    setLastName(null);
+    setUserType(null);
+    setProfileImage(null);
+    setHasUnreadMessages(false); // Reset unread messages status
+  };
+
+  // Function to check unread messages and update notification button
+  const checkUnreadMessages = (userEmail: string, callback: (hasUnread: boolean) => void): void => {
+    // Remove .com from the email to match the structure in the readMessages map
+    const emailWithoutDotCom = userEmail.replace('.com', '');
+
+    const chatsRef = collection(db, "chats");
+    const q = query(chatsRef, where("participants", "array-contains", userEmail));
+
+    // Set up the real-time listener
+    onSnapshot(q, (snapshot) => {
+      let hasUnread = false;
+
+      snapshot.docs.forEach(doc => {
+        const data = doc.data();
+        console.log("🔍 Checking chat:", doc.id);
+
+        const readMessages = data.readMessages;
+        if (!readMessages) {
+          console.log("❌ No readMessages data found for this chat.");
+          return;
+        }
+
+        const userReadMessages = readMessages[emailWithoutDotCom] || {};
+        const otherUserEmail = data.participants.find((email: string) => email !== userEmail);
+        const otherUserEmailWithoutDotCom = otherUserEmail.replace('.com', '');
+        const otherUserReadMessages = readMessages[otherUserEmailWithoutDotCom] || {};
+
+        // Log the readMessages for both users
+        console.log(`📥 ${userEmail}'s read messages:`, userReadMessages);
+        console.log(`📤 ${otherUserEmail}'s read messages:`, otherUserReadMessages);
+
+        // Compare the number of read messages
+        if (userReadMessages.com && otherUserReadMessages.com && userReadMessages.com.length < otherUserReadMessages.com.length) {
+          hasUnread = true;
+          console.log(`🚨 Unread messages exist in chat ${doc.id}.`);
+        }
+      });
+      // Call the callback to return the boolean value
+      callback(hasUnread);
+    });
+  };
+
+  const toggleChat = async () => {
+    if (user) {
+      setIsChatOpen((prev) => !prev);
+      if (!isChatOpen && currentChatId) {
+        await setReadTimestamp(user.email, currentChatId); // Make sure currentChatId is available, which is the ID of the current chat
+      }
+    }
+  };
+
+  const setReadTimestamp = async (userEmail: string, chatId: string) => {
+    const chatRef = doc(db, "chats", chatId); // Reference the chat document
+    const currentTimestamp = new Date(); // Get the current time when the user opens the chat
+
+    // Update the readTimestamp field for the specific user in the chat document
+    await updateDoc(chatRef, {
+      [`readTimestamp.${userEmail}`]: currentTimestamp,
+    });
+  };
+
+  const initials = getInitials(firstName, lastName);
 
   return (
     <nav className={styles.navbar}>
       <div className="navbar-start">
-        <div className="navbar-logo">
-          <Link href="/Home" className="text-white">
-            <img src="/logo.png" alt="Logo" width={210} height={50} />
-          </Link>
-        </div>
+        <Link href="/Home">
+          <img src="/logo.png" alt="Logo" width={210} height={50} />
+        </Link>
       </div>
-
       <ul className="navbar-end d-flex align-items-center">
 
         {/* Profile Dropdown */}
@@ -141,12 +215,10 @@ const Navbar: React.FC = () => {
         {/* Notification Icon */}
         <div className="nav-item">
           {user ? (
-            <button
-              onClick={toggleChat}
-              className="btn p-0 border-0 bg-transparent me-5 mx-2"
-            >
+            <button onClick={toggleChat} className="btn p-0 border-0 bg-transparent me-5 mx-2">
               <img
-                src="Notification_White_False.png"
+                key={hasUnreadMessages ? "unread" : "read"} // Force re-render
+                src={hasUnreadMessages ? "Notification_White_True.png" : "Notification_White_False.png"}
                 alt="Notifications"
                 width={50}
                 height={50}
@@ -154,19 +226,12 @@ const Navbar: React.FC = () => {
             </button>
           ) : (
             <Link href="/Authentication">
-              <img
-                src="Notification_White_False.png"
-                alt="Notifications"
-                width={50}
-                height={50}
-                className="cursor-pointer"
-              />
+              <img src="Notification_White_False.png" alt="Notifications" width={50} height={50} />
             </Link>
           )}
         </div>
       </ul>
 
-      {/* Show ChatOverlay when isChatOpen is true */}
       {isChatOpen && <ChatOverlay onClose={() => setIsChatOpen(false)} />}
     </nav>
   );

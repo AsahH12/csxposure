@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import { db } from "../../firebaseconfig";
-import { ArrowLeft, User } from "lucide-react"; // Back Arrow icon
+import { ArrowLeft, User, User2 } from "lucide-react"; // Back Arrow icon
 import {
   collection,
   addDoc,
@@ -13,8 +13,10 @@ import {
   updateDoc,
   serverTimestamp,
   getDocs,
+  getDoc,
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { arrayUnion } from "firebase/firestore";
 
 type ResizeDirection =
   | "top"
@@ -49,15 +51,16 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   const [showDiscussionForm, setShowDiscussionForm] = useState(false);
   const [discussionTitle, setDiscussionTitle] = useState("");
   const [discussionDescription, setDiscussionDescription] = useState("");
-  const questions = [
-    "What’s the title of your discussion post?",
-    "Please provide a description for your post."
-  ];
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+const selectedUserObject = users.find((user) => user.email === selectedUser);
+const [otherfirstName, othersetFirstName] = useState<string>("");
+const [otherlastName, othersetLastName] = useState<string>("");
 
-  const [discussionPost, setDiscussionPost] = useState<any>({
-    title: "",
-    description: "",
-  });
+  const getInitials = (firstName: string | null, lastName: string | null) =>
+    `${firstName?.charAt(0).toUpperCase() ?? ""}${lastName?.charAt(0).toUpperCase() ?? ""}`;
+ 
   // Get current user's email
   useEffect(() => {
     const auth = getAuth();
@@ -69,36 +72,79 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
 
     return () => unsubscribe();
   }, []);
-
+  const updateReadReceipts = async (userEmail: string) => {
+    const chatsRef = collection(db, "chats");
+    const q = query(chatsRef, where("participants", "array-contains", userEmail));
+  
+    const snapshot = await getDocs(q);
+    snapshot.docs.forEach(async (doc) => {
+      const chatData = doc.data();
+  
+      if (chatData.unreadMessages && chatData.unreadMessages[userEmail] > 0) {
+        const chatRef = doc.ref;
+        await updateDoc(chatRef, {
+          [`unreadMessages.${userEmail}`]: 0,
+          [`readTimestamps.${userEmail}`]: serverTimestamp(),
+        });
+      }
+    });
+  };
+  
   // Fetch all users except the current user
   useEffect(() => {
     const fetchUsers = async () => {
       if (!userEmail) return;
-    
+      updateReadReceipts(userEmail);
       const chatQuery = query(collection(db, "chats"), where("participants", "array-contains", userEmail));
       const chatSnapshot = await getDocs(chatQuery);
-    
+  
       const usersList = await Promise.all(
         chatSnapshot.docs.map(async (chatDoc) => {
           const chatData = chatDoc.data();
           const messagesRef = collection(db, "chats", chatDoc.id, "messages");
           const messagesSnapshot = await getDocs(messagesRef);
-    
+  
           // Check if messages exist between current user and other participant
           if (!messagesSnapshot.empty) {
             const otherUserEmail = chatData.participants.find((email: string) => email !== userEmail);
-            return { email: otherUserEmail, chatId: chatDoc.id, hasMessages: true };
-          }
+            
+            const userQuery = query(collection(db, "users"), where("email", "==", otherUserEmail));
+            const userSnap = await getDocs(userQuery);
+
+            let userId = "";
+            if (!userSnap.empty) {
+              userId = userSnap.docs[0].id; // Get the userId (document ID)
+            }
+            // Fetch the user's profile image from the nested structure
+            const userDocRef = doc(db, "users",userId,"details", "profileData");
+            console.log('UserRefrence', userDocRef);
+            const userDoc = await getDoc(userDocRef);
+            
+            let profileImageUrl = null;
+            if (userDoc.exists()) {
+              profileImageUrl = userDoc.data()?.profileImage || null;
+              othersetFirstName(userDoc.data()?.firstName || null);
+              othersetLastName(userDoc.data()?.lastName || null);
+              console.log('profile image',userDoc.data() );
+            }
+  
+            return {
+              email: otherUserEmail,
+              chatId: chatDoc.id,
+              hasMessages: true,
+              profileImageUrl,
+              userId, // Add userId to the return data
+            };          }
           return null;
         })
       );
-    
+  console.log('user list',usersList)
       setUsers(usersList.filter((user) => user !== null));
     };
-    
-
+  
     if (userEmail) fetchUsers();
   }, [userEmail]);
+
 
   // Find or create a chat when a user is selected
   useEffect(() => {
@@ -127,47 +173,65 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
 
     return () => unsubscribe();
   }, [selectedUser, userEmail]);
-
-  // Fetch messages when chatId is available
+  const handleMessageRead = async (messageId: string) => {
+    if (!messageId || !userEmail || !chatId) return;
+  
+    const messageRef = doc(db, "chats", chatId, "messages", messageId);
+  
+    // Update the message status to read by adding userEmail to the readBy array
+    await updateDoc(messageRef, {
+      readBy: arrayUnion(userEmail),  // Add the current user to the readBy array
+    });
+  
+    // Now update the unreadMessages and readMessages fields in the chat document
+    const chatRef = doc(db, "chats", chatId);
+    await updateDoc(chatRef, {
+      [`unreadMessages.${userEmail}`]: Math.max(0, unreadCount - 1),  // Decrement unread count for the current user
+      [`readMessages.${userEmail}`]: arrayUnion(messageId),  // Add messageId to readMessages array
+    });
+  };
+  
   useEffect(() => {
-    if (!chatId) return;
-
+    if (!chatId || !userEmail) return;
+  
     const messagesRef = collection(db, "chats", chatId, "messages");
     const messagesQuery = query(messagesRef, orderBy("timestamp", "asc"));
-
+  
     const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
-      setMessages(snapshot.docs.map((doc) => doc.data()));
-
-      // Mark messages as read
-      if (chatId) {
-        const chatDoc = doc(db, "chats", chatId);
-        updateDoc(chatDoc, {
-          [`unreadMessages.${userEmail}`]: 0,
-        });
-      }
+      const messageDocs = snapshot.docs.map((doc) => doc.data());
+  
+      // Check for unread messages and update their status
+      messageDocs.forEach((message, index) => {
+        if (!message.readBy?.includes(userEmail)) {
+          handleMessageRead(snapshot.docs[index].id);
+        }
+      });
+  
+      setMessages(messageDocs);
     });
-
+  
     return () => unsubscribe();
-  }, [chatId]);
+  }, [chatId, userEmail]);  // Add userEmail as dependency to trigger updates when user changes
 
   // Handle sending a new message
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !chatId) return;
-
+  
     const messageRef = collection(db, "chats", chatId, "messages");
-
+  
     await addDoc(messageRef, {
       sender: userEmail,
       text: newMessage,
       timestamp: serverTimestamp(),
     });
+   
     // Update chat with the last message and increment unread count for the receiver
     const chatDoc = doc(db, "chats", chatId);
     await updateDoc(chatDoc, {
       lastMessage: newMessage,
-      [`unreadMessages.${selectedUser}`]: unreadCount + 1,
+      [`unreadMessages.${selectedUser}`]: unreadCount + 1,  // Increment unread count for the receiver
     });
-
+  
     setNewMessage("");
   };
   const handleCreateDiscussionPost = async () => {
@@ -258,6 +322,8 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
     };
   }, [isDragging, isResizing]);
 
+  const initials = getInitials(firstName, lastName);
+
   return (
     <div
       ref={chatRef}
@@ -283,15 +349,14 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
       ← Back
     </button>
   )}
-  
-  <h3 className="text-black text-lg font-semibold">
-    {selectedUser ? `Chatting with ${selectedUser}` : "Chats"}
+  <h3 className="text-black">
+  {selectedUser ? `Chatting with ${otherfirstName} ${otherlastName}` : "Chats"}
   </h3>
 </div>
 <div className="flex justify-between items-center bg-gray-200 px-4 py-3 rounded-t-lg cursor-move">
 </div>
  {/* Discussion Post Form */}
- {showDiscussionForm && (
+ {!selectedUser &&showDiscussionForm && (
   
   <div  style={{
     maxHeight: "200px",
@@ -327,9 +392,11 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   </div>
 )}
 
-<button onClick={() => setShowDiscussionForm(!showDiscussionForm)}>
-  {showDiscussionForm ? "Cancel" : "Create Discussion Post"}
-</button>
+{!selectedUser && (
+  <button onClick={() => setShowDiscussionForm(!showDiscussionForm)}>
+    {showDiscussionForm ? "Cancel" : "Create Discussion Post"}
+  </button>
+)}
 
 {/* User selection */}
 <div className="flex flex-col p-3">
@@ -339,21 +406,48 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   ) : (
     users
       .filter((user) => user.hasMessages) // Only show users with messages
-      .map((user) => (
-        <button
-          key={user.email}
-          className="p-3 bg-gray-200 rounded-lg text-left mb-2 hover:bg-gray-300 transition cursor-pointer"
-          onClick={() => {
-            setChatId(user.chatId);
-            setSelectedUser(user.email);
-          }}
-        >
-          {user.email}
-        </button>
-        
-      ))
-      
-  )}
+      .map((user) => {
+        return (
+          <div
+            key={user.email}
+            onClick={() => {
+              setChatId(user.chatId);
+              setSelectedUser(user.email);
+            }}
+          >
+          
+            <div className="flex items-center space-x-4">
+              {/* Profile Image or Initials */}
+               <button
+                className="p-0 bg-transparent border-white" // Remove default button styling
+                onClick={() => {
+                  setChatId(user.chatId);
+                  setSelectedUser(user);  // Store the entire user object
+                }}              >
+              {user.profileImageUrl ? (
+                
+                <img src={user.profileImageUrl} alt="Profile" width={75} height={75} className="rounded-square border" />
+
+              ) : (
+                <div className="w-24 h-24 rounded-square border flex items-center justify-center">
+                   <span className="text-black font-bold text-3xl">
+                   {getInitials(otherfirstName, otherlastName)}
+                  </span>
+                   </div>
+              )}
+              </button>
+            {/* User's Name or Email */}
+            <div className="flex flex-col">
+              <h4 className="font-semibold text-gray-900">{user.firstName} {user.lastName}</h4>
+            </div>
+          </div>
+
+          
+        </div>
+      );
+    })
+)}
+
 </div>
 
   {selectedUser && (
@@ -425,15 +519,17 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
         )}
       </div>
       
-
-      {/* Resize handles */}
-      <div className="w-6 h-6 bg-gray-300 absolute top-0 left-0 cursor-nwse-resize" onMouseDown={(e) => handleResizeMouseDown(e, "top-left")} />
+{/* Resize handles */}
+<div className="w-6 h-6 bg-gray-300 absolute top-0 left-0 cursor-nwse-resize" onMouseDown={(e) => handleResizeMouseDown(e, "top-left")} />
       <div className="w-6 h-6 bg-gray-300 absolute top-0 right-0 cursor-nese-resize" onMouseDown={(e) => handleResizeMouseDown(e, "top-right")} />
       <div className="w-6 h-6 bg-gray-300 absolute bottom-0 left-0 cursor-sws-resize" onMouseDown={(e) => handleResizeMouseDown(e, "bottom-left")} />
       <div className="w-6 h-6 bg-gray-300 absolute bottom-0 right-0 cursor-se-resize" onMouseDown={(e) => handleResizeMouseDown(e, "bottom-right")} />
     </div>
+      
   
   );
 };
+
+
 
 export default ChatOverlay;

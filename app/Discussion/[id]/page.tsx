@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useEffect, useState } from 'react';
 import { db } from '../../../firebaseconfig';
 import { doc, getDoc, collection, query, getDocs, orderBy, serverTimestamp } from 'firebase/firestore';
@@ -6,7 +6,6 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import Sidebar from '../../Components/sidebar';
 import Footer from '../../Components/footer';
 import { addDoc } from 'firebase/firestore';
-
 
 interface DiscussionPostProps {
     title?: string;
@@ -25,18 +24,16 @@ const DiscussionPost: React.FC<{ params: Promise<DiscussionParams> }> = ({ param
     const [comments, setComments] = useState<{ name: string; text: string; userId: string }[]>([]);
     const [loading, setLoading] = useState(true);
     const [newComment, setNewComment] = useState("");
-    const [userName, setUserName] = useState("");
     const [id, setId] = useState<string | null>(null);
-    const [isAuthenticated, setIsAuthenticated] = useState(false); // Track user authentication state
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     const auth = getAuth();
 
     useEffect(() => {
         const fetchParams = async () => {
             const resolvedParams = await params;
-            setId(resolvedParams.id); // Set the id state after unwrapping the promise
+            setId(resolvedParams.id);
         };
-
         fetchParams();
     }, [params]);
 
@@ -47,12 +44,8 @@ const DiscussionPost: React.FC<{ params: Promise<DiscussionParams> }> = ({ param
             try {
                 const docRef = doc(db, "discussionPosts", id);
                 const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists()) {
-                    setPostData(docSnap.data() as DiscussionPostProps);
-                } else {
-                    console.error("Post not found!");
-                }
+                if (docSnap.exists()) setPostData(docSnap.data() as DiscussionPostProps);
+                else console.error("Post not found!");
             } catch (error) {
                 console.error("Error fetching post data:", error);
             } finally {
@@ -62,12 +55,32 @@ const DiscussionPost: React.FC<{ params: Promise<DiscussionParams> }> = ({ param
 
         const fetchComments = async () => {
             try {
-                const commentsRef = collection(db, "discussionPosts", id!, "comments");
-                const q = query(commentsRef, orderBy("createdAt", "asc")); // Ensure comments are ordered by creation time
+                const commentsRef = collection(db, "discussionPosts", id, "comments");
+                const q = query(commentsRef, orderBy("createdAt", "asc"));
                 const querySnapshot = await getDocs(q);
 
-                const commentsList = querySnapshot.docs.map((doc) => doc.data() as { name: string; text: string; userId: string });
-                setComments(commentsList); // Update the comments state with fetched comments
+                const commentsList = await Promise.all(
+                    querySnapshot.docs.map(async (commentDoc) => {
+                        const data = commentDoc.data();
+                        let name = "Anonymous";
+
+                        if (data.userId) {
+                            const profileRef = doc(db, "users", data.userId, "details", "profileData");
+                            const profileSnap = await getDoc(profileRef);
+
+                            if (profileSnap.exists()) {
+                                const profileData = profileSnap.data();
+                                const firstName = profileData?.firstName ?? "";
+                                const lastName = profileData?.lastName ?? "";
+                                name = `${firstName} ${lastName}`.trim() || "Anonymous";
+                            }
+                        }
+
+                        return { name, text: data.text, userId: data.userId };
+                    })
+                );
+
+                setComments(commentsList);
             } catch (error) {
                 console.error("Error fetching comments:", error);
             }
@@ -78,56 +91,45 @@ const DiscussionPost: React.FC<{ params: Promise<DiscussionParams> }> = ({ param
     }, [id]);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const userRef = doc(db, "users", user.uid);
-                const userSnap = await getDoc(userRef);
-
-                if (userSnap.exists()) {
-                    const userData = userSnap.data();
-                    const firstName = userData?.details?.profileData?.firstName;
-                    const lastName = userData?.details?.profileData?.lastName;
-                    setUserName(`${firstName} ${lastName}`);
-                } else {
-                    setUserName(user.displayName || "Anonymous");
-                }
-
-                setIsAuthenticated(true); // User is authenticated
-            } else {
-                setUserName(""); // Reset userName if no user is logged in
-                setIsAuthenticated(false); // User is not authenticated
-            }
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            setIsAuthenticated(!!user);
         });
 
         return () => unsubscribe();
     }, [auth]);
 
     const handleAddComment = async () => {
-        if (!newComment.trim()) {
-            alert("Comment cannot be empty.");
-            return;
-        }
-
-        if (!isAuthenticated) {
-            alert("You must be logged in to comment.");
-            return;
-        }
+        if (!newComment.trim()) return alert("Comment cannot be empty.");
+        if (!isAuthenticated) return alert("You must be logged in to comment.");
 
         try {
+            const userId = auth.currentUser?.uid;
+            if (!userId) throw new Error("User ID not found.");
+
+            const profileRef = doc(db, "users", userId, "details", "profileData");
+            const profileSnap = await getDoc(profileRef);
+            let userName = "Anonymous";
+
+            if (profileSnap.exists()) {
+                const profileData = profileSnap.data();
+                const firstName = profileData?.firstName ?? "";
+                const lastName = profileData?.lastName ?? "";
+                userName = `${firstName} ${lastName}`.trim() || "Anonymous";
+            }
+
             const commentsRef = collection(db, "discussionPosts", id!, "comments");
             await addDoc(commentsRef, {
                 name: userName,
                 text: newComment,
-                userId: auth.currentUser?.uid,
-                createdAt: serverTimestamp()
+                userId,
+                createdAt: serverTimestamp(),
             });
 
-            // Update UI immediately by adding the comment locally
             setComments((prevComments) => [
                 ...prevComments,
-                { name: userName, text: newComment, userId: auth.currentUser?.uid! }
+                { name: userName, text: newComment, userId },
             ]);
-            setNewComment(""); // Clear input
+            setNewComment("");
         } catch (error) {
             console.error("Error adding comment:", error);
         }
@@ -135,21 +137,19 @@ const DiscussionPost: React.FC<{ params: Promise<DiscussionParams> }> = ({ param
 
     return (
         <div style={{ display: 'flex' }}>
-            <Sidebar />
+            <Sidebar  />
             <div style={{ flexGrow: 1, padding: '20px' }}>
                 {loading ? (
                     <p>Loading...</p>
                 ) : (
                     <>
-                        {/* Title & Description Centered at the Top */}
                         <div style={{ textAlign: 'center', marginBottom: '20px' }}>
                             <h1>{postData?.title || 'Discussion Title'}</h1>
                             <p>{postData?.description || 'Description of the discussion post.'}</p>
-                            <p><strong>Created by:</strong> {postData?.createdBy}</p>
-                            <p><strong>Posted on:</strong> {postData?.createdAt?.toDate().toLocaleString()}</p>
+                            <p><strong>Created by:</strong> {postData?.createdBy || 'Anonymous'}</p>
+                            <p><strong>Posted on:</strong> {postData?.createdAt?.toDate().toLocaleString() || 'N/A'}</p>
                         </div>
 
-                        {/* Add Comment Section */}
                         <div style={{ maxWidth: '600px', margin: '0 auto' }}>
                             <textarea
                                 placeholder="Add a comment..."
@@ -162,7 +162,6 @@ const DiscussionPost: React.FC<{ params: Promise<DiscussionParams> }> = ({ param
                             </button>
                         </div>
 
-                        {/* Display Comments */}
                         <div style={{ marginTop: '20px', maxWidth: '600px', margin: '0 auto' }}>
                             <h3>Comments</h3>
                             {comments.length > 0 ? (
@@ -177,9 +176,9 @@ const DiscussionPost: React.FC<{ params: Promise<DiscussionParams> }> = ({ param
                                                 cursor: 'pointer',
                                                 padding: '0',
                                                 textAlign: 'left',
-                                                marginBottom: '5px'
+                                                marginBottom: '5px',
                                             }}
-                                            onClick={() => alert(`Clicked on ${comment.name}'s profile`)} // Replace with desired functionality
+                                            onClick={() => alert(`Clicked on ${comment.name}'s profile`)}
                                         >
                                             <strong>{comment.name}</strong>
                                         </button>
@@ -199,4 +198,3 @@ const DiscussionPost: React.FC<{ params: Promise<DiscussionParams> }> = ({ param
 };
 
 export default DiscussionPost;
-
