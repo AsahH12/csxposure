@@ -46,6 +46,11 @@ const ProfileEditPage: React.FC = () => {
         }
       }
       setLoading(false);
+      // If school is pre-selected, skip validation
+      console.log("School Valid:", isSchoolValid);
+      console.log("School:", school);
+      if (school != null) { setIsSchoolValid(true);}
+      console.log("School Valid:", isSchoolValid);
     });
 
     return () => unsubscribe();
@@ -103,8 +108,14 @@ const ProfileEditPage: React.FC = () => {
     setLinks([...links, { type: '', url: '' }]);
   };
 
-  //Save profile information into the database
+  // Save profile information into the database
   const saveProfile = async () => {
+
+    // // If school is pre-selected, skip validation
+    // console.log("School Valid:", isSchoolValid);
+    // console.log("School:", school);
+    // if (school != null) { setIsSchoolValid(true);}
+    // console.log("School Valid:", isSchoolValid);
 
     // Makes sure School Input is from database instead of input
     if (!isSchoolValid) {
@@ -112,6 +123,7 @@ const ProfileEditPage: React.FC = () => {
       return;
     }
 
+    // Update or save profile 
     try {
       const user = auth.currentUser;
       const userId = user.uid;
