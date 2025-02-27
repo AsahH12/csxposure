@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { auth, db } from "../../firebaseconfig";
-import { setDoc, doc, updateDoc, getDoc } from "firebase/firestore";
+import { setDoc, doc, updateDoc, getDoc, getDocs, collection } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import './profileEdit.css';
 import Link from 'next/link'
@@ -21,6 +21,7 @@ const ProfileEditPage: React.FC = () => {
   const [schoolSuggestions, setSchoolSuggestions] = useState<string[]>([]); // Hold schools based on input
   const [allSchools, setAllSchools] = useState<string[]>([]); // Hold all schools from API
   const [isSchoolValid, setIsSchoolValid] = useState(false); // Track if a valid school is selected
+  const [projects, setProjects] = useState<any[]>([]);
 
   //Fetch profile data
   useEffect(() => {
@@ -40,21 +41,39 @@ const ProfileEditPage: React.FC = () => {
             setLinks(data.links || [{ type: '', url: '' }]);
             setProfileImage(data.profileImage || null);
           }
-        } catch (error) {
-          console.error("Error fetching profile:", error);
-          alert("Failed to fetch profile data.");
-        }
-      }
-      setLoading(false);
-      // If school is pre-selected, skip validation
-      console.log("School Valid:", isSchoolValid);
-      console.log("School:", school);
-      if (school != null) { setIsSchoolValid(true);}
-      console.log("School Valid:", isSchoolValid);
-    });
+        // Fetch project IDs from users -> Projects
+        const userProjectsRef = collection(db, "users", user.uid, "Projects");
+        const userProjectsSnapshot = await getDocs(userProjectsRef);
+        const projectIds = userProjectsSnapshot.docs.map(doc => doc.id);
 
-    return () => unsubscribe();
-  }, []);
+        // Fetch project details from Projects collection
+        const projectPromises = projectIds.map(async (projectId) => {
+          const projectDocRef = doc(db, "Projects", projectId);
+          const projectDocSnap = await getDoc(projectDocRef);
+          if (projectDocSnap.exists()) {
+            return { id: projectId, ...projectDocSnap.data() };
+          }
+          return null;
+        });
+
+        const userProjects = (await Promise.all(projectPromises)).filter(project => project !== null);
+        setProjects(userProjects);
+      } catch (error) {
+        console.error("Error fetching profile or projects:", error);
+        alert("Failed to fetch data.");
+      }
+    }
+    setLoading(false);
+    setLoading(false);
+    // If school is pre-selected, skip validation
+    console.log("School Valid:", isSchoolValid);
+    console.log("School:", school);
+    if (school != null) { setIsSchoolValid(true);}
+    console.log("School Valid:", isSchoolValid);
+  });
+
+  return () => unsubscribe();
+}, []);
 
   //////////////////////////////////// School Input ////////////////////////////////////
   // Fetch university list
@@ -165,19 +184,21 @@ const ProfileEditPage: React.FC = () => {
   if (loading) {
     return <div>Loading...</div>;
   }
-
   return (
     <div>
       <div className="profile-edit-container">
         <div className="profile-edit-card">
-          <div className="project-section">
-            <div className="project-grid">
-              {[...Array(4)].map((__, index) => (
-                <Link className="link" href="/ProjectEditPage" key={index}>
-                  <button key={index} className="add-project">+ Add Project</button>
-                </Link>
-
-              ))}
+        <div className="project-section">
+  <h2>Your Projects</h2>
+  <div className="project-grid">
+    {projects.map((project) => (
+      <Link key={project.id} className="link" href={`/ProjectEditPage?id=${project.id}`}>
+        <button className="project-button">{project.projectName || "Unnamed Project"}</button>
+      </Link>
+    ))}
+    <Link className="link" href="/ProjectEditPage">
+      <button className="add-project">+ Add Project</button>
+    </Link>
             </div>
           </div>
 

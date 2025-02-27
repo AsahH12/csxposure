@@ -1,135 +1,64 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { doc, setDoc, collection, getDoc } from "firebase/firestore";
+import { useRouter, useSearchParams } from "next/navigation";
+
+import { doc, setDoc, collection, getDoc, addDoc } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../firebaseconfig";
 import "./projectEdit.css";
 
 const ProjectEditPage: React.FC = () => {
-  const [projectName, setProjectName] = useState("");
-  const [description, setDescription] = useState("");
-  const [websiteLink, setWebsiteLink] = useState("");
-  const [githubLink, setGithubLink] = useState("");
-  const [collaborators, setCollaborators] = useState<string[]>([]);
-  const [images, setImages] = useState<string[]>(["", "", "", ""]); // Ensure 4 images
-  const [projectId, setProjectId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
-
-  // Get projectId from URL
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get("projectId");
-  
-    if (id) {
-      setProjectId(id);
-    }
-  }, []);
-
-  // Fetch user authentication state
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserId(user.uid);
-      } else {
-        setUserId(null);
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  // Fetch project data when projectId is available
-  useEffect(() => {
-    if (!projectId) {
-      setLoading(false);
-      return;
-    }
-
-    // Ensure projectId is explicitly a string
-const fetchProjectData = async () => {
-  if (!projectId) {
-    setLoading(false);
-    return;
-  }
-
-  try {
-    const projectDocRef = doc(db, "Projects", String(projectId)); // Ensure projectId is a string
-    const projectDocSnap = await getDoc(projectDocRef);
-
-    if (projectDocSnap.exists()) {
-      const projectData = projectDocSnap.data() || {};
-
-      setProjectName(projectData.projectName || "");
-      setDescription(projectData.description || "");
-      setWebsiteLink(projectData.websiteLink || "");
-      setGithubLink(projectData.githubLink || "");
-      setCollaborators(Array.isArray(projectData.collaborators) ? projectData.collaborators : []);
-      setImages(Array.isArray(projectData.images) ? [...projectData.images, "", "", "", ""].slice(0, 4) : ["", "", "", ""]);
-    } else {
-      console.log(`No project found with ID: ${projectId}`);
-    }
-  } catch (error) {
-    console.error("Error fetching project data:", error);
-  } finally {
-    setLoading(false);
-  }
-};
-
-// Ensure projectId is a string before calling doc()
-// Save project to Firebase
-
-
-    fetchProjectData();
-}, [projectId]);
-
-const saveProjectToFirebase = async () => {
-  if (!projectName || !description) {
-    alert("Project name and description are required!");
-    return;
-  }
-
-  if (!userId) {
-    alert("You must be logged in to save a project.");
-    return;
-  }
-
-  try {
-    // Generate a new projectId if it doesn't exist
-    let newProjectId = projectId;
-    if (!newProjectId) {
-      const newDocRef = doc(collection(db, "Projects"));
-      newProjectId = newDocRef.id;
-      setProjectId(newProjectId); // Update state with new projectId
-    }
-
-    const projectData = {
-      projectName,
-      description,
-      websiteLink,
-      githubLink,
-      collaborators,
-      images: images.filter((img) => img !== ""),
-      updatedAt: new Date(),
-      ownerId: userId,
-    };
-
-    // Save to global Projects collection
-    await setDoc(doc(db, "Projects", newProjectId), projectData);
-
-    // Save to User's personal Projects collection
-    await setDoc(doc(db, "users", userId, "Projects", newProjectId), projectData);
-
-    // Update URL to include projectId
-    window.history.pushState({}, "", `?projectId=${newProjectId}`);
-
-    alert("Project saved successfully!");
-   } catch (error) {
-    console.error("Error saving project:", error);
-    alert("Failed to save project. Check console for errors.");
-   }
-  }; 
-
+ const router = useRouter();
+   const searchParams = useSearchParams();
+   const projectId = searchParams.get("id"); // Get projectId from URL
+ 
+   const [projectName, setProjectName] = useState("");
+   const [description, setDescription] = useState("");
+   const [websiteLink, setWebsiteLink] = useState("");
+   const [githubLink, setGithubLink] = useState("");
+   const [collaborators, setCollaborators] = useState<string[]>([]);
+   const [images, setImages] = useState<string[]>(["", "", "", ""]);
+   const [loading, setLoading] = useState(true);
+   const [userId, setUserId] = useState<string | null>(null);
+ useEffect(() => {
+     const unsubscribe = auth.onAuthStateChanged((user) => {
+       if (user) setUserId(user.uid);
+     });
+     return () => unsubscribe();
+   }, []);
+ 
+   useEffect(() => {
+     if (!projectId) {
+       setLoading(false);
+       return;
+     }
+ 
+     const fetchProjectData = async () => {
+       try {
+         const projectDocRef = doc(db, "Projects", projectId);
+         const projectDocSnap = await getDoc(projectDocRef);
+ 
+         if (projectDocSnap.exists()) {
+           const projectData = projectDocSnap.data() || {};
+           setProjectName(projectData.projectName || "");
+           setDescription(projectData.description || "");
+           setWebsiteLink(projectData.websiteLink || "");
+           setGithubLink(projectData.githubLink || "");
+           setCollaborators(Array.isArray(projectData.collaborators) ? projectData.collaborators : []);
+           setImages(Array.isArray(projectData.images) ? [...projectData.images, "", "", "", ""].slice(0, 4) : ["", "", "", ""]);
+         } else {
+           console.log(`No project found with ID: ${projectId}`);
+         }
+       } catch (error) {
+         console.error("Error fetching project data:", error);
+       } finally {
+         setLoading(false);
+       }
+     };
+ 
+     fetchProjectData();
+   }, [projectId]);
+ 
   // Handle image upload
   const handleImageUpload = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -152,7 +81,48 @@ const saveProjectToFirebase = async () => {
     setCollaborators(collaborators.filter((_, i) => i !== index));
   };
 
-  
+  // Save project to Firebase
+  const saveProjectToFirebase = async () => {
+    if (!projectName || !description) {
+      alert("Project name and description are required!");
+      return;
+    }
+
+    if (!userId) {
+      alert("You must be logged in to save a project.");
+      return;
+    }
+
+
+    try {
+         const projectData = {
+           projectName,
+           description,
+           websiteLink,
+           githubLink,
+           collaborators,
+           images: images.filter((img) => img !== ""),
+           updatedAt: new Date(),
+           ownerId: userId,
+         };
+   
+         if (projectId) {
+           await setDoc(doc(db, "Projects", projectId), projectData);
+         } else {
+           const newProjectRef = await addDoc(collection(db, "Projects"), projectData);
+           const newProjectId = newProjectRef.id;
+           await setDoc(doc(db, "users", userId, "Projects", newProjectId), projectData);
+           router.push(`/ProjectEditPage?id=${newProjectId}`);
+         }
+   
+         alert("Project saved successfully!");
+       } catch (error) {
+         console.error("Error saving project:", error);
+         alert("Failed to save project.");
+       }
+     };
+   
+
   if (loading) return <div>Loading...</div>;
 
   return (
