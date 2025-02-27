@@ -1,84 +1,190 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import './studentProfile.css'; 
-import Footer from '../Components/footer';
-import Link from 'next/link'
-import { useSearchParams } from 'next/navigation';
-
-
-const ProfileEditPage: React.FC = () => {
-  const [links, setLinks] = useState([{ type: '', url: '' }]);
-  
-  // get userId
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams, useParams } from "next/navigation";
+import { doc, getDoc, collection, query, where, getDocs,addDoc } from "firebase/firestore";
+import { db, auth } from "../../firebaseconfig";
+import './studentProfile.css';
+import ChatOverlay from "../Components/ChatOverlay";
+const StudentProfilePage: React.FC = () => {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const userId = searchParams.get('userId');
+  const userId = searchParams.get("userId");
 
-  useEffect(() => {
-    if (userId) {
-      // Test if the userId was passed
-      console.log("Received userID:", userId)
-    } else {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [bio, setBio] = useState("I am...");
+  const [school, setSchool] = useState("Full Sail University");
+  const [links, setLinks] = useState<{ type: string; url: string }[]>([]);
+  const [profileImage, setProfileImage] = useState("");
+  const [projects, setProjects] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+const [chatId, setChatId] = useState<string | null>(null);
+const [selectedUser, setSelectedUser] = useState<string | null>(null);
+const [userEmail, setUserEmail] = useState<string | null>(null);
+const [isChatOpen, setChatOverlayOpen] = useState(false);
+    const currentUser = auth.currentUser; // Get logged-in user
+    useEffect(() => {
+    if (!userId) {
       console.log("No userID received");
+      setLoading(false);
+      return;
     }
-  }, [userId]);
 
+    const fetchUserData = async () => {
+      try {
+        const userDocRef = doc(db, "users", userId,'details', 'profileData');
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (userDocSnap.exists()) {
+          const userData = userDocSnap.data();
+          setFirstName(userData?.firstName || "");
+          setLastName(userData?.lastName || "");
+          setBio(userData?.bio || "I am...");
+          setLinks(userData?.links || []);
+          setProfileImage(userData?.profileImage || "");
+          setSchool(userData?.school || "N/A");
+        } else {
+          console.log(`No user found with ID: ${userId}`);
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    const fetchUserProjects = async () => {
+      try {
+        const projectsRef = collection(db, "Projects");
+        const q = query(projectsRef, where("ownerId", "==", userId));
+        const projectSnapshots = await getDocs(q);
+        const projectList = projectSnapshots.docs.map(doc => doc.data().projectName);
+        setProjects(projectList);
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      }
+    };
+
+    fetchUserData();
+    fetchUserProjects();
+    setLoading(false);
+  }, [userId]);
+  
+
+const handleOpenChat = async () => {
+  const { userId } = useParams(); // Get user ID from the URL
+  if (!userId) return;
+
+  try {
+    // Fetch user details using userId
+    const userRef = doc(db, "users");
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      console.error("User not found");
+      return;
+    }
+
+    const userEmail = userSnap.data().email; // Get email from Firestore
+    if (!userEmail) {
+      console.error("User email not found");
+      return;
+    }
+
+    // Find if a chat already exists
+    const chatRef = collection(db, "chats");
+    const chatQuery = query(chatRef, where("participants", "array-contains", currentUser.email));
+    const snapshot = await getDocs(chatQuery);
+
+    let chatId = null;
+    snapshot.docs.forEach((doc) => {
+      if (doc.data().participants.includes(userEmail)) {
+        chatId = doc.id;
+      }
+    });
+
+    if (!chatId) {
+      // Create a new chat if it doesn't exist
+      const newChatRef = await addDoc(chatRef, {
+        participants: [currentUser.email, userEmail],
+        unreadMessages: { [userEmail]: 0, [currentUser.email]: 0 },
+        lastMessage: "",
+        createdAt: new Date(),
+      });
+      chatId = newChatRef.id;
+    }
+
+    // Open ChatOverlay
+    setChatOverlayOpen(true);
+    setSelectedUser(userEmail);
+    setChatId(chatId);
+  } catch (error) {
+    console.error("Error opening chat:", error);
+  }
+};
+
+  
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div>
-    <div className="student-profile-container">
-      <div className="student-profile-card">
-        
-        <div className="project-section">
-           <div className="project-grid">
-       {[...Array(4)].map((__, index) => (
-         
-         <Link className="link" href="/StudentProjectPage" key={index}>
-               <button key={index} className="show-project">Project</button>
-              </Link>
-         ))}
-     </div>
-    </div> 
-
-        <div className="profile-form">
-          <div className="profile-picture"></div>
-
-          <div className="name-group">
-            <div className="first-name">First name</div>  
-            <div className="last-name">Last name</div> 
+      <div className="student-profile-container">
+        <div className="student-profile-card">
+          <div className="project-section">
+            <div className="project-grid">
+              {projects.length > 0 ? (
+                projects.map((project, index) => (
+                  <button key={index} className="show-project">{project}</button>
+                ))
+              ) : (
+                <p>No projects available</p>
+              )}
+            </div>
           </div>
 
-          <div className="form-group">
-            <label>Status:</label>
-            <div className="input-field">Student</div> 
-          </div>
+          <div className="profile-form">
+            <div className="profile-picture">
+              {profileImage ? <img src={profileImage} alt="Profile" /> : <div className=""></div>}
+            </div>
 
-          <div className="form-group">
-            <label>School:</label>
-            <div className="input-field">Full Sail University</div> 
-          </div>
+            <div className="name-group">
+              <div className="first-name">{firstName}</div>
+              <div className="last-name">{lastName}</div>
+            </div>
 
-          <div className="form-group">
-            <label>Bio:</label>
-            <h1 className="bio-field">I am...</h1>
-          </div>
+            <div className="form-group">
+              <label>Status:</label>
+              <div className="input-field">Student</div>
+            </div>
 
-          <div className="form-group">
-            <h2 className="section-title">Links</h2>
-            
-            <a href="https://www.instagram.com/" className="insta">Instagram</a>
-            <a href="https://www.instagram.com/" className="github">Github</a>
-            <a href="https://www.instagram.com/" className="linkedin">LinkedIn</a>
-          </div>
+            <div className="form-group">
+              <label>School:</label>
+              <div className="input-field">{school}</div>
+            </div>
 
-          <div className="chat-button-container">
-            <button className="chat-button">Chat</button>
+            <div className="form-group">
+              <label>Bio:</label>
+              <h1 className="bio-field">{bio}</h1>
+            </div>
+
+            <div className="form-group">
+              <h2 className="section-title">Links</h2>
+              {links.map((link, index) => (
+                <a key={index} href={link.url} className={link.type.toLowerCase()}>{link.type}</a>
+              ))}
+            </div>
+
+            <div className="chat-button-container">
+              <button className="chat-button"
+              onClick={()=>setChatOverlayOpen(false)}
+              >Chat</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <Footer />
+      {isChatOpen && (
+        <ChatOverlay onClose={() => setChatOverlayOpen(false)} />
+      )}
     </div>
   );
 };
 
-export default ProfileEditPage;
+export default StudentProfilePage;
