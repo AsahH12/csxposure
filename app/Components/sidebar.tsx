@@ -11,9 +11,10 @@ import { fetchUniversities } from "../Utility/fetchUniversities"; // Import the 
 interface SidebarProps {
   onNameSearchChange: (query: string) => void;
   onSchoolChange: (school: string) => void;
+  onGraduatedChange: (graduated: boolean) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ onNameSearchChange, onSchoolChange }) => {
+const Sidebar: React.FC<SidebarProps> = ({ onNameSearchChange, onSchoolChange, onGraduatedChange  }) => {
   const [discussionPosts, setDiscussionPosts] = useState([]); // Stores discussion posts from database
   const [nameSearch, setNameInput] = useState("");  // Name search input
   const [allSchools, setAllSchools] = useState<string[]>([]); // All schools from API
@@ -22,6 +23,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNameSearchChange, onSchoolChange })
   const [discussionSearch, setDiscussionSearch] = useState(""); // Discussion search input
   const [filteredDiscussions, setFilteredDiscussions] = useState([]); // Discussions based on search
   const [searchInput, setSearchInput] = useState(""); // For "Search discussions..." only
+  const [graduated, setGraduated] = useState(false);
 
   //////////////////////////////////// Discussion Board ////////////////////////////////////
   // Populate discussion posts
@@ -71,7 +73,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onNameSearchChange, onSchoolChange })
     setFilteredDiscussions(filteredPosts);
   };
 
-
   //////////////////////////////////// School Filter ////////////////////////////////////
   // Fetch university list
   useEffect(() => {
@@ -108,6 +109,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onNameSearchChange, onSchoolChange })
     setSchoolInput(school);
     setSchoolSuggestions([]);
     onSchoolChange(school); // Pass selected school to HomePage
+  };
+
+  //////////////////////////////////// Check Filters ////////////////////////////////////
+  const handleGraduatedChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = event.target.checked;
+    setGraduated(isChecked);
+    onGraduatedChange(isChecked); // Pass the graduated state to HomePage
   };
 
   //////////////////////////////////// Name Filter ////////////////////////////////////
@@ -168,7 +176,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNameSearchChange, onSchoolChange })
               <label className="form-check-label" htmlFor="filterVolunteer">Volunteer</label>
             </div>
             <div className="form-check">
-              <input className="form-check-input" type="checkbox" id="filterGraduated" />
+              <input className="form-check-input" type="checkbox" id="filterGraduated" checked={graduated} onChange={handleGraduatedChange} />
               <label className="form-check-label" htmlFor="filterGraduated">Graduated</label>
             </div>
           </div>

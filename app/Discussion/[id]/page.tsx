@@ -138,7 +138,7 @@ const DiscussionPost: React.FC<{ params: Promise<DiscussionParams> }> = ({ param
 
     return (
         <div style={{ display: 'flex' }}>
-            <Sidebar onNameSearchChange={() => {}} onSchoolChange={() => {}} />
+            <Sidebar onNameSearchChange={() => {}} onSchoolChange={() => {} } onGraduatedChange={() => {} }/>
             <div style={{ flexGrow: 1, padding: '20px' }}>
                 {loading ? (
                     <p>Loading...</p>

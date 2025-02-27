@@ -78,7 +78,7 @@ const ProfileEditPage: React.FC = () => {
 
             <div className="form-group">
               <label>Status:</label>
-              <div className="input-field">Student</div>
+              <div className="input-field">{userData.status}</div>
             </div>
 
             <div className="form-group">
