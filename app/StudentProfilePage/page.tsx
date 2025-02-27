@@ -14,11 +14,12 @@ const StudentProfilePage: React.FC = () => {
   const [lastName, setLastName] = useState("");
   const [bio, setBio] = useState("I am...");
   const [school, setSchool] = useState("Full Sail University");
+  const [status, setStatus] = useState<string[]>([]);
   const [links, setLinks] = useState<{ type: string; url: string }[]>([]);
   const [profileImage, setProfileImage] = useState("");
   const [projects, setProjects] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-const [chatId, setChatId] = useState<string | null>(null);
+  const [chatId, setChatId] = useState<string | null>(null);
 const [selectedUser, setSelectedUser] = useState<string | null>(null);
 const [userEmail, setUserEmail] = useState<string | null>(null);
 const [isChatOpen, setChatOverlayOpen] = useState(false);
@@ -43,6 +44,7 @@ const [isChatOpen, setChatOverlayOpen] = useState(false);
           setLinks(userData?.links || []);
           setProfileImage(userData?.profileImage || "");
           setSchool(userData?.school || "N/A");
+          setStatus(userData?.status || "Student");
         } else {
           console.log(`No user found with ID: ${userId}`);
         }
@@ -152,7 +154,7 @@ const handleOpenChat = async () => {
 
             <div className="form-group">
               <label>Status:</label>
-              <div className="input-field">{userData.status}</div>
+              <div className="input-field">{status}</div>
             </div>
 
             <div className="form-group">
