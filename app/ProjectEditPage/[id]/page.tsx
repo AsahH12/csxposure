@@ -1,13 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { doc, setDoc, getDoc, collection, addDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, collection, addDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../../../firebaseconfig";
 
 const ProjectEditPage: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const projectId = searchParams.get("id"); // Get projectId from URL
+  const projectId = searchParams.get("id"); // Get project ID from URL
 
   const [projectName, setProjectName] = useState("");
   const [description, setDescription] = useState("");
@@ -18,7 +18,6 @@ const ProjectEditPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Fetch user authentication state
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) setUserId(user.uid);
@@ -27,7 +26,6 @@ const ProjectEditPage: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
-  // Fetch project data when projectId is available
   useEffect(() => {
     if (!projectId) {
       setLoading(false);
@@ -40,7 +38,7 @@ const ProjectEditPage: React.FC = () => {
         const projectDocSnap = await getDoc(projectDocRef);
 
         if (projectDocSnap.exists()) {
-          const projectData = projectDocSnap.data() || {};
+          const projectData = projectDocSnap.data();
           setProjectName(projectData.projectName || "");
           setDescription(projectData.description || "");
           setWebsiteLink(projectData.websiteLink || "");
@@ -60,7 +58,6 @@ const ProjectEditPage: React.FC = () => {
     fetchProjectData();
   }, [projectId]);
 
-  // Save project to Firebase
   const saveProjectToFirebase = async () => {
     if (!projectName || !description) {
       alert("Project name and description are required!");
@@ -85,15 +82,12 @@ const ProjectEditPage: React.FC = () => {
       };
 
       if (projectId) {
-        // Updating existing project
-        await setDoc(doc(db, "Projects", projectId), projectData);
+        await updateDoc(doc(db, "Projects", projectId), projectData);
       } else {
-        // Creating a new project
         const newProjectRef = await addDoc(collection(db, "Projects"), projectData);
         const newProjectId = newProjectRef.id;
 
-        // Save under the user's projects
-        await setDoc(doc(db, "users", userId, "Projects", newProjectId), projectData);
+        await setDoc(doc(db, "users", userId, "Projects", newProjectId), { projectId: newProjectId });
 
         router.push(`/ProjectEditPage?id=${newProjectId}`);
       }

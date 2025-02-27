@@ -1,8 +1,9 @@
-"use client";
+'use client';
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { doc, setDoc, getDoc, collection, addDoc } from "firebase/firestore";
 import { auth, db } from "../../firebaseconfig";
+import './projectEdit.css';
 
 const ProjectEditPage: React.FC = () => {
   const router = useRouter();
@@ -18,16 +19,13 @@ const ProjectEditPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Fetch user authentication state
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) setUserId(user.uid);
     });
-
     return () => unsubscribe();
   }, []);
 
-  // Fetch project data when projectId is available
   useEffect(() => {
     if (!projectId) {
       setLoading(false);
@@ -60,7 +58,6 @@ const ProjectEditPage: React.FC = () => {
     fetchProjectData();
   }, [projectId]);
 
-  // Save project to Firebase
   const saveProjectToFirebase = async () => {
     if (!projectName || !description) {
       alert("Project name and description are required!");
@@ -85,16 +82,11 @@ const ProjectEditPage: React.FC = () => {
       };
 
       if (projectId) {
-        // Updating existing project
         await setDoc(doc(db, "Projects", projectId), projectData);
       } else {
-        // Creating a new project
         const newProjectRef = await addDoc(collection(db, "Projects"), projectData);
         const newProjectId = newProjectRef.id;
-
-        // Save under the user's projects
         await setDoc(doc(db, "users", userId, "Projects", newProjectId), projectData);
-
         router.push(`/ProjectEditPage?id=${newProjectId}`);
       }
 
@@ -108,29 +100,29 @@ const ProjectEditPage: React.FC = () => {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="edit-container">
-      <h1>{projectId ? "Edit Project" : "Create New Project"}</h1>
-      <div className="form-group">
-        <label>Project Name</label>
-        <input type="text" value={projectName} onChange={(e) => setProjectName(e.target.value)} placeholder="Enter project name" />
+    <div className="project-container">
+      <div className="project-content">
+        <div className="left-section">
+          <h1 className="project-title">{projectId ? "Edit Project" : "Create New Project"}</h1>
+          <div className="input-group">
+            <label>Project Name</label>
+            <input type="text" value={projectName} onChange={(e) => setProjectName(e.target.value)} placeholder="Enter project name" />
+          </div>
+          <div className="input-group">
+            <label>Description</label>
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Enter project description" />
+          </div>
+          <div className="input-group">
+            <label>Website Link</label>
+            <input type="text" value={websiteLink} onChange={(e) => setWebsiteLink(e.target.value)} placeholder="Enter website link" />
+          </div>
+          <div className="input-group">
+            <label>GitHub Link</label>
+            <input type="text" value={githubLink} onChange={(e) => setGithubLink(e.target.value)} placeholder="Enter GitHub link" />
+          </div>
+          <button className="save-button" onClick={saveProjectToFirebase}>{projectId ? "Save Changes" : "Create Project"}</button>
+        </div>
       </div>
-
-      <div className="form-group">
-        <label>Description</label>
-        <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Enter project description" />
-      </div>
-
-      <div className="form-group">
-        <label>Website Link</label>
-        <input type="text" value={websiteLink} onChange={(e) => setWebsiteLink(e.target.value)} placeholder="Enter website link" />
-      </div>
-
-      <div className="form-group">
-        <label>GitHub Link</label>
-        <input type="text" value={githubLink} onChange={(e) => setGithubLink(e.target.value)} placeholder="Enter GitHub link" />
-      </div>
-
-      <button onClick={saveProjectToFirebase}>{projectId ? "Save Changes" : "Create Project"}</button>
     </div>
   );
 };
