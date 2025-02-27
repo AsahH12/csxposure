@@ -13,6 +13,7 @@ const HomePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSchool, setSelectedSchool] = useState("");
+  const [showGraduated, setShowGraduated] = useState(false);
 
   //Grab users from database
   useEffect(() => {
@@ -41,6 +42,7 @@ const HomePage: React.FC = () => {
               school: profileData.school || "Unknown School",
               description: profileData.bio || "No bio available",
               profileImageUrl: profileData.profileImage || '',
+              status: profileData.status || '',
             });
           }
         }
@@ -59,7 +61,8 @@ const HomePage: React.FC = () => {
   // Filter cards based on search name
   const filteredCards = cards.filter((card) =>
     `${card.firstName} ${card.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) &&
-    (selectedSchool.trim() === "" || selectedSchool.toLowerCase() === "any" || card.school.toLowerCase().includes(selectedSchool.toLowerCase()))
+    (selectedSchool.trim() === "" || selectedSchool.toLowerCase() === "any" || card.school.toLowerCase().includes(selectedSchool.toLowerCase())) &&
+    (!showGraduated || card.status === "Graduate")
   );
 
   // Handle search updates from sidebar
@@ -70,6 +73,10 @@ const HomePage: React.FC = () => {
   // Handle filter updates from sidebar
   const handleSchoolChange = (school: string) => {
     setSelectedSchool(school.trim());
+  };
+
+  const handleGraduatedChange = (graduated: boolean) => {
+    setShowGraduated(graduated);
   };
 
   // Card Component
@@ -107,6 +114,7 @@ const HomePage: React.FC = () => {
     school: string;
     description: string;
     profileImageUrl?: string;
+    status?: string;
   }
 
   //Home page layout
@@ -114,7 +122,11 @@ const HomePage: React.FC = () => {
     <div className={styles.container}>
       <div className="row">
         <div className={`col-md-auto ${styles.columnleft}`}>
-          <Sidebar onNameSearchChange={handleSearchChange} onSchoolChange={handleSchoolChange} />
+          <Sidebar 
+          onNameSearchChange={handleSearchChange} 
+          onSchoolChange={handleSchoolChange} 
+          onGraduatedChange={handleGraduatedChange}
+          />
         </div>
         <div className="col">
           <div className={styles.scrollableContainer}>

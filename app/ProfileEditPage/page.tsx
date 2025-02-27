@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { auth, db } from "../../firebaseconfig";
 import { setDoc, doc, updateDoc, getDoc, getDocs, collection } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
@@ -7,6 +7,7 @@ import './profileEdit.css';
 import Link from 'next/link'
 import Footer from '../Components/footer';
 import { fetchUniversities } from "../Utility/fetchUniversities"; // Import the utility function
+import { UserContext } from '../Utility/UserContext';
 
 
 const ProfileEditPage: React.FC = () => {
@@ -16,7 +17,8 @@ const ProfileEditPage: React.FC = () => {
   const [school, setSchool] = useState('');
   const [bio, setBio] = useState('');
   const [links, setLinks] = useState([{ type: '', url: '' }]);
-  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const { setProfileImage } = useContext(UserContext); // Use only setter to update after save
+  const [localProfileImage, setLocalProfileImage] = useState<string | null>(null); // Store selected image locally
   const [loading, setLoading] = useState(true);
   const [schoolSuggestions, setSchoolSuggestions] = useState<string[]>([]); // Hold schools based on input
   const [allSchools, setAllSchools] = useState<string[]>([]); // Hold all schools from API
@@ -39,7 +41,7 @@ const ProfileEditPage: React.FC = () => {
             setSchool(data.school || '');
             setBio(data.bio || '');
             setLinks(data.links || [{ type: '', url: '' }]);
-            setProfileImage(data.profileImage || null);
+            setLocalProfileImage(data.profileImage || null);
           }
         // Fetch project IDs from users -> Projects
         const userProjectsRef = collection(db, "users", user.uid, "Projects");
@@ -72,8 +74,8 @@ const ProfileEditPage: React.FC = () => {
     console.log("School Valid:", isSchoolValid);
   });
 
-  return () => unsubscribe();
-}, []);
+    return () => unsubscribe();
+  }, [setProfileImage]);
 
   //////////////////////////////////// School Input ////////////////////////////////////
   // Fetch university list
@@ -117,7 +119,7 @@ const ProfileEditPage: React.FC = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setProfileImage(reader.result as string);
+        setLocalProfileImage(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
@@ -129,50 +131,28 @@ const ProfileEditPage: React.FC = () => {
 
   // Save profile information into the database
   const saveProfile = async () => {
-
-    // // If school is pre-selected, skip validation
-    // console.log("School Valid:", isSchoolValid);
-    // console.log("School:", school);
-    // if (school != null) { setIsSchoolValid(true);}
-    // console.log("School Valid:", isSchoolValid);
-
-    // Makes sure School Input is from database instead of input
     if (!isSchoolValid) {
       alert("Please select a school from the suggestions.");
       return;
     }
 
-    // Update or save profile 
     try {
       const user = auth.currentUser;
-      const userId = user.uid;
+      if (!user) return;
 
-      const userDocRef = doc(db, "users", userId, "details", "profileData");
-      const userDocSnap = await getDoc(userDocRef);
+      const userDocRef = doc(db, "users", user.uid, "details", "profileData");
+      await updateDoc(userDocRef, {
+        firstName,
+        lastName,
+        status,
+        school,
+        bio,
+        links,
+        profileImage: localProfileImage, // Save the selected image
+      });
 
-      if (userDocSnap.exists()) {
-        // Update only the provided fields if the document exists
-        await updateDoc(userDocRef, {
-          firstName,
-          lastName,
-          status,
-          school,
-          bio,
-          links,
-          profileImage,
-        });
-      } else {
-        // If the document doesn't exist, create it and merge fields
-        await setDoc(userDocRef, {
-          firstName,
-          lastName,
-          status,
-          school,
-          bio,
-          links,
-          profileImage,
-        }, { merge: true });
-      }
+      // Update context only after successful save
+      setProfileImage(localProfileImage);
 
       alert("Profile saved successfully!");
     } catch (error) {
@@ -204,8 +184,8 @@ const ProfileEditPage: React.FC = () => {
 
           <div className="profile-form">
             <label className="profile-picture" htmlFor="imageUpload">
-              {profileImage ? (
-                <img src={profileImage} alt="Profile" className="profile-img" />
+              {localProfileImage  ? (
+                <img src={localProfileImage } alt="Profile" className="profile-img" />
               ) : (
                 <span className="text">Click to upload</span>
               )}

@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { db } from '../../firebaseconfig';
 import { doc, getDoc, collection, getDocs, onSnapshot, query, where } from "firebase/firestore";
@@ -8,6 +8,7 @@ import styles from './navbar.module.css';
 import ChatOverlay from "./ChatOverlay";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { updateDoc } from "firebase/firestore";
+import { UserContext } from '../Utility/UserContext';
 
 const getInitials = (firstName: string | null, lastName: string | null) =>
   `${firstName?.charAt(0).toUpperCase() ?? ""}${lastName?.charAt(0).toUpperCase() ?? ""}`;
@@ -18,8 +19,7 @@ const Navbar: React.FC = () => {
   const [firstName, setFirstName] = useState<string | null>(null);
   const [lastName, setLastName] = useState<string | null>(null);
   const [userType, setUserType] = useState<string | null>(null);
-  const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [hasUnreadMessages, setHasUnreadMessages] = useState(false); // Set default to false
+  const { profileImage } = useContext(UserContext);  const [hasUnreadMessages, setHasUnreadMessages] = useState(false); // Set default to false
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -29,32 +29,7 @@ const Navbar: React.FC = () => {
       if (currentUser) {
         setUser(currentUser);
         await fetchUserData(currentUser.uid);
-        const unread = await checkUnreadMessages(currentUser.email, setHasUnreadMessages); // Await the promise
-        // Fetch userType from users/{uid}
-        const userRef = doc(db, "users", currentUser.uid);
-        const userSnap = await getDoc(userRef);
-
-        if (userSnap.exists()) {
-          const userData = userSnap.data();
-          setUserType(userData?.userType || null);
-        } else {
-          setUserType(null);
-        }
-        
-        const profileRef = doc(db, "users", currentUser.uid, "details", "profileData");
-        const profileSnap = await getDoc(profileRef);
-
-        if (profileSnap.exists()) {
-          const profileData = profileSnap.data();
-          setFirstName(profileData?.firstName || "");
-          setLastName(profileData?.lastName || "");
-          setProfileImage(profileData?.profileImage || null); // Store profile image
-        } else {
-          console.log("No profile data found in Firestore");
-          setFirstName(currentUser.displayName?.split(" ")[0] || "");
-          setLastName(currentUser.displayName?.split(" ")[1] || "");
-          setProfileImage(null);
-        }
+        await checkUnreadMessages(currentUser.email, setHasUnreadMessages); 
       } else {
         setUser(null);
         resetUserData();
@@ -62,6 +37,7 @@ const Navbar: React.FC = () => {
     });
     return () => unsubscribe();
   }, []);
+  
 
   const selectChat = (chatId: string) => {
     setCurrentChatId(chatId);
@@ -69,29 +45,36 @@ const Navbar: React.FC = () => {
 
   const fetchUserData = async (uid: string) => {
     const userRef = doc(db, "users", uid);
-    const userSnap = await getDoc(userRef);
-    setUserType(userSnap.exists() ? userSnap.data()?.userType ?? null : null);
-
     const profileRef = doc(db, "users", uid, "details", "profileData");
-    const profileSnap = await getDoc(profileRef);
-    if (profileSnap.exists()) {
-      const { firstName, lastName, profileImage } = profileSnap.data();
-      setFirstName(firstName ?? "");
-      setLastName(lastName ?? "");
-      setProfileImage(profileImage ?? null);
-    } else {
-      const [first, last] = user?.displayName?.split(" ") ?? ["", ""];
-      setFirstName(first);
-      setLastName(last);
-      setProfileImage(null);
+  
+    try {
+      const [userSnap, profileSnap] = await Promise.all([getDoc(userRef), getDoc(profileRef)]);
+  
+      if (userSnap.exists()) {
+        setUserType(userSnap.data()?.userType ?? null);
+      }
+  
+      if (profileSnap.exists()) {
+        const { firstName, lastName, profileImage } = profileSnap.data();
+        setFirstName(firstName ?? "");
+        setLastName(lastName ?? "");
+        //setProfileImage(profileImage ?? null);
+      } else {
+        const [first, last] = user?.displayName?.split(" ") ?? ["", ""];
+        setFirstName(first);
+        setLastName(last);
+        //setProfileImage(null);
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
     }
-  };
+  };  
 
   const resetUserData = () => {
     setFirstName(null);
     setLastName(null);
     setUserType(null);
-    setProfileImage(null);
+    //setProfileImage(null);
     setHasUnreadMessages(false); // Reset unread messages status
   };
 

@@ -16,8 +16,6 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { UserInfo } from "firebase-admin/auth";
-import { userInfo } from "os";
 import { arrayUnion } from "firebase/firestore";
 
 type ResizeDirection =
