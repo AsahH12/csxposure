@@ -1,53 +1,128 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import './studentProfile.css'; 
-import Footer from '../Components/footer';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { db } from '../../firebaseconfig';  // Make sure this imports the correct Firebase setup
-import { doc, getDoc } from 'firebase/firestore';
-
-const ProfileEditPage: React.FC = () => {
-  const [userData, setUserData] = useState<any>(null);  // Store the user data from Firestore
-  const [loading, setLoading] = useState(true);  // Loading state to handle the fetch process
-  
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams, useParams } from "next/navigation";
+import { doc, getDoc, collection, query, where, getDocs,addDoc } from "firebase/firestore";
+import { db, auth } from "../../firebaseconfig";
+import './studentProfile.css';
+import ChatOverlay from "../Components/ChatOverlay";
+const StudentProfilePage: React.FC = () => {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const userId = searchParams.get('userId');  // Get the userId from the query parameters
+  const userId = searchParams.get("userId");
 
-  useEffect(() => {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [bio, setBio] = useState("I am...");
+  const [school, setSchool] = useState("Full Sail University");
+  const [links, setLinks] = useState<{ type: string; url: string }[]>([]);
+  const [profileImage, setProfileImage] = useState("");
+  const [projects, setProjects] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+const [chatId, setChatId] = useState<string | null>(null);
+const [selectedUser, setSelectedUser] = useState<string | null>(null);
+const [userEmail, setUserEmail] = useState<string | null>(null);
+const [isChatOpen, setChatOverlayOpen] = useState(false);
+    const currentUser = auth.currentUser; // Get logged-in user
+    useEffect(() => {
+    if (!userId) {
+      console.log("No userID received");
+      setLoading(false);
+      return;
+    }
+
     const fetchUserData = async () => {
-      if (userId) {
-        try {
-          // Reference to the user's profileData document
-          const profileDocRef = doc(db, 'users', userId, 'details', 'profileData');
-          const profileDocSnap = await getDoc(profileDocRef);
+      try {
+        const userDocRef = doc(db, "users", userId,'details', 'profileData');
+        const userDocSnap = await getDoc(userDocRef);
 
-          if (profileDocSnap.exists()) {
-            // Set the user data from Firestore
-            setUserData(profileDocSnap.data());
-          } else {
-            console.log("No profile data found for this user");
-          }
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-        } finally {
-          setLoading(false);
+        if (userDocSnap.exists()) {
+          const userData = userDocSnap.data();
+          setFirstName(userData?.firstName || "");
+          setLastName(userData?.lastName || "");
+          setBio(userData?.bio || "I am...");
+          setLinks(userData?.links || []);
+          setProfileImage(userData?.profileImage || "");
+          setSchool(userData?.school || "N/A");
+        } else {
+          console.log(`No user found with ID: ${userId}`);
         }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    const fetchUserProjects = async () => {
+      try {
+        const projectsRef = collection(db, "Projects");
+        const q = query(projectsRef, where("ownerId", "==", userId));
+        const projectSnapshots = await getDocs(q);
+        const projectList = projectSnapshots.docs.map(doc => doc.data().projectName);
+        setProjects(projectList);
+      } catch (error) {
+        console.error("Error fetching projects:", error);
       }
     };
 
     fetchUserData();
-  }, [userId]);  // Trigger the effect only when userId changes
+    fetchUserProjects();
+    setLoading(false);
+  }, [userId]);
+  
 
-  // Handle loading state
-  if (loading) {
-    return <p>Loading...</p>;
-  }
+const handleOpenChat = async () => {
+  const { userId } = useParams(); // Get user ID from the URL
+  if (!userId) return;
 
-  // If no user data is found
-  if (!userData) {
-    return <p>No profile found.</p>;
+  try {
+    // Fetch user details using userId
+    const userRef = doc(db, "users");
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      console.error("User not found");
+      return;
+    }
+
+    const userEmail = userSnap.data().email; // Get email from Firestore
+    if (!userEmail) {
+      console.error("User email not found");
+      return;
+    }
+
+    // Find if a chat already exists
+    const chatRef = collection(db, "chats");
+    const chatQuery = query(chatRef, where("participants", "array-contains", currentUser.email));
+    const snapshot = await getDocs(chatQuery);
+
+    let chatId = null;
+    snapshot.docs.forEach((doc) => {
+      if (doc.data().participants.includes(userEmail)) {
+        chatId = doc.id;
+      }
+    });
+
+    if (!chatId) {
+      // Create a new chat if it doesn't exist
+      const newChatRef = await addDoc(chatRef, {
+        participants: [currentUser.email, userEmail],
+        unreadMessages: { [userEmail]: 0, [currentUser.email]: 0 },
+        lastMessage: "",
+        createdAt: new Date(),
+      });
+      chatId = newChatRef.id;
+    }
+
+    // Open ChatOverlay
+    setChatOverlayOpen(true);
+    setSelectedUser(userEmail);
+    setChatId(chatId);
+  } catch (error) {
+    console.error("Error opening chat:", error);
   }
+};
+
+  
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div>
@@ -55,25 +130,24 @@ const ProfileEditPage: React.FC = () => {
         <div className="student-profile-card">
           <div className="project-section">
             <div className="project-grid">
-              {[...Array(4)].map((__, index) => (
-                <Link className="link" href="/StudentProjectPage" key={index}>
-                  <button key={index} className="show-project">Project</button>
-                </Link>
-              ))}
+              {projects.length > 0 ? (
+                projects.map((project, index) => (
+                  <button key={index} className="show-project">{project}</button>
+                ))
+              ) : (
+                <p>No projects available</p>
+              )}
             </div>
           </div>
 
           <div className="profile-form">
-            <div className="profile-picture">    {/* Populate profile image */}
-              {userData.profileImage ? (
-                <img src={userData.profileImage} alt="Profile" className="profile-picture"/>
-              ) : (
-                <span className="initials">{userData.firstName[0]}{userData.lastName[0]}</span>
-              )}</div> 
+            <div className="profile-picture">
+              {profileImage ? <img src={profileImage} alt="Profile" /> : <div className=""></div>}
+            </div>
 
             <div className="name-group">
-              <div className="first-name">{userData.firstName}</div>  {/* Populate first name */}
-              <div className="last-name">{userData.lastName}</div>    {/* Populate last name */}
+              <div className="first-name">{firstName}</div>
+              <div className="last-name">{lastName}</div>
             </div>
 
             <div className="form-group">
@@ -83,31 +157,34 @@ const ProfileEditPage: React.FC = () => {
 
             <div className="form-group">
               <label>School:</label>
-              <div className="input-field">{userData.school}</div>  {/* Populate school */}
+              <div className="input-field">{school}</div>
             </div>
 
             <div className="form-group">
               <label>Bio:</label>
-              <h1 className="bio-field">{userData.bio}</h1>   {/* Populate bio */}
+              <h1 className="bio-field">{bio}</h1>
             </div>
 
             <div className="form-group">
               <h2 className="section-title">Links</h2>
-              {/* Add dynamic links if they are available in userData */}
-              {userData.links && userData.links.map((link: { type: string, url: string }, index: number) => (
-                <a href={link.url} key={index} className={link.type}>{link.type}</a>
+              {links.map((link, index) => (
+                <a key={index} href={link.url} className={link.type.toLowerCase()}>{link.type}</a>
               ))}
             </div>
 
             <div className="chat-button-container">
-              <button className="chat-button">Chat</button>
+              <button className="chat-button"
+              onClick={()=>setChatOverlayOpen(false)}
+              >Chat</button>
             </div>
           </div>
         </div>
       </div>
-      <Footer />
+      {isChatOpen && (
+        <ChatOverlay onClose={() => setChatOverlayOpen(false)} />
+      )}
     </div>
   );
 };
 
-export default ProfileEditPage;
+export default StudentProfilePage;

@@ -18,7 +18,15 @@ interface DiscussionPostProps {
 interface DiscussionParams {
     id: string;
 }
-
+const handleProfileClick = (userId: string | null) => {
+    if (!userId) {
+        alert("User profile not found.");
+        return;
+    }
+console.log("user Id Clicked on", userId);
+    // Navigate directly using userId
+    window.location.href = `/StudentProfilePage?userId=${userId}`;
+};
 const DiscussionPost: React.FC<{ params: Promise<DiscussionParams> }> = ({ params }) => {
     const [postData, setPostData] = useState<DiscussionPostProps | null>(null);
     const [comments, setComments] = useState<{ name: string; text: string; userId: string }[]>([]);
@@ -178,8 +186,8 @@ const DiscussionPost: React.FC<{ params: Promise<DiscussionParams> }> = ({ param
                                                 textAlign: 'left',
                                                 marginBottom: '5px',
                                             }}
-                                            onClick={() => alert(`Clicked on ${comment.name}'s profile`)}
-                                        >
+                                            onClick={() => handleProfileClick(comment.userId)}
+                                            >
                                             <strong>{comment.name}</strong>
                                         </button>
                                         <p>{comment.text}</p>
