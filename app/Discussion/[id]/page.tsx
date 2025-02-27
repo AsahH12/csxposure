@@ -6,6 +6,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import Sidebar from '../../Components/sidebar';
 import Footer from '../../Components/footer';
 import { addDoc } from 'firebase/firestore';
+import './Discussion.module.css';
 
 interface DiscussionPostProps {
     title?: string;
@@ -137,7 +138,7 @@ const DiscussionPost: React.FC<{ params: Promise<DiscussionParams> }> = ({ param
 
     return (
         <div style={{ display: 'flex' }}>
-            <Sidebar  />
+            <Sidebar onNameSearchChange={() => {}} onSchoolChange={() => {}} />
             <div style={{ flexGrow: 1, padding: '20px' }}>
                 {loading ? (
                     <p>Loading...</p>
