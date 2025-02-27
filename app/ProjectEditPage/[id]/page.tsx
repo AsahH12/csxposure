@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { doc, setDoc, getDoc, collection, addDoc } from "firebase/firestore";
-import { auth, db } from "../../firebaseconfig";
+import { auth, db } from "../../../firebaseconfig";
 
 const ProjectEditPage: React.FC = () => {
   const router = useRouter();
