@@ -1,63 +1,87 @@
-'use client';
-import { useState, useEffect } from "react";
+"use client";
+import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { doc, setDoc, getDoc, collection, addDoc } from "firebase/firestore";
+
+import { doc, setDoc, collection, getDoc, addDoc } from "firebase/firestore";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../firebaseconfig";
-import './projectEdit.css';
+import "./projectEdit.css";
 
 const ProjectEditPage: React.FC = () => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const projectId = searchParams.get("id"); // Get projectId from URL
-
-  const [projectName, setProjectName] = useState("");
-  const [description, setDescription] = useState("");
-  const [websiteLink, setWebsiteLink] = useState("");
-  const [githubLink, setGithubLink] = useState("");
-  const [collaborators, setCollaborators] = useState<string[]>([]);
-  const [images, setImages] = useState<string[]>(["", "", "", ""]);
-  const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) setUserId(user.uid);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (!projectId) {
-      setLoading(false);
-      return;
+ const router = useRouter();
+   const searchParams = useSearchParams();
+   const projectId = searchParams.get("id"); // Get projectId from URL
+ 
+   const [projectName, setProjectName] = useState("");
+   const [description, setDescription] = useState("");
+   const [websiteLink, setWebsiteLink] = useState("");
+   const [githubLink, setGithubLink] = useState("");
+   const [collaborators, setCollaborators] = useState<string[]>([]);
+   const [images, setImages] = useState<string[]>(["", "", "", ""]);
+   const [loading, setLoading] = useState(true);
+   const [userId, setUserId] = useState<string | null>(null);
+ useEffect(() => {
+     const unsubscribe = auth.onAuthStateChanged((user) => {
+       if (user) setUserId(user.uid);
+     });
+     return () => unsubscribe();
+   }, []);
+ 
+   useEffect(() => {
+     if (!projectId) {
+       setLoading(false);
+       return;
+     }
+ 
+     const fetchProjectData = async () => {
+       try {
+         const projectDocRef = doc(db, "Projects", projectId);
+         const projectDocSnap = await getDoc(projectDocRef);
+ 
+         if (projectDocSnap.exists()) {
+           const projectData = projectDocSnap.data() || {};
+           setProjectName(projectData.projectName || "");
+           setDescription(projectData.description || "");
+           setWebsiteLink(projectData.websiteLink || "");
+           setGithubLink(projectData.githubLink || "");
+           setCollaborators(Array.isArray(projectData.collaborators) ? projectData.collaborators : []);
+           setImages(Array.isArray(projectData.images) ? [...projectData.images, "", "", "", ""].slice(0, 4) : ["", "", "", ""]);
+         } else {
+           console.log(`No project found with ID: ${projectId}`);
+         }
+       } catch (error) {
+         console.error("Error fetching project data:", error);
+       } finally {
+         setLoading(false);
+       }
+     };
+ 
+     fetchProjectData();
+   }, [projectId]);
+ 
+  // Handle image upload
+  const handleImageUpload = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const newImages = [...images];
+      newImages[index] = URL.createObjectURL(event.target.files[0]);
+      setImages(newImages);
     }
+  };
 
-    const fetchProjectData = async () => {
-      try {
-        const projectDocRef = doc(db, "Projects", projectId);
-        const projectDocSnap = await getDoc(projectDocRef);
+  // Add a collaborator
+  const addCollaborator = () => {
+    const newCollaborator = prompt("Enter collaborator's name:");
+    if (newCollaborator) {
+      setCollaborators([...collaborators, newCollaborator]);
+    }
+  };
 
-        if (projectDocSnap.exists()) {
-          const projectData = projectDocSnap.data() || {};
-          setProjectName(projectData.projectName || "");
-          setDescription(projectData.description || "");
-          setWebsiteLink(projectData.websiteLink || "");
-          setGithubLink(projectData.githubLink || "");
-          setCollaborators(Array.isArray(projectData.collaborators) ? projectData.collaborators : []);
-          setImages(Array.isArray(projectData.images) ? [...projectData.images, "", "", "", ""].slice(0, 4) : ["", "", "", ""]);
-        } else {
-          console.log(`No project found with ID: ${projectId}`);
-        }
-      } catch (error) {
-        console.error("Error fetching project data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Remove a collaborator
+  const removeCollaborator = (index: number) => {
+    setCollaborators(collaborators.filter((_, i) => i !== index));
+  };
 
-    fetchProjectData();
-  }, [projectId]);
-
+  // Save project to Firebase
   const saveProjectToFirebase = async () => {
     if (!projectName || !description) {
       alert("Project name and description are required!");
@@ -69,33 +93,35 @@ const ProjectEditPage: React.FC = () => {
       return;
     }
 
+
     try {
-      const projectData = {
-        projectName,
-        description,
-        websiteLink,
-        githubLink,
-        collaborators,
-        images: images.filter((img) => img !== ""),
-        updatedAt: new Date(),
-        ownerId: userId,
-      };
-
-      if (projectId) {
-        await setDoc(doc(db, "Projects", projectId), projectData);
-      } else {
-        const newProjectRef = await addDoc(collection(db, "Projects"), projectData);
-        const newProjectId = newProjectRef.id;
-        await setDoc(doc(db, "users", userId, "Projects", newProjectId), projectData);
-        router.push(`/ProjectEditPage?id=${newProjectId}`);
-      }
-
-      alert("Project saved successfully!");
-    } catch (error) {
-      console.error("Error saving project:", error);
-      alert("Failed to save project.");
-    }
-  };
+         const projectData = {
+           projectName,
+           description,
+           websiteLink,
+           githubLink,
+           collaborators,
+           images: images.filter((img) => img !== ""),
+           updatedAt: new Date(),
+           ownerId: userId,
+         };
+   
+         if (projectId) {
+           await setDoc(doc(db, "Projects", projectId), projectData);
+         } else {
+           const newProjectRef = await addDoc(collection(db, "Projects"), projectData);
+           const newProjectId = newProjectRef.id;
+           await setDoc(doc(db, "users", userId, "Projects", newProjectId), projectData);
+           router.push(`/ProjectEditPage?id=${newProjectId}`);
+         }
+   
+         alert("Project saved successfully!");
+       } catch (error) {
+         console.error("Error saving project:", error);
+         alert("Failed to save project.");
+       }
+     };
+   
 
   if (loading) return <div>Loading...</div>;
 
@@ -103,24 +129,74 @@ const ProjectEditPage: React.FC = () => {
     <div className="project-container">
       <div className="project-content">
         <div className="left-section">
-          <h1 className="project-title">{projectId ? "Edit Project" : "Create New Project"}</h1>
+          <h1 className="project-title">{projectId ? "Edit Project" : "New Project"}</h1>
+
           <div className="input-group">
             <label>Project Name</label>
-            <input type="text" value={projectName} onChange={(e) => setProjectName(e.target.value)} placeholder="Enter project name" />
+            <input
+              type="text"
+              value={projectName}
+              onChange={(e) => setProjectName(e.target.value)}
+              placeholder="Enter project name"
+            />
           </div>
+
           <div className="input-group">
             <label>Description</label>
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Enter project description" />
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Enter project description"
+            />
           </div>
+
           <div className="input-group">
             <label>Website Link</label>
-            <input type="text" value={websiteLink} onChange={(e) => setWebsiteLink(e.target.value)} placeholder="Enter website link" />
+            <input
+              type="text"
+              value={websiteLink}
+              onChange={(e) => setWebsiteLink(e.target.value)}
+              placeholder="Enter website link"
+            />
           </div>
+
           <div className="input-group">
             <label>GitHub Link</label>
-            <input type="text" value={githubLink} onChange={(e) => setGithubLink(e.target.value)} placeholder="Enter GitHub link" />
+            <input
+              type="text"
+              value={githubLink}
+              onChange={(e) => setGithubLink(e.target.value)}
+              placeholder="Enter GitHub link"
+            />
           </div>
-          <button className="save-button" onClick={saveProjectToFirebase}>{projectId ? "Save Changes" : "Create Project"}</button>
+        </div>
+
+        <div className="right-section">
+          <h2>Upload Media</h2>
+          <div className="media-upload-grid">
+            {images.map((image, index) => (
+              <label key={index} className="upload-box">
+                {image ? <img src={image} alt="Uploaded" className="uploaded-image" /> : "Upload Image"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={(event) => handleImageUpload(index, event)}
+                />
+              </label>
+            ))}
+          </div>
+
+          <h2>Collaborators</h2>
+          {collaborators.map((name, index) => (
+            <div key={index} className="collaborator-item">
+              <span>{name}</span>
+              <button onClick={() => removeCollaborator(index)}>Remove</button>
+            </div>
+          ))}
+          <button onClick={addCollaborator}>+ Add Collaborator</button>
+
+          <button className="save-button" onClick={saveProjectToFirebase}>Save Changes</button>
         </div>
       </div>
     </div>
