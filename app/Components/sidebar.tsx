@@ -217,8 +217,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onNameSearchChange, onSchoolChange, o
       <div className={styles.scrollableContainer}>
         {filteredDiscussions.length > 0 ? (
           filteredDiscussions.map((post) => (
-            <Link className={styles.discussionLink} key={post.id} href={`/Discussion/${post.id}`} passHref>
-              <button className={styles.discussionButton}>
+<Link className={styles.discussionLink} key={post.id} href={`/Discussion?id=${post.id}`} passHref>
+<button className={styles.discussionButton}>
                 <div className={styles.discussionPost}>
                   <h6>{post.title}</h6>
                   <p>{post.description}</p>
