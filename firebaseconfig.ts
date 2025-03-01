@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { getFirestore, doc, setDoc } from "firebase/firestore";
+import { getDatabase, ref, set, onValue } from "firebase/database";
 
 // Your Firebase config
 const firebaseConfig = {
@@ -19,4 +20,5 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 export { auth, db, createUserWithEmailAndPassword, signInWithEmailAndPassword, setDoc, doc };
-
+export const realtimeDB = getDatabase(app); // Use this for Realtime Database
+export {ref, set, onValue };
