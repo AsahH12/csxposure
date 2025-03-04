@@ -135,6 +135,10 @@ const ProfileEditPage: React.FC = () => {
       alert("Please select a school from the suggestions.");
       return;
     }
+    
+    // Filter out links with empty type and URL
+    const validLinks = links.filter((link) => link.type.trim() !== "" || link.url.trim() !== "");
+    setLinks(validLinks);
 
     try {
       const user = auth.currentUser;
@@ -147,7 +151,7 @@ const ProfileEditPage: React.FC = () => {
         status,
         school,
         bio,
-        links,
+        links: validLinks,
         profileImage: localProfileImage, // Save the selected image
       });
 
@@ -261,9 +265,7 @@ const ProfileEditPage: React.FC = () => {
               <h2 className="section-title">Links</h2>
               {links.map((link, index) => (
                 <div key={index} className="link-group">
-                  <input
-                    type="text"
-                    placeholder="Type (e.g., Instagram, GitHub)"
+                  <select
                     className="input-field"
                     value={link.type}
                     onChange={(e) => {
@@ -271,7 +273,43 @@ const ProfileEditPage: React.FC = () => {
                       newLinks[index].type = e.target.value;
                       setLinks(newLinks);
                     }}
-                  />
+                  >  {/* Link Type Selection */}
+                    <option value="">--Select Link Type--</option>
+                    <optgroup label="Coding & Project Showcases">
+                      <option value="GitHub">GitHub</option>
+                      <option value="GitLab">GitLab</option>
+                      <option value="Bitbucket">Bitbucket</option>
+                      <option value="CodePen">CodePen</option>
+                      <option value="Replit">Replit</option>
+                    </optgroup>
+                    <optgroup label="Professional Networking & Contacts">
+                      <option value="LinkedIn">LinkedIn</option>
+                      <option value="Discord">Discord</option>
+                      <option value="Telegram">Telegram</option>
+                      <option value="Email">Email</option>
+                    </optgroup>
+                    <optgroup label="Technical Writing & Blogging">
+                      <option value="Medium">Medium</option>
+                      <option value="Dev.to">Dev.to</option>
+                      <option value="Hashnode">Hashnode</option>
+                    </optgroup>
+                    <optgroup label="Competitive Coding & Problem-Solving">
+                      <option value="LeetCode">LeetCode</option>
+                      <option value="HackerRank">HackerRank</option>
+                      <option value="CodeWars">CodeWars</option>
+                      <option value="Kaggle">Kaggle</option>
+                    </optgroup>
+                    <optgroup label="Portfolio & Personal Website">
+                      <option value="Personal Website">Personal Website</option>
+                      <option value="Notion">Notion</option>
+                      <option value="Behance">Behance</option>
+                    </optgroup>
+                    <optgroup label="Social Media for Showcasing Work">
+                      <option value="Instagram">Instagram</option>
+                      <option value="Twitter">Twitter (X)</option>
+                      <option value="Reddit">Reddit</option>
+                    </optgroup>
+                  </select>
                   <input
                     type="text"
                     placeholder="URL Link"
@@ -283,6 +321,13 @@ const ProfileEditPage: React.FC = () => {
                       setLinks(newLinks);
                     }}
                   />
+                  <button
+                    className="remove-link"
+                    onClick={() => {
+                      const newLinks = links.filter((_, i) => i !== index);
+                      setLinks(newLinks);
+                    }}
+                  > Remove </button>
                 </div>
               ))}
               <button onClick={addLink} className="add-link">+ Add Link</button>
