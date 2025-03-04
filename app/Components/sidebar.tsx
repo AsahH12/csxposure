@@ -137,7 +137,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNameSearchChange, onSchoolChange, o
       <div className={styles.searchContainer}>
         <input
           type="text"
-          placeholder="Search name..."
+          placeholder="Search student name..."
           className={styles.searchbar}
           value={nameSearch}
           onChange={handleSearchInputChange}
