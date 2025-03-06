@@ -19,15 +19,37 @@ interface DiscussionPostProps {
 interface DiscussionParams {
     id: string;
 }
-const handleProfileClick = (userId: string | null) => {
+
+const handleProfileClick = async (userId: string | null) => {
     if (!userId) {
         alert("User profile not found.");
         return;
     }
-    console.log("user Id Clicked on", userId);
-    // Navigate directly using userId
-    window.location.href = `/StudentProfilePage?userId=${userId}`;
+
+    try {
+        const userRef = doc(db, "users", userId);
+        const userSnap = await getDoc(userRef);
+
+        if (userSnap.exists()) {
+            const userData = userSnap.data();
+            const userType = userData.userType;
+
+            console.log("User Id Clicked on:", userId, "User Type:", userType);
+
+            if (userType === "student") {
+                window.location.href = `/StudentProfilePage?userId=${userId}`;
+            } if(userType === "business") {
+                window.location.href = `/BusinessProfilePage?userId=${userId}`;
+            }
+        } else {
+            alert("User profile not found.");
+        }
+    } catch (error) {
+        console.error("Error fetching user profile:", error);
+        alert("Error loading profile. Please try again.");
+    }
 };
+
 const DiscussionPost: React.FC<{ params: Promise<DiscussionParams> }> = ({ params }) => {
     const [postData, setPostData] = useState<DiscussionPostProps | null>(null);
     const [comments, setComments] = useState<{ name: string; text: string; userId: string }[]>([]);
