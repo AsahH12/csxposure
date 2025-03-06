@@ -30,7 +30,10 @@ type ResizeDirection =
 
 interface ChatOverlayProps {
   onClose: () => void;
+    selectedUser?: string;
+    chatId?: string;
 }
+
 
 const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   const [messages, setMessages] = useState<any[]>([]);

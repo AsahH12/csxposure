@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { auth, db } from "../../firebaseconfig";
 import { setDoc, doc, updateDoc, getDoc, getDocs, collection } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
@@ -7,6 +7,7 @@ import './profileEdit.css';
 import Link from 'next/link'
 import Footer from '../Components/footer';
 import { fetchUniversities } from "../Utility/fetchUniversities"; // Import the utility function
+import { UserContext } from '../Utility/UserContext';
 
 
 const ProfileEditPage: React.FC = () => {
@@ -16,11 +17,13 @@ const ProfileEditPage: React.FC = () => {
   const [school, setSchool] = useState('');
   const [bio, setBio] = useState('');
   const [links, setLinks] = useState([{ type: '', url: '' }]);
-  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const { setProfileImage } = useContext(UserContext); // Use only setter to update after save
+  const [localProfileImage, setLocalProfileImage] = useState<string | null>(null); // Store selected image locally
   const [loading, setLoading] = useState(true);
   const [schoolSuggestions, setSchoolSuggestions] = useState<string[]>([]); // Hold schools based on input
   const [allSchools, setAllSchools] = useState<string[]>([]); // Hold all schools from API
   const [isSchoolValid, setIsSchoolValid] = useState(false); // Track if a valid school is selected
+  const [volunteerAgreement, setVolunteerAgreement] = useState(false); // Track if volunteer agreement is checked
   const [projects, setProjects] = useState<any[]>([]);
 
   //Fetch profile data
@@ -39,41 +42,42 @@ const ProfileEditPage: React.FC = () => {
             setSchool(data.school || '');
             setBio(data.bio || '');
             setLinks(data.links || [{ type: '', url: '' }]);
-            setProfileImage(data.profileImage || null);
+            setVolunteerAgreement(data.volunteerAgreement || false);
+            setLocalProfileImage(data.profileImage || null);
           }
-        // Fetch project IDs from users -> Projects
-        const userProjectsRef = collection(db, "users", user.uid, "Projects");
-        const userProjectsSnapshot = await getDocs(userProjectsRef);
-        const projectIds = userProjectsSnapshot.docs.map(doc => doc.id);
+          // Fetch project IDs from users -> Projects
+          const userProjectsRef = collection(db, "users", user.uid, "Projects");
+          const userProjectsSnapshot = await getDocs(userProjectsRef);
+          const projectIds = userProjectsSnapshot.docs.map(doc => doc.id);
 
-        // Fetch project details from Projects collection
-        const projectPromises = projectIds.map(async (projectId) => {
-          const projectDocRef = doc(db, "Projects", projectId);
-          const projectDocSnap = await getDoc(projectDocRef);
-          if (projectDocSnap.exists()) {
-            return { id: projectId, ...projectDocSnap.data() };
-          }
-          return null;
-        });
+          // Fetch project details from Projects collection
+          const projectPromises = projectIds.map(async (projectId) => {
+            const projectDocRef = doc(db, "Projects", projectId);
+            const projectDocSnap = await getDoc(projectDocRef);
+            if (projectDocSnap.exists()) {
+              return { id: projectId, ...projectDocSnap.data() };
+            }
+            return null;
+          });
 
-        const userProjects = (await Promise.all(projectPromises)).filter(project => project !== null);
-        setProjects(userProjects);
-      } catch (error) {
-        console.error("Error fetching profile or projects:", error);
-        alert("Failed to fetch data.");
+          const userProjects = (await Promise.all(projectPromises)).filter(project => project !== null);
+          setProjects(userProjects);
+        } catch (error) {
+          console.error("Error fetching profile or projects:", error);
+          alert("Failed to fetch data.");
+        }
       }
-    }
-    setLoading(false);
-    setLoading(false);
-    // If school is pre-selected, skip validation
-    console.log("School Valid:", isSchoolValid);
-    console.log("School:", school);
-    if (school != null) { setIsSchoolValid(true);}
-    console.log("School Valid:", isSchoolValid);
-  });
+      setLoading(false);
+      setLoading(false);
+      // If school is pre-selected, skip validation
+      console.log("School Valid:", isSchoolValid);
+      console.log("School:", school);
+      if (school != null) { setIsSchoolValid(true); }
+      console.log("School Valid:", isSchoolValid);
+    });
 
-  return () => unsubscribe();
-}, []);
+    return () => unsubscribe();
+  }, [setProfileImage]);
 
   //////////////////////////////////// School Input ////////////////////////////////////
   // Fetch university list
@@ -117,7 +121,7 @@ const ProfileEditPage: React.FC = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setProfileImage(reader.result as string);
+        setLocalProfileImage(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
@@ -133,50 +137,33 @@ const ProfileEditPage: React.FC = () => {
 
   // Save profile information into the database
   const saveProfile = async () => {
-
-    // // If school is pre-selected, skip validation
-    // console.log("School Valid:", isSchoolValid);
-    // console.log("School:", school);
-    // if (school != null) { setIsSchoolValid(true);}
-    // console.log("School Valid:", isSchoolValid);
-
-    // Makes sure School Input is from database instead of input
     if (!isSchoolValid) {
       alert("Please select a school from the suggestions.");
       return;
     }
 
-    // Update or save profile 
+    // Filter out links with empty type and URL
+    const validLinks = links.filter((link) => link.type.trim() !== "" || link.url.trim() !== "");
+    setLinks(validLinks);
+
     try {
       const user = auth.currentUser;
-      const userId = user.uid;
+      if (!user) return;
 
-      const userDocRef = doc(db, "users", userId, "details", "profileData");
-      const userDocSnap = await getDoc(userDocRef);
+      const userDocRef = doc(db, "users", user.uid, "details", "profileData");
+      await updateDoc(userDocRef, {
+        firstName,
+        lastName,
+        status,
+        school,
+        bio,
+        links: validLinks,
+        volunteerAgreement,
+        profileImage: localProfileImage, // Save the selected image
+      });
 
-      if (userDocSnap.exists()) {
-        // Update only the provided fields if the document exists
-        await updateDoc(userDocRef, {
-          firstName,
-          lastName,
-          status,
-          school,
-          bio,
-          links,
-          profileImage,
-        });
-      } else {
-        // If the document doesn't exist, create it and merge fields
-        await setDoc(userDocRef, {
-          firstName,
-          lastName,
-          status,
-          school,
-          bio,
-          links,
-          profileImage,
-        }, { merge: true });
-      }
+      // Update context only after successful save
+      setProfileImage(localProfileImage);
 
       alert("Profile saved successfully!");
     } catch (error) {
@@ -216,8 +203,8 @@ const ProfileEditPage: React.FC = () => {
 
           <div className="profile-form">
             <label className="profile-picture" htmlFor="imageUpload">
-              {profileImage ? (
-                <img src={profileImage} alt="Profile" className="profile-img" />
+              {localProfileImage ? (
+                <img src={localProfileImage} alt="Profile" className="profile-img" />
               ) : (
                 <span className="text">Click to upload</span>
               )}
@@ -278,6 +265,20 @@ const ProfileEditPage: React.FC = () => {
               )}
             </div>
 
+            {/* CheckBox Volunteer Filter */}
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="filterVolunteer"
+                checked={volunteerAgreement}
+                onChange={(e) => setVolunteerAgreement(e.target.checked)} // Update state on checkbox change
+              />
+              <label className="form-check-label" htmlFor="filterVolunteer">
+                I am looking for volunteer opportunities
+              </label>
+            </div>
+
             {/* Bio Input Section */}
             <div className="form-group">
               <label>Bio:</label>
@@ -293,9 +294,7 @@ const ProfileEditPage: React.FC = () => {
               <h2 className="section-title">Links</h2>
               {links.map((link, index) => (
                 <div key={index} className="link-group">
-                  <input
-                    type="text"
-                    placeholder="Type (e.g., Instagram, GitHub)"
+                  <select
                     className="input-field"
                     value={link.type}
                     onChange={(e) => {
@@ -303,7 +302,43 @@ const ProfileEditPage: React.FC = () => {
                       newLinks[index].type = e.target.value;
                       setLinks(newLinks);
                     }}
-                  />
+                  >  {/* Link Type Selection */}
+                    <option value="">--Select Link Type--</option>
+                    <optgroup label="Coding & Project Showcases">
+                      <option value="GitHub">GitHub</option>
+                      <option value="GitLab">GitLab</option>
+                      <option value="Bitbucket">Bitbucket</option>
+                      <option value="CodePen">CodePen</option>
+                      <option value="Replit">Replit</option>
+                    </optgroup>
+                    <optgroup label="Professional Networking & Contacts">
+                      <option value="LinkedIn">LinkedIn</option>
+                      <option value="Discord">Discord</option>
+                      <option value="Telegram">Telegram</option>
+                      <option value="Email">Email</option>
+                    </optgroup>
+                    <optgroup label="Technical Writing & Blogging">
+                      <option value="Medium">Medium</option>
+                      <option value="Dev.to">Dev.to</option>
+                      <option value="Hashnode">Hashnode</option>
+                    </optgroup>
+                    <optgroup label="Competitive Coding & Problem-Solving">
+                      <option value="LeetCode">LeetCode</option>
+                      <option value="HackerRank">HackerRank</option>
+                      <option value="CodeWars">CodeWars</option>
+                      <option value="Kaggle">Kaggle</option>
+                    </optgroup>
+                    <optgroup label="Portfolio & Personal Website">
+                      <option value="Personal Website">Personal Website</option>
+                      <option value="Notion">Notion</option>
+                      <option value="Behance">Behance</option>
+                    </optgroup>
+                    <optgroup label="Social Media for Showcasing Work">
+                      <option value="Instagram">Instagram</option>
+                      <option value="Twitter">Twitter (X)</option>
+                      <option value="Reddit">Reddit</option>
+                    </optgroup>
+                  </select>
                   <input
                     type="text"
                     placeholder="URL Link"
@@ -315,6 +350,13 @@ const ProfileEditPage: React.FC = () => {
                       setLinks(newLinks);
                     }}
                   />
+                  <button
+                    className="remove-link"
+                    onClick={() => {
+                      const newLinks = links.filter((_, i) => i !== index);
+                      setLinks(newLinks);
+                    }}
+                  > Remove </button>
                 </div>
               ))}
               <button onClick={addLink} className="add-link">+ Add Link</button>

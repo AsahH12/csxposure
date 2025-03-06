@@ -9,11 +9,18 @@ import { fetchUniversities } from "../Utility/fetchUniversities"; // Import the 
 
 // Handle search
 interface SidebarProps {
-  onNameSearchChange: (query: string) => void;
-  onSchoolChange: (school: string) => void;
+  onNameSearchChange?: (query: string) => void;
+  onSchoolChange?: (school: string) => void;
+  onGraduatedChange?: (graduated: boolean) => void;
+  onVolunteerChange?: (volunteer: boolean) => void;
+  onWebsitesChange?: (websites: boolean) => void;
+  onAppsChange?: (apps: boolean) => void;
+  onGamesChange?: (games: boolean) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ onNameSearchChange, onSchoolChange }) => {
+const Sidebar: React.FC<SidebarProps> = ({ 
+  onNameSearchChange, onSchoolChange, onGraduatedChange, onVolunteerChange, onWebsitesChange, onAppsChange, onGamesChange  
+  }) => {
   const [discussionPosts, setDiscussionPosts] = useState([]); // Stores discussion posts from database
   const [nameSearch, setNameInput] = useState("");  // Name search input
   const [allSchools, setAllSchools] = useState<string[]>([]); // All schools from API
@@ -22,6 +29,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onNameSearchChange, onSchoolChange })
   const [discussionSearch, setDiscussionSearch] = useState(""); // Discussion search input
   const [filteredDiscussions, setFilteredDiscussions] = useState([]); // Discussions based on search
   const [searchInput, setSearchInput] = useState(""); // For "Search discussions..." only
+
+  const [graduated, setGraduated] = useState(false);
+  const [volunteer, setVolunteer] = useState(false);
+  const [websites, setWebsites] = useState(false);
+  const [apps, setApps] = useState(false);
+  const [games, setGames] = useState(false);
 
   //////////////////////////////////// Discussion Board ////////////////////////////////////
   // Populate discussion posts
@@ -71,7 +84,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onNameSearchChange, onSchoolChange })
     setFilteredDiscussions(filteredPosts);
   };
 
-
   //////////////////////////////////// School Filter ////////////////////////////////////
   // Fetch university list
   useEffect(() => {
@@ -110,6 +122,19 @@ const Sidebar: React.FC<SidebarProps> = ({ onNameSearchChange, onSchoolChange })
     onSchoolChange(school); // Pass selected school to HomePage
   };
 
+  //////////////////////////////////// Check Filters ////////////////////////////////////
+  const handleGraduatedChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = event.target.checked;
+    setGraduated(isChecked);
+    onGraduatedChange(isChecked); // Pass the graduated state to HomePage
+  };
+
+  const handleVolunteerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = event.target.checked;
+    setVolunteer(isChecked);
+    onVolunteerChange(isChecked); // Pass the volunteer state to HomePage
+  }
+
   //////////////////////////////////// Name Filter ////////////////////////////////////
   // Handle search input change
   const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,7 +154,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNameSearchChange, onSchoolChange })
       <div className={styles.searchContainer}>
         <input
           type="text"
-          placeholder="Search name..."
+          placeholder="Search student name..."
           className={styles.searchbar}
           value={nameSearch}
           onChange={handleSearchInputChange}
@@ -164,11 +189,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onNameSearchChange, onSchoolChange })
 
             {/* CheckBox Filters */}
             <div className="form-check">
-              <input className="form-check-input" type="checkbox" id="filterVolunteer" />
+              <input className="form-check-input" type="checkbox" id="filterVolunteer" checked={volunteer} onChange={handleVolunteerChange} />
               <label className="form-check-label" htmlFor="filterVolunteer">Volunteer</label>
             </div>
             <div className="form-check">
-              <input className="form-check-input" type="checkbox" id="filterGraduated" />
+              <input className="form-check-input" type="checkbox" id="filterGraduated" checked={graduated} onChange={handleGraduatedChange} />
               <label className="form-check-label" htmlFor="filterGraduated">Graduated</label>
             </div>
           </div>
