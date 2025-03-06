@@ -13,7 +13,10 @@ const HomePage: React.FC = () => {
   const [loading, setLoading] = useState(true); 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSchool, setSelectedSchool] = useState("");
+
   const [showGraduated, setShowGraduated] = useState(false);
+  const [showStudents, setShowStudents] = useState(false);
+  const [showVolunteers, setShowVolunteers] = useState(false);
 
   //Grab users from database
   useEffect(() => {
@@ -43,6 +46,7 @@ const HomePage: React.FC = () => {
               description: profileData.bio || "No bio available",
               profileImageUrl: profileData.profileImage || '',
               status: profileData.status || '',
+              volunteer: profileData.volunteerAgreement || false,
             });
           }
         }
@@ -58,11 +62,12 @@ const HomePage: React.FC = () => {
     fetchUsers();
   }, []);
 
-  // Filter cards based on search name
+  // Filter cards based on search name and ckeckboxes
   const filteredCards = cards.filter((card) =>
     `${card.firstName} ${card.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) &&
     (selectedSchool.trim() === "" || selectedSchool.toLowerCase() === "any" || card.school.toLowerCase().includes(selectedSchool.toLowerCase())) &&
-    (!showGraduated || card.status === "Graduate")
+    (!showGraduated || card.status === "Graduate") &&
+    (!showVolunteers || card.volunteer)
   );
 
   // Handle search updates from sidebar
@@ -77,6 +82,10 @@ const HomePage: React.FC = () => {
 
   const handleGraduatedChange = (graduated: boolean) => {
     setShowGraduated(graduated);
+  };
+
+  const handleVolunteerChange = (volunteer: boolean) => {
+    setShowVolunteers(volunteer);
   };
 
   // Card Component
@@ -115,6 +124,7 @@ const HomePage: React.FC = () => {
     description: string;
     profileImageUrl?: string;
     status?: string;
+    volunteer?: boolean;
   }
 
   //Home page layout
@@ -126,6 +136,7 @@ const HomePage: React.FC = () => {
           onNameSearchChange={handleSearchChange} 
           onSchoolChange={handleSchoolChange} 
           onGraduatedChange={handleGraduatedChange}
+          onVolunteerChange={handleVolunteerChange}
           />
         </div>
         <div className="col">

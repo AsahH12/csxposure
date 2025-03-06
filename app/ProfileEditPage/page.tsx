@@ -23,6 +23,7 @@ const ProfileEditPage: React.FC = () => {
   const [schoolSuggestions, setSchoolSuggestions] = useState<string[]>([]); // Hold schools based on input
   const [allSchools, setAllSchools] = useState<string[]>([]); // Hold all schools from API
   const [isSchoolValid, setIsSchoolValid] = useState(false); // Track if a valid school is selected
+  const [volunteerAgreement, setVolunteerAgreement] = useState(false); // Track if volunteer agreement is checked
   const [projects, setProjects] = useState<any[]>([]);
 
   //Fetch profile data
@@ -41,38 +42,39 @@ const ProfileEditPage: React.FC = () => {
             setSchool(data.school || '');
             setBio(data.bio || '');
             setLinks(data.links || [{ type: '', url: '' }]);
+            setVolunteerAgreement(data.volunteerAgreement || false);
             setLocalProfileImage(data.profileImage || null);
           }
-        // Fetch project IDs from users -> Projects
-        const userProjectsRef = collection(db, "users", user.uid, "Projects");
-        const userProjectsSnapshot = await getDocs(userProjectsRef);
-        const projectIds = userProjectsSnapshot.docs.map(doc => doc.id);
+          // Fetch project IDs from users -> Projects
+          const userProjectsRef = collection(db, "users", user.uid, "Projects");
+          const userProjectsSnapshot = await getDocs(userProjectsRef);
+          const projectIds = userProjectsSnapshot.docs.map(doc => doc.id);
 
-        // Fetch project details from Projects collection
-        const projectPromises = projectIds.map(async (projectId) => {
-          const projectDocRef = doc(db, "Projects", projectId);
-          const projectDocSnap = await getDoc(projectDocRef);
-          if (projectDocSnap.exists()) {
-            return { id: projectId, ...projectDocSnap.data() };
-          }
-          return null;
-        });
+          // Fetch project details from Projects collection
+          const projectPromises = projectIds.map(async (projectId) => {
+            const projectDocRef = doc(db, "Projects", projectId);
+            const projectDocSnap = await getDoc(projectDocRef);
+            if (projectDocSnap.exists()) {
+              return { id: projectId, ...projectDocSnap.data() };
+            }
+            return null;
+          });
 
-        const userProjects = (await Promise.all(projectPromises)).filter(project => project !== null);
-        setProjects(userProjects);
-      } catch (error) {
-        console.error("Error fetching profile or projects:", error);
-        alert("Failed to fetch data.");
+          const userProjects = (await Promise.all(projectPromises)).filter(project => project !== null);
+          setProjects(userProjects);
+        } catch (error) {
+          console.error("Error fetching profile or projects:", error);
+          alert("Failed to fetch data.");
+        }
       }
-    }
-    setLoading(false);
-    setLoading(false);
-    // If school is pre-selected, skip validation
-    console.log("School Valid:", isSchoolValid);
-    console.log("School:", school);
-    if (school != null) { setIsSchoolValid(true);}
-    console.log("School Valid:", isSchoolValid);
-  });
+      setLoading(false);
+      setLoading(false);
+      // If school is pre-selected, skip validation
+      console.log("School Valid:", isSchoolValid);
+      console.log("School:", school);
+      if (school != null) { setIsSchoolValid(true); }
+      console.log("School Valid:", isSchoolValid);
+    });
 
     return () => unsubscribe();
   }, [setProfileImage]);
@@ -135,7 +137,7 @@ const ProfileEditPage: React.FC = () => {
       alert("Please select a school from the suggestions.");
       return;
     }
-    
+
     // Filter out links with empty type and URL
     const validLinks = links.filter((link) => link.type.trim() !== "" || link.url.trim() !== "");
     setLinks(validLinks);
@@ -152,6 +154,7 @@ const ProfileEditPage: React.FC = () => {
         school,
         bio,
         links: validLinks,
+        volunteerAgreement,
         profileImage: localProfileImage, // Save the selected image
       });
 
@@ -172,24 +175,24 @@ const ProfileEditPage: React.FC = () => {
     <div>
       <div className="profile-edit-container">
         <div className="profile-edit-card">
-        <div className="project-section">
-  <h2>Your Projects</h2>
-  <div className="project-grid">
-    {projects.map((project) => (
-      <Link key={project.id} className="link" href={`/ProjectEditPage?id=${project.id}`}>
-        <button className="project-button">{project.projectName || "Unnamed Project"}</button>
-      </Link>
-    ))}
-    <Link className="link" href="/ProjectEditPage">
-      <button className="add-project">+ Add Project</button>
-    </Link>
+          <div className="project-section">
+            <h2>Your Projects</h2>
+            <div className="project-grid">
+              {projects.map((project) => (
+                <Link key={project.id} className="link" href={`/ProjectEditPage?id=${project.id}`}>
+                  <button className="project-button">{project.projectName || "Unnamed Project"}</button>
+                </Link>
+              ))}
+              <Link className="link" href="/ProjectEditPage">
+                <button className="add-project">+ Add Project</button>
+              </Link>
             </div>
           </div>
 
           <div className="profile-form">
             <label className="profile-picture" htmlFor="imageUpload">
-              {localProfileImage  ? (
-                <img src={localProfileImage } alt="Profile" className="profile-img" />
+              {localProfileImage ? (
+                <img src={localProfileImage} alt="Profile" className="profile-img" />
               ) : (
                 <span className="text">Click to upload</span>
               )}
@@ -248,6 +251,20 @@ const ProfileEditPage: React.FC = () => {
                   ))}
                 </ul>
               )}
+            </div>
+
+            {/* CheckBox Volunteer Filter */}
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="filterVolunteer"
+                checked={volunteerAgreement}
+                onChange={(e) => setVolunteerAgreement(e.target.checked)} // Update state on checkbox change
+              />
+              <label className="form-check-label" htmlFor="filterVolunteer">
+                I am looking for volunteer opportunities
+              </label>
             </div>
 
             {/* Bio Input Section */}
