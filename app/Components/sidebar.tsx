@@ -9,9 +9,9 @@ import { fetchUniversities } from "../Utility/fetchUniversities"; // Import the 
 
 // Handle search
 interface SidebarProps {
-  onNameSearchChange: (query: string) => void;
-  onSchoolChange: (school: string) => void;
-  onGraduatedChange: (graduated: boolean) => void;
+  onNameSearchChange?: (query: string) => void;
+  onSchoolChange?: (school: string) => void;
+  onGraduatedChange?: (graduated: boolean) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ onNameSearchChange, onSchoolChange, onGraduatedChange  }) => {

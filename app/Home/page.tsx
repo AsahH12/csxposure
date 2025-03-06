@@ -10,7 +10,7 @@ import Footer from '../Components/footer';
 
 const HomePage: React.FC = () => {
   const [cards, setCards] = useState<CardProps[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSchool, setSelectedSchool] = useState("");
   const [showGraduated, setShowGraduated] = useState(false);
