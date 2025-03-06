@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useRouter, useSearchParams } from "next/navigation";
-
-import { doc, setDoc, collection, getDoc, addDoc } from "firebase/firestore";
+import { doc, setDoc, collection, getDoc, addDoc, deleteDoc } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../firebaseconfig";
 import "./projectEdit.css";
@@ -11,7 +11,6 @@ const ProjectEditPage: React.FC = () => {
  const router = useRouter();
    const searchParams = useSearchParams();
    const projectId = searchParams.get("id"); // Get projectId from URL
- 
    const [projectName, setProjectName] = useState("");
    const [description, setDescription] = useState("");
    const [websiteLink, setWebsiteLink] = useState("");
@@ -59,14 +58,18 @@ const ProjectEditPage: React.FC = () => {
      fetchProjectData();
    }, [projectId]);
  
-  // Handle image upload
-  const handleImageUpload = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle image/video upload
+  const handleMediaUpload = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
-      const newImages = [...images];
-      newImages[index] = URL.createObjectURL(event.target.files[0]);
-      setImages(newImages);
+      const file = event.target.files[0];
+      const fileURL = URL.createObjectURL(file);
+      
+      const newMedia = [...images];
+      newMedia[index] = fileURL;
+      setImages(newMedia);
     }
   };
+  
 
   // Add a collaborator
   const addCollaborator = () => {
@@ -121,6 +124,22 @@ const ProjectEditPage: React.FC = () => {
          alert("Failed to save project.");
        }
      };
+
+     const deleteProjectFromFirebase = async () => {
+      if (!projectId) return;
+  
+      const confirmDelete = window.confirm("Are you sure you want to delete this project?");
+      if (!confirmDelete) return;
+  
+      try {
+        await deleteDoc(doc(db, "Projects", projectId));
+        alert("Project deleted successfully!");
+        router.push("/ProfileEditPage"); // Redirect to projects page
+      } catch (error) {
+        console.error("Error deleting project:", error);
+        alert("Failed to delete project.");
+      }
+    };
    
 
   if (loading) return <div>Loading...</div>;
@@ -172,20 +191,32 @@ const ProjectEditPage: React.FC = () => {
         </div>
 
         <div className="right-section">
-          <h2>Upload Media</h2>
+        <h2>Upload Media</h2>
           <div className="media-upload-grid">
-            {images.map((image, index) => (
-              <label key={index} className="upload-box">
-                {image ? <img src={image} alt="Uploaded" className="uploaded-image" /> : "Upload Image"}
-                <input
-                  type="file"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  onChange={(event) => handleImageUpload(index, event)}
-                />
-              </label>
-            ))}
-          </div>
+          {images.map((media, index) => (
+             <label key={index} className="upload-box">
+             {media ? (
+               media.endsWith(".mp4") || media.endsWith(".webm") || media.endsWith(".ogg") ? (
+              <video controls className="uploaded-media">
+             <source src={media} type="video/mp4" />
+             Your browser does not support the video tag.
+               </video>
+        ) : (
+          <img src={media} alt="Uploaded media" className="uploaded-media" />
+        )
+      ) : (
+        "Upload Image/Video"
+      )}
+      <input
+        type="file"
+        accept="image/*,video/*"
+        style={{ display: "none" }}
+        onChange={(event) => handleMediaUpload(index, event)}
+      />
+    </label>
+  ))}
+</div>
+
 
           <h2>Collaborators</h2>
           {collaborators.map((name, index) => (
@@ -197,6 +228,12 @@ const ProjectEditPage: React.FC = () => {
           <button onClick={addCollaborator}>+ Add Collaborator</button>
 
           <button className="save-button" onClick={saveProjectToFirebase}>Save Changes</button>
+
+          {projectId && (
+              <button className="delete-button" onClick={deleteProjectFromFirebase}>
+                Delete Project
+              </button>
+            )}
         </div>
       </div>
     </div>

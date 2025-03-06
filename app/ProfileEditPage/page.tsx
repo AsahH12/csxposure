@@ -124,6 +124,10 @@ const ProfileEditPage: React.FC = () => {
   };
 
   const addLink = () => {
+    if (links.length >= 4) {
+      alert("You can only add up to 4 links.");
+      return;
+    }
     setLinks([...links, { type: '', url: '' }]);
   };
 
@@ -193,7 +197,15 @@ const ProfileEditPage: React.FC = () => {
   <div className="project-grid">
     {projects.map((project) => (
       <Link key={project.id} className="link" href={`/ProjectEditPage?id=${project.id}`}>
-        <button className="project-button">{project.projectName || "Unnamed Project"}</button>
+      <div className="project-card">
+      {project.images ? (
+            <img src={project.images} className="project-thumbnail" />
+          ) : (
+            <div className="no-thumbnail">No Image</div> 
+          )}
+ <p className="project-title">{project.projectName || "Unnamed Project"}</p>
+      </div>
+
       </Link>
     ))}
     <Link className="link" href="/ProjectEditPage">
