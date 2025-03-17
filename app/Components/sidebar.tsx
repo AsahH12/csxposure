@@ -18,9 +18,9 @@ interface SidebarProps {
   onGamesChange?: (games: boolean) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ 
-  onNameSearchChange, onSchoolChange, onGraduatedChange, onVolunteerChange, onWebsitesChange, onAppsChange, onGamesChange  
-  }) => {
+const Sidebar: React.FC<SidebarProps> = ({
+  onNameSearchChange, onSchoolChange, onGraduatedChange, onVolunteerChange, onWebsitesChange, onAppsChange, onGamesChange
+}) => {
   const [discussionPosts, setDiscussionPosts] = useState([]); // Stores discussion posts from database
   const [nameSearch, setNameInput] = useState("");  // Name search input
   const [allSchools, setAllSchools] = useState<string[]>([]); // All schools from API
@@ -151,11 +151,12 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <div className={styles.sidebar}>
-      <div className={styles.searchContainer}>
+      <div className={styles.searchNameContainer}>
+      <img src="/icon_Search.png" alt="Search Icon" className={styles.searchIcon} />
         <input
           type="text"
           placeholder="Search student name..."
-          className={styles.searchbar}
+          className={styles.searchbarName}
           value={nameSearch}
           onChange={handleSearchInputChange}
         />
@@ -220,11 +221,11 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div className={styles.divider}></div>
 
       {/* Discussion Post Search */}
-      <div className={styles.searchContainer}>
+      <div className={styles.searchDiscussionContainer}>
         <input
           type="text"
           placeholder="Search discussions..."
-          className={styles.searchbar}
+          className={styles.searchDiscussion}
           value={discussionSearch}
           onChange={handleDiscussionSearch}
         />

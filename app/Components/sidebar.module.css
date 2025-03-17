@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Platypi&display=swap');
+
 .sidebar {
     height: 785px;
     width: 400px;
@@ -5,17 +7,34 @@
     padding: 20px;
 }
 
-.searchbar {
-    height: 40px; 
-    width: 100%; 
-    font-size: 16px; 
-    padding: 10px; 
-    border: 1px solid #ccc; 
-    border-radius: 5px;
+/* Search Name*/
+.searchNameContainer {
+    display: flex; 
+}
+.searchbarName {
+    height: 40px;
+    width: 100%;
+    color: #646464;
+    font-size: 20px;
+    padding: 10px 10px 10px 40px; /* Added left padding to make space for icon */
+    border: 1px solid #ccc;
+    border-radius: 90px;
+    font-family: 'Platypi', serif;
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.2); /* Inner shadow */
+    outline: none;
+}
+.searchIcon {
+    position: absolute;
+    left: 31px;
+    top: 14.5%;
+    width: 25px; /* Adjust based on your icon size */
+    height: 25px;
+    pointer-events: none; /* Ensures the icon does not interfere with input clicks */
 }
 
+/* Filtering Section*/
 .filterSection {
-    margin-top: 20px; 
+    margin-top: 15px; 
 }
 
 .suggestionsList {
@@ -55,6 +74,20 @@
     color:black;
 }
 
+.searchDiscussionContainer {
+    display: flex; 
+    margin-bottom: 20px;
+}
+
+.searchDiscussion {
+    height: 40px; 
+    width: 100%; 
+    font-size: 16px; 
+    padding: 10px; 
+    border: 1px solid #ccc; 
+    border-radius: 5px;
+}
+
 .scrollableContainer {
     max-height: 400px; 
     overflow-y: auto; 
@@ -75,11 +108,6 @@
 
 .discussionPost p {
     margin: 5px 0 0 0; 
-}
-
-.searchContainer {
-    display: flex; 
-    margin-bottom: 20px;
 }
 
 .filterGrid {
