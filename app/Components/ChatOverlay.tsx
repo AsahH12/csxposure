@@ -330,13 +330,14 @@ const [otherlastName, othersetLastName] = useState<string>("");
   return (
     <div
       ref={chatRef}
-      className="fixed top-1/2 right-5 bg-white shadow-lg border border-gray-300 z-50 flex flex-col rounded-lg"
+      className="fixed top-1/2 right-5 bg-white shadow-lg border border-gray-300 z-[1000] flex flex-col rounded-lg"
       style={{
         position: "fixed",
         top: `${position.y}px`,
         left: `${position.x}px`,
         width: `${size.width}px`,
         height: "auto", // Make the height dynamic
+        zIndex: 1000,
       }}
       onMouseDown={handleMouseDown}
     >
