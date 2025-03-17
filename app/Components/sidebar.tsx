@@ -163,6 +163,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       <div className={styles.filterSection}>
+        <img src="/icon_Filter2.png" alt="Filter Icon" className={styles.filterIcon} />
         <h5 className={styles.filterTitle}>Filter by:</h5>
         <div className={styles.filterGrid}>
           <div className={styles.leftColumn}>

@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Platypi&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Platypi&family=Trocchi&display=swap');
 
 .sidebar {
     height: 785px;
@@ -7,7 +8,7 @@
     padding: 20px;
 }
 
-/* Search Name*/
+/*|||||||||||||||||||||||| Search Name ||||||||||||||||||||||||*/
 .searchNameContainer {
     display: flex; 
 }
@@ -32,11 +33,30 @@
     pointer-events: none; /* Ensures the icon does not interfere with input clicks */
 }
 
-/* Filtering Section*/
+/*|||||||||||||||||||||||| Filtering Section ||||||||||||||||||||||||*/
 .filterSection {
-    margin-top: 15px; 
+    margin-top: 20px; 
 }
 
+/* Filtering Title*/
+.filterTitle {
+    font-size: 22px; 
+    color: white;
+    font-family: 'Trocchi', serif;
+    font-weight: bold; 
+    margin-bottom: 10px; 
+    padding-left: 32px;
+    letter-spacing: 1.5px; /* Adjust the spacing between letters */
+    text-shadow: 1px 2px 2px rgba(72, 72, 72, 0.6); /* Drop shadow effect */
+}
+.filterIcon {
+    position: absolute;
+    width: 25px; /* Adjust based on your icon size */
+    height: 25px;
+    pointer-events: none; /* Ensures the icon does not interfere with input clicks */
+}
+
+/* School Filter */
 .suggestionsList {
     position: absolute;
     background: white;
@@ -50,16 +70,34 @@
     overflow-y: auto;
     z-index: 10;
 }
-  
 .suggestionsList li {
     padding: 8px;
     cursor: pointer;
 }
-  
 .suggestionsList li:hover {
     background: #f0f0f0;
 }
-  
+
+
+.filterGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two equal columns */
+    gap: 20px; /* Space between columns */
+}
+
+.leftColumn {
+    display: flex;
+    flex-direction: column;
+}
+
+.rightColumn {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+}
+
+
+/*|||||||||||||||||||||||| Discussion Section ||||||||||||||||||||||||*/
 .divider {
     height: 1px;
     background-color: black;
@@ -108,23 +146,6 @@
 
 .discussionPost p {
     margin: 5px 0 0 0; 
-}
-
-.filterGrid {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* Two equal columns */
-    gap: 20px; /* Space between columns */
-}
-
-.leftColumn {
-    display: flex;
-    flex-direction: column;
-}
-
-.rightColumn {
-    display: flex;
-    flex-direction: column;
-    margin-top: 20px;
 }
 
 .discussionLink{
