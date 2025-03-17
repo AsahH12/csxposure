@@ -62,12 +62,13 @@ const HomePage: React.FC = () => {
     fetchUsers();
   }, []);
 
-  // Filter cards based on search name and ckeckboxes
+  // Filter cards based on search name and checkboxes
   const filteredCards = cards.filter((card) =>
     `${card.firstName} ${card.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) &&
     (selectedSchool.trim() === "" || selectedSchool.toLowerCase() === "any" || card.school.toLowerCase().includes(selectedSchool.toLowerCase())) &&
     (!showGraduated || card.status === "Graduate") &&
-    (!showVolunteers || card.volunteer)
+    (!showVolunteers || card.volunteer) &&
+    (!showStudents || card.status === "Student")
   );
 
   // Handle search updates from sidebar
@@ -86,6 +87,10 @@ const HomePage: React.FC = () => {
 
   const handleVolunteerChange = (volunteer: boolean) => {
     setShowVolunteers(volunteer);
+  };
+
+  const handleStudentChange = (student: boolean) => {
+    setShowStudents(student);
   };
 
   // Card Component
@@ -137,6 +142,7 @@ const HomePage: React.FC = () => {
           onSchoolChange={handleSchoolChange} 
           onGraduatedChange={handleGraduatedChange}
           onVolunteerChange={handleVolunteerChange}
+          onStudentChange={handleStudentChange}
           />
         </div>
         <div className="col">

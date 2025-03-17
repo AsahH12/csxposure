@@ -18,7 +18,7 @@
     color: #646464;
     font-size: 20px;
     padding: 10px 10px 10px 40px; /* Added left padding to make space for icon */
-    border: 1px solid #ccc;
+    border: none;
     border-radius: 90px;
     font-family: 'Platypi', serif;
     box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.2); /* Inner shadow */
@@ -80,6 +80,7 @@
 
 
 .filterGrid {
+    margin-top: 10px;
     display: grid;
     grid-template-columns: 1fr 1fr; /* Two equal columns */
     gap: 20px; /* Space between columns */
@@ -93,7 +94,6 @@
 .rightColumn {
     display: flex;
     flex-direction: column;
-    margin-top: 20px;
 }
 
 

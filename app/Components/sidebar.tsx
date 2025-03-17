@@ -16,10 +16,11 @@ interface SidebarProps {
   onWebsitesChange?: (websites: boolean) => void;
   onAppsChange?: (apps: boolean) => void;
   onGamesChange?: (games: boolean) => void;
+  onStudentChange?: (student: boolean) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
-  onNameSearchChange, onSchoolChange, onGraduatedChange, onVolunteerChange, onWebsitesChange, onAppsChange, onGamesChange
+  onNameSearchChange, onSchoolChange, onGraduatedChange, onVolunteerChange, onWebsitesChange, onAppsChange, onGamesChange, onStudentChange
 }) => {
   const [discussionPosts, setDiscussionPosts] = useState([]); // Stores discussion posts from database
   const [nameSearch, setNameInput] = useState("");  // Name search input
@@ -31,6 +32,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [searchInput, setSearchInput] = useState(""); // For "Search discussions..." only
 
   const [graduated, setGraduated] = useState(false);
+  const [student, setStudent] = useState(false);
   const [volunteer, setVolunteer] = useState(false);
   const [websites, setWebsites] = useState(false);
   const [apps, setApps] = useState(false);
@@ -135,6 +137,12 @@ const Sidebar: React.FC<SidebarProps> = ({
     onVolunteerChange(isChecked); // Pass the volunteer state to HomePage
   }
 
+  const handleStudentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = event.target.checked;
+    setStudent(isChecked);
+    onStudentChange(isChecked); // Pass the student state to HomePage
+  }
+
   //////////////////////////////////// Name Filter ////////////////////////////////////
   // Handle search input change
   const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -165,11 +173,9 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div className={styles.filterSection}>
         <img src="/icon_Filter.png" alt="Filter Icon" className={styles.filterIcon} />
         <h5 className={styles.filterTitle}>Filter by:</h5>
-        <div className={styles.filterGrid}>
-          <div className={styles.leftColumn}>
 
-            {/* School Filter */}
-            <div className={styles.searchContainer}>
+        {/* School Filter */}
+        <div className={styles.searchContainer}>
               <input
                 type="text"
                 placeholder="Search school..."
@@ -189,6 +195,9 @@ const Sidebar: React.FC<SidebarProps> = ({
               )}
             </div>
 
+        <div className={styles.filterGrid}>
+          <div className={styles.leftColumn}>
+
             {/* CheckBox Filters */}
             <div className="form-check">
               <input className="form-check-input" type="checkbox" id="filterVolunteer" checked={volunteer} onChange={handleVolunteerChange} />
@@ -197,6 +206,10 @@ const Sidebar: React.FC<SidebarProps> = ({
             <div className="form-check">
               <input className="form-check-input" type="checkbox" id="filterGraduated" checked={graduated} onChange={handleGraduatedChange} />
               <label className="form-check-label" htmlFor="filterGraduated">Graduated</label>
+            </div>
+            <div className="form-check">
+              <input className="form-check-input" type="checkbox" id="filterStudent" checked={student} onChange={handleStudentChange} />
+              <label className="form-check-label" htmlFor="filterStudent">Student</label>
             </div>
           </div>
 
