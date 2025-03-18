@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useRouter, useSearchParams } from "next/navigation";
-
-import { doc, setDoc, collection, getDoc, addDoc } from "firebase/firestore";
+import { doc, setDoc, collection, getDoc, addDoc, deleteDoc } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../firebaseconfig";
 import "./projectEdit.css";
@@ -11,7 +11,6 @@ const ProjectEditPage: React.FC = () => {
  const router = useRouter();
    const searchParams = useSearchParams();
    const projectId = searchParams.get("id"); // Get projectId from URL
- 
    const [projectName, setProjectName] = useState("");
    const [description, setDescription] = useState("");
    const [websiteLink, setWebsiteLink] = useState("");
@@ -59,14 +58,48 @@ const ProjectEditPage: React.FC = () => {
      fetchProjectData();
    }, [projectId]);
  
-  // Handle image upload
-  const handleImageUpload = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle image/video upload
+  const handleMediaUpload = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
-      const newImages = [...images];
-      newImages[index] = URL.createObjectURL(event.target.files[0]);
-      setImages(newImages);
+      const file = event.target.files[0];
+      const fileURL = URL.createObjectURL(file);
+  
+      // Check if it's a video file
+      if (file.type.startsWith("video/")) {
+        const video = document.createElement("video");
+        video.src = fileURL;
+        video.crossOrigin = "anonymous"; // Ensure cross-origin safety
+        video.muted = true; // Mute to allow autoplay
+        video.playsInline = true;
+  
+        video.oncanplay = () => {
+          video.currentTime = 0.5; // Capture at 1 second
+           
+          const canvas = document.createElement("canvas");
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+  
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const thumbnailURL = canvas.toDataURL("image/png");
+  
+            // Update state with the thumbnail
+            const newMedia = [...images];
+            newMedia[index] = thumbnailURL;
+            setImages(newMedia);
+          }
+        };
+      } else {
+        // If it's an image, just use the file URL
+        const newMedia = [...images];
+        newMedia[index] = fileURL;
+        setImages(newMedia);
+      }
     }
   };
+  
+  
 
   // Add a collaborator
   const addCollaborator = () => {
@@ -121,12 +154,28 @@ const ProjectEditPage: React.FC = () => {
          alert("Failed to save project.");
        }
      };
+
+     const deleteProjectFromFirebase = async () => {
+      if (!projectId) return;
+  
+      const confirmDelete = window.confirm("Are you sure you want to delete this project?");
+      if (!confirmDelete) return;
+  
+      try {
+        await deleteDoc(doc(db, "Projects", projectId));
+        alert("Project deleted successfully!");
+        router.push("/ProfileEditPage"); // Redirect to projects page
+      } catch (error) {
+        console.error("Error deleting project:", error);
+        alert("Failed to delete project.");
+      }
+    };
    
 
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="project-container">
+    // <div className="project-container">
       <div className="project-content">
         <div className="left-section">
           <h1 className="project-title">{projectId ? "Edit Project" : "New Project"}</h1>
@@ -142,7 +191,7 @@ const ProjectEditPage: React.FC = () => {
           </div>
 
           <div className="input-group">
-            <label>Description</label>
+            <label className="description">Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -169,37 +218,51 @@ const ProjectEditPage: React.FC = () => {
               placeholder="Enter GitHub link"
             />
           </div>
-        </div>
 
-        <div className="right-section">
-          <h2>Upload Media</h2>
-          <div className="media-upload-grid">
-            {images.map((image, index) => (
-              <label key={index} className="upload-box">
-                {image ? <img src={image} alt="Uploaded" className="uploaded-image" /> : "Upload Image"}
-                <input
-                  type="file"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  onChange={(event) => handleImageUpload(index, event)}
-                />
-              </label>
-            ))}
-          </div>
-
-          <h2>Collaborators</h2>
+          <h2 className="collaborator-title">Collaborators</h2>
           {collaborators.map((name, index) => (
-            <div key={index} className="collaborator-item">
+            <div key={index}>
               <span>{name}</span>
               <button onClick={() => removeCollaborator(index)}>Remove</button>
             </div>
           ))}
-          <button onClick={addCollaborator}>+ Add Collaborator</button>
+          <button className="add-collab" onClick={addCollaborator}>+ Add Collaborator</button>
+        </div>
+
+        <div className="right-section">
+        <h2 className="media-upload">Upload Media</h2>
+          <div className="media-upload-grid">
+          {images.map((media, index) => (
+             <label key={index} className="upload-box">
+             {media ? (
+               <img src={media} alt="Uploaded media" className="uploaded-media" />
+             ) : (
+               "Upload Image/Video"
+             )}
+             <input
+               type="file"
+               accept="image/*,video/*"
+               style={{ display: "none" }}
+               onChange={(event) => handleMediaUpload(index, event)}
+             />
+           </label>
+           
+  ))}
+</div>
+
+
+          
 
           <button className="save-button" onClick={saveProjectToFirebase}>Save Changes</button>
+
+          {projectId && (
+              <button className="delete-button" onClick={deleteProjectFromFirebase}>
+                Delete Project
+              </button>
+            )}
         </div>
       </div>
-    </div>
+    // </div>
   );
 };
 
