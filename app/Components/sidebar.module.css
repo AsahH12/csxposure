@@ -16,7 +16,7 @@
     height: 40px;
     width: 100%;
     color: #646464;
-    font-size: 20px;
+    font-size: 18px;
     padding: 10px 10px 10px 40px; /* Added left padding to make space for icon */
     border: none;
     border-radius: 90px;
@@ -57,18 +57,36 @@
 }
 
 /* School Filter */
+.searchbarSchool {
+    color: #646464;
+    font-size: 16px;
+    border-radius: 5px;
+    font-family: 'Platypi', serif;
+    border: none;
+    outline: none;
+    width: 90%;
+    box-shadow: rgba(0, 0, 0, 0.55) 0px 2px 5px;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
 .suggestionsList {
     position: absolute;
     background: white;
     border: 1px solid #ccc;
+    border-radius: 5px;
     list-style: none;
     padding: 0;
     margin: 0;
-    margin-top: 40px;
-    width: 170px;
+    margin-top: 0px;
+    width: 322px;
     max-height: 150px;
     overflow-y: auto;
     z-index: 10;
+    &::-webkit-scrollbar {
+        display: none; /* Hide scrollbar */
+      }
 }
 .suggestionsList li {
     padding: 8px;
@@ -78,56 +96,108 @@
     background: #f0f0f0;
 }
 
-
+/* Checkbox Filters */
 .filterGrid {
-    margin-top: 10px;
+    margin-top: 15px;
     display: grid;
     grid-template-columns: 1fr 1fr; /* Two equal columns */
     gap: 20px; /* Space between columns */
+    margin-bottom: 15px;
 }
 
-.leftColumn {
+.leftColumn, .rightColumn {
     display: flex;
     flex-direction: column;
 }
 
-.rightColumn {
-    display: flex;
-    flex-direction: column;
-}
-
+.checkbox {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    margin-bottom: 3px;
+    box-shadow: rgba(0, 0, 0, 0.55) 0px 3px 2.5px;
+  }
+  
+  .checkboxLabels {
+    font-size: 16px;
+    font-weight: 500;
+    color: #383838;
+    font-family: 'Platypi', serif;
+  }
+  
 
 /*|||||||||||||||||||||||| Discussion Section ||||||||||||||||||||||||*/
 .divider {
     height: 1px;
-    background-color: black;
-    margin: 10px 0;
+    background-color: white;
+    padding: 2px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
-
 .discussionTitle {
     font-size: 30px;
     font-weight: bold;
-    margin: 20px 0 10px 0;
     text-align: center;
-    color:black;
+    color:white;
+    font-family: 'Trocchi', serif;
+    letter-spacing: 1.5px; /* Adjust the spacing between letters */
+    font-weight: Bold;
 }
 
+/* Discussion Search */
 .searchDiscussionContainer {
     display: flex; 
-    margin-bottom: 20px;
+    margin-bottom: 5px;
 }
-
 .searchDiscussion {
-    height: 40px; 
-    width: 100%; 
-    font-size: 16px; 
-    padding: 10px; 
-    border: 1px solid #ccc; 
-    border-radius: 5px;
+    height: 40px;
+    width: 100%;
+    color: #646464;
+    font-size: 18px;
+    padding: 10px;
+    border: none;
+    border-radius: 90px;
+    font-family: 'Platypi', serif;
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.2); /* Inner shadow */
+    outline: none;
 }
 
+/* Discussion Button Group Filters */
+.discussionFilters {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .buttonGroup {
+    display: flex;
+  }
+  .filterButton {
+    background-color: #f0f0f0;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s ease-in-out;
+  }
+  .filterButton:hover {
+    background-color: #dcdcdc;
+  }
+  .sortDropdown {
+    padding: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+  }
+  .active {
+    background-color: #4a90e2;
+    color: white;
+    font-weight: bold;
+  }
+  
+
+/* Discussion Posts */
 .scrollableContainer {
-    max-height: 400px; 
+    max-height: 350px; 
     overflow-y: auto; 
     padding-right: 10px; 
     &::-webkit-scrollbar {
@@ -135,56 +205,53 @@
       }
 }
 
-.discussionPost {
-    border-bottom: 1px solid #ccc; 
-    padding: 10px 0; 
-}
-
-.discussionPost h6 {
-    margin: 0; 
-}
-
-.discussionPost p {
-    margin: 5px 0 0 0; 
-}
-
-.discussionLink{
+.discussionLink {
     text-decoration: none;
+    display: block;
+    width: 100%;
+    color: black;
 }
 
-/* Style for the button */
-.discussionButton {
-    background-color: #808080; /* Gray button color */
-    border: none;
-    padding: 1px; /* Same padding for consistency */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    width: 100%; /* Make the button fill its container */
-    border-radius: 8px;
-    transition: background-color 0.3s ease;
-    box-sizing: border-box;
-  }
-  
-
-/* Style for the card (discussion post content) */
 .discussionPost {
     background-color: #fff; /* White background for the post */
     padding: 12px;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    box-shadow: 0 4px 1px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
     width: 100%; /* Full width of the button */
+    border-bottom: 1px solid #ccc; /* Bottom border for separation */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 10px 0;
+    text-align: center;
 }
-  
-/* Title and description styles */
+
+.discussionPost:hover {
+    background-color: #c7f3ec; /* Light gray hover effect */
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.2); /* Inner shadow */
+}
+
 .discussionPost h6 {
-    font-size: 1.2rem;
+    font-size: 22px;
     font-weight: bold;
     margin-bottom: 8px;
+    margin: 0;
+    color: #383838;
+    font-family: 'Trocchi', serif;
 }
-  
+
 .discussionPost p {
     font-size: 1rem;
     color: #555;
+    margin: 5px 0 0 0;
+    font-family: 'Platypi', serif;
+}
+
+.postInfo {
+    display: flex;
+    justify-content: center; /* Center content horizontally */
+    width: 100%;
 }
