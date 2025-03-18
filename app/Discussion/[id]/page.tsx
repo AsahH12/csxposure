@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { db } from '../../../firebaseconfig';
 import { doc, getDoc, collection, query, getDocs, orderBy, serverTimestamp } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import styles from './discussion.module.css';
+import styles from './Discussion.module.css';
 import Sidebar from '../../Components/sidebar';
 import Footer from '../../Components/footer';
 import { addDoc } from 'firebase/firestore';

@@ -5,7 +5,9 @@ import { doc, getDoc, collection, query, where, getDocs,addDoc } from "firebase/
 import { db, auth } from "../../firebaseconfig";
 import './studentProfile.css';
 import ChatOverlay from "../Components/ChatOverlay";
+
 const StudentProfilePage: React.FC = () => {
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = searchParams.get("userId");
@@ -70,7 +72,9 @@ const [isChatOpen, setChatOverlayOpen] = useState(false);
     setLoading(false);
   }, [userId]);
   
-
+// const handleProjectClick = (project) => {
+//   navigate(`/StudentProjectPage/${project.id}`);
+// };
 const handleOpenChat = async () => {
   const { userId } = useParams(); // Get user ID from the URL
   if (!userId) return;
