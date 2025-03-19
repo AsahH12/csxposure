@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Platypi&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Platypi&family=Trocchi&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lateef&display=swap');
 
 .sidebar {
     height: 785px;
@@ -165,32 +166,43 @@
 /* Discussion Button Group Filters */
 .discussionFilters {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 0px;
   }
   .buttonGroup {
     display: flex;
+    border: none;
   }
   .filterButton {
-    background-color: #f0f0f0;
-    border: none;
+    background-color: #42a092;
+    color: white;
     padding: 8px 12px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 20px;
     transition: background 0.2s ease-in-out;
+    border: 1px solid #23675c;
+    font-family: 'Lateef', cursive;
   }
   .filterButton:hover {
-    background-color: #dcdcdc;
+    background-color: #c7f3ec;
+    color: #555;
   }
+  .filterButton:active {
+    background-color: #c7f3ec !important; /* Darker shade for click effect */
+    color: #aaa !important;
+    transform: scale(0.95); /* Slight shrink effect */
+    transition: transform 0.1s ease-in-out;
+}
   .sortDropdown {
     padding: 8px;
-    border: 1px solid #ccc;
     font-size: 14px;
+    background-color: #42a092;
+    border: 1px solid #23675c;
   }
   .active {
-    background-color: #4a90e2;
-    color: white;
+    background-color: #c7f3ec;
+    color: #555;
     font-weight: bold;
   }
   
@@ -199,17 +211,14 @@
 .scrollableContainer {
     max-height: 350px; 
     overflow-y: auto; 
-    padding-right: 10px; 
+    border-radius: 10px;
+    margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     &::-webkit-scrollbar {
         display: none; /* Hide scrollbar */
       }
-}
-
-.discussionLink {
-    text-decoration: none;
-    display: block;
-    width: 100%;
-    color: black;
 }
 
 .discussionPost {
@@ -225,13 +234,23 @@
     align-items: center;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    margin: 10px 0;
+    margin-bottom: 10px;
+    margin-top: 10px;
     text-align: center;
 }
 
 .discussionPost:hover {
     background-color: #c7f3ec; /* Light gray hover effect */
     box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.2); /* Inner shadow */
+}
+
+.discussionLink {
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    color: black;
+    display: flex;
+    justify-content: center;
 }
 
 .discussionPost h6 {

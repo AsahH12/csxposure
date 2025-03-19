@@ -278,37 +278,39 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Discussion Post Filters */}
       <div className={styles.discussionFilters}>
-        <div className={styles.buttonGroup}>
+        <div className={`btn-group ${styles.buttonGroup}`} role="group" aria-label="Discussion Filters">
           <button
-            className={`${styles.filterButton} ${activeFilters.includes("Created") ? styles.active : ""}`}
+            type="button"
+            className={`btn btn-secondary ${styles.filterButton} ${activeFilters.includes("Created") ? styles.active : ""}`}
             onClick={() => handleFilter("Created")}
           >
             Created
           </button>
           <button
-            className={`${styles.filterButton} ${activeFilters.includes("Joined") ? styles.active : ""}`}
+            type="button"
+            className={`btn btn-secondary ${styles.filterButton} ${activeFilters.includes("Joined") ? styles.active : ""}`}
             onClick={() => handleFilter("Joined")}
           >
             Joined
           </button>
           <button
-            className={`${styles.filterButton} ${activeFilters.includes("Business") ? styles.active : ""}`}
+            type="button"
+            className={`btn btn-secondary ${styles.filterButton} ${activeFilters.includes("Business") ? styles.active : ""}`}
             onClick={() => handleFilter("Business")}
           >
             Business
           </button>
 
-          {/* SortBy Dropdown */}
-          <select className={styles.sortDropdown} onChange={(e) => handleSort(e.target.value)}>
-            <option value="newest">Sort by: Newest</option>
-            <option value="oldest">Oldest</option>
-            <option value="most_comments">Most Comments</option>
-            <option value="least_comments">Least Comments</option>
-          </select>
+          <div className="btn-group" role="group">
+            <select className={`btn btn-secondary ${styles.sortDropdown}`} onChange={(e) => handleSort(e.target.value)}>
+              <option value="newest">Sort by: Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="most_comments">Most Comments</option>
+              <option value="least_comments">Least Comments</option>
+            </select>
+          </div>
         </div>
       </div>
-
-
 
       {/* Display Filtered Discussions */}
       <div className={styles.scrollableContainer}>
