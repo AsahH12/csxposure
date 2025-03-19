@@ -172,6 +172,24 @@ const Sidebar: React.FC<SidebarProps> = ({
     onStudentChange(isChecked); // Pass the student state to HomePage
   }
 
+  const handleWebsitesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = event.target.checked;
+    setWebsites(isChecked);
+    onWebsitesChange(isChecked);
+  };
+
+  const handleAppsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = event.target.checked;
+    setApps(isChecked);
+    onAppsChange(isChecked);
+  };
+
+  const handleGamesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = event.target.checked;
+    setGames(isChecked);
+    onGamesChange(isChecked);
+  };
+
   //////////////////////////////////// Name Filter ////////////////////////////////////
   // Handle search input change
   const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -245,15 +263,15 @@ const Sidebar: React.FC<SidebarProps> = ({
 
           <div className={styles.rightColumn}>
             <div className="form-check">
-              <input className={`form-check-input ${styles.checkbox}`} type="checkbox" id="filterWebsites" />
+              <input className={`form-check-input ${styles.checkbox}`} type="checkbox" id="filterWebsites" checked={websites} onChange={handleWebsitesChange}/>
               <label className={`form-check-label ${styles.checkboxLabels}`} htmlFor="filterWebsites">Websites</label>
             </div>
             <div className="form-check">
-              <input className={`form-check-input ${styles.checkbox}`} type="checkbox" id="filterApps" />
+              <input className={`form-check-input ${styles.checkbox}`} type="checkbox" id="filterApps" checked={apps} onChange={handleAppsChange}/>
               <label className={`form-check-label ${styles.checkboxLabels}`} htmlFor="filterApps">Apps</label>
             </div>
             <div className="form-check">
-              <input className={`form-check-input ${styles.checkbox}`} type="checkbox" id="filterGames" />
+              <input className={`form-check-input ${styles.checkbox}`} type="checkbox" id="filterGames" checked={games} onChange={handleGamesChange}/>
               <label className={`form-check-label ${styles.checkboxLabels}`} htmlFor="filterGames">Games</label>
             </div>
           </div>
