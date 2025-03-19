@@ -9,6 +9,13 @@ import Footer from '../Components/footer';
 import { fetchUniversities } from "../Utility/fetchUniversities"; // Import the utility function
 import { UserContext } from '../Utility/UserContext';
 
+// Define the structure of a Project
+interface Project {
+  id: string;
+  projectName: string;
+  categories?: string[];  // Categories will be an optional array of strings
+  images?: string[];      // Optional field for project images
+}
 
 const ProfileEditPage: React.FC = () => {
   const [firstName, setFirstName] = useState('');
@@ -25,6 +32,13 @@ const ProfileEditPage: React.FC = () => {
   const [isSchoolValid, setIsSchoolValid] = useState(false); // Track if a valid school is selected
   const [volunteerAgreement, setVolunteerAgreement] = useState(false); // Track if volunteer agreement is checked
   const [projects, setProjects] = useState<any[]>([]);
+  const [totalProjects, setTotalProjects] = useState<number>(0); // Store total number of projects
+  const [categoryCounts, setCategoryCounts] = useState({
+    Game: 0,
+    App: 0,
+    Website: 0,
+    Other: 0
+  });
 
   //Fetch profile data
   useEffect(() => {
@@ -55,13 +69,42 @@ const ProfileEditPage: React.FC = () => {
             const projectDocRef = doc(db, "Projects", projectId);
             const projectDocSnap = await getDoc(projectDocRef);
             if (projectDocSnap.exists()) {
-              return { id: projectId, ...projectDocSnap.data() };
+              return { id: projectId, ...projectDocSnap.data() as Project };
             }
             return null;
           });
 
           const userProjects = (await Promise.all(projectPromises)).filter(project => project !== null);
           setProjects(userProjects);
+
+          // Count the total number of projects
+          setTotalProjects(userProjects.length);
+
+          // Count the categories (Game, App, Website, Other)
+          const categoryCounter = {
+            Game: 0,
+            App: 0,
+            Website: 0,
+            Other: 0
+          };
+          userProjects.forEach((project) => {
+            project.categories?.forEach((category: string) => {
+              if (categoryCounter[category] !== undefined) {
+                categoryCounter[category] += 1;
+              } else {
+                categoryCounter['Other'] += 1; // If category is unrecognized, count as 'Other'
+              }
+            });
+          });
+          setCategoryCounts(categoryCounter);
+
+          // Save categoryCounts and totalProjects to the Firestore database
+          const userProfileRef = doc(db, "users", user.uid, "details", "profileData");
+          await updateDoc(userProfileRef, {
+            totalProjects: userProjects.length,
+            categoryCounts: categoryCounter,
+          });
+
         } catch (error) {
           console.error("Error fetching profile or projects:", error);
           alert("Failed to fetch data.");
@@ -179,25 +222,25 @@ const ProfileEditPage: React.FC = () => {
     <div>
       <div className="profile-edit-container">
         <div className="profile-edit-card">
-        <div className="project-section">
-  <h2>Your Projects</h2>
-  <div className="project-grid">
-    {projects.map((project) => (
-      <Link key={project.id} className="link" href={`/ProjectEditPage?id=${project.id}`}>
-      <div className="project-card">
-      {project.images ? (
-            <img src={project.images} className="project-thumbnail" />
-          ) : (
-            <div className="no-thumbnail">No Image</div> 
-          )}
- <p className="project-title">{project.projectName || "Unnamed Project"}</p>
-      </div>
+          <div className="project-section">
+            <h2>Your Projects</h2>
+            <div className="project-grid">
+              {projects.map((project) => (
+                <Link key={project.id} className="link" href={`/ProjectEditPage?id=${project.id}`}>
+                  <div className="project-card">
+                    {project.images ? (
+                      <img src={project.images} className="project-thumbnail" />
+                    ) : (
+                      <div className="no-thumbnail">No Image</div>
+                    )}
+                    <p className="project-title">{project.projectName || "Unnamed Project"}</p>
+                  </div>
 
-      </Link>
-    ))}
-    <Link className="link" href="/ProjectEditPage">
-      <button className="add-project">+ Add Project</button>
-    </Link>
+                </Link>
+              ))}
+              <Link className="link" href="/ProjectEditPage">
+                <button className="add-project">+ Add Project</button>
+              </Link>
             </div>
           </div>
 
