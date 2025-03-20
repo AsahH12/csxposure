@@ -13,6 +13,7 @@
   box-shadow: 0 8px 16px #00743f;
   transform: scale(1.10); /* Slight grow effect */
   transition: transform 0.3s ease-in-out;
+  text-decoration: none;
 }
 
 .profileImageContainer {
@@ -62,6 +63,6 @@
   color: black;
 }
 
-.cardLink {
+.cardLink, .cardLink:hover {
   text-decoration: none;
 }

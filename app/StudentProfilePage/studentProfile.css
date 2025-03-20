@@ -5,18 +5,20 @@
     min-height: 95vh;
     background-color: #f3f4f6;
     padding: 1rem;
-
   }
+  
   .profile-picture {
-    width: 80px; /* Adjust size as needed */
-    height: 80px;
+    width: 6rem; /* Adjust size as needed */
+    height: 6rem;
     border-radius: 50%;
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #ddd; /* Placeholder color if no image */
-  }
+    background-color: #d1d5db; /* Placeholder color if no image */
+    margin: 0 auto 1rem;
+}
+
   
   .profile-picture img {
     width: 100%;
@@ -96,14 +98,6 @@
     padding: 1rem;
   }
   
-  .profile-picture {
-    width: 6rem;
-    height: 6rem;
-    background: #d1d5db;
-    border-radius: 50%;
-    margin: 0 auto 1rem;
-  }
-  
   .name-group {
     display: flex;
     gap: 0.5rem;
@@ -170,8 +164,17 @@
     padding:2rem;
   }
 
-  .initials {
-    color: #fff;
-    font-size: 20px;
+  .initials-placeholder {
+    width: 100px; /* Adjust size as needed */
+    height: 100px;
+    background-color: grey; /* Or any color */
+    color: white;
+    font-size: 36px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%; /* Makes it a circle */
+    text-transform: uppercase;
   }
   
