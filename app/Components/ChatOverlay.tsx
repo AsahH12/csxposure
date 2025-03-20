@@ -64,10 +64,8 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   const [otherfirstName, othersetFirstName] = useState<string>(""); // Other user's first name
   const [otherlastName, othersetLastName] = useState<string>(""); // Other user's last name
 
-  // Function to get initials from first and last name
-  const getInitials = (firstName: string | null, lastName: string | null) =>
-    `${firstName?.charAt(0).toUpperCase() ?? ""}${lastName?.charAt(0).toUpperCase() ?? ""}`;
 
+  //////////////////////////////////// Fetching or Saving Data ////////////////////////////////////
   // Get current user's email
   useEffect(() => {
     const auth = getAuth();
@@ -79,26 +77,6 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
 
     return () => unsubscribe(); // Cleanup subscription on unmount
   }, []);
-
-  // Update read receipts for current user
-  const updateReadReceipts = async (userEmail: string) => {
-    const chatsRef = collection(db, "chats");
-    const q = query(chatsRef, where("participants", "array-contains", userEmail));
-
-    const snapshot = await getDocs(q);
-    snapshot.docs.forEach(async (doc) => {
-      const chatData = doc.data();
-
-      // Update unread messages and read timestamps if applicable
-      if (chatData.unreadMessages && chatData.unreadMessages[userEmail] > 0) {
-        const chatRef = doc.ref;
-        await updateDoc(chatRef, {
-          [`unreadMessages.${userEmail}`]: 0, // Set unread messages count to 0
-          [`readTimestamps.${userEmail}`]: serverTimestamp(), // Update read timestamp
-        });
-      }
-    });
-  };
 
   // Fetch all users except the current user
   useEffect(() => {
@@ -184,25 +162,6 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
     return () => unsubscribe(); // Cleanup subscription on unmount
   }, [selectedUser, userEmail]);
 
-  // Mark a message as read
-  const handleMessageRead = async (messageId: string) => {
-    if (!messageId || !userEmail || !chatId) return;
-
-    const messageRef = doc(db, "chats", chatId, "messages", messageId);
-
-    // Update the message status to read by adding userEmail to the readBy array
-    await updateDoc(messageRef, {
-      readBy: arrayUnion(userEmail),  // Add the current user to the readBy array
-    });
-
-    // Now update the unreadMessages and readMessages fields in the chat document
-    const chatRef = doc(db, "chats", chatId);
-    await updateDoc(chatRef, {
-      [`unreadMessages.${userEmail}`]: Math.max(0, unreadCount - 1),  // Decrement unread count for the current user
-      [`readMessages.${userEmail}`]: arrayUnion(messageId),  // Add messageId to readMessages array
-    });
-  };
-
   // Fetch messages for the chat and set up a listener
   useEffect(() => {
     if (!chatId || !userEmail) return;
@@ -226,6 +185,53 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
     return () => unsubscribe(); // Cleanup subscription on unmount
   }, [chatId, userEmail]);  // Add userEmail as dependency to trigger updates when user changes
 
+
+  //////////////////////////////////// Other Methods ////////////////////////////////////
+  // Function to get initials from first and last name
+  const getInitials = (firstName: string | null, lastName: string | null) =>
+    `${firstName?.charAt(0).toUpperCase() ?? ""}${lastName?.charAt(0).toUpperCase() ?? ""}`;
+
+
+  //////////////////////////////////// Handeling Messages ////////////////////////////////////
+  // Update read receipts for current user
+  const updateReadReceipts = async (userEmail: string) => {
+    const chatsRef = collection(db, "chats");
+    const q = query(chatsRef, where("participants", "array-contains", userEmail));
+
+    const snapshot = await getDocs(q);
+    snapshot.docs.forEach(async (doc) => {
+      const chatData = doc.data();
+
+      // Update unread messages and read timestamps if applicable
+      if (chatData.unreadMessages && chatData.unreadMessages[userEmail] > 0) {
+        const chatRef = doc.ref;
+        await updateDoc(chatRef, {
+          [`unreadMessages.${userEmail}`]: 0, // Set unread messages count to 0
+          [`readTimestamps.${userEmail}`]: serverTimestamp(), // Update read timestamp
+        });
+      }
+    });
+  };
+
+  // Mark a message as read
+  const handleMessageRead = async (messageId: string) => {
+    if (!messageId || !userEmail || !chatId) return;
+
+    const messageRef = doc(db, "chats", chatId, "messages", messageId);
+
+    // Update the message status to read by adding userEmail to the readBy array
+    await updateDoc(messageRef, {
+      readBy: arrayUnion(userEmail),  // Add the current user to the readBy array
+    });
+
+    // Now update the unreadMessages and readMessages fields in the chat document
+    const chatRef = doc(db, "chats", chatId);
+    await updateDoc(chatRef, {
+      [`unreadMessages.${userEmail}`]: Math.max(0, unreadCount - 1),  // Decrement unread count for the current user
+      [`readMessages.${userEmail}`]: arrayUnion(messageId),  // Add messageId to readMessages array
+    });
+  };
+
   // Handle sending a new message
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !chatId) return;
@@ -248,6 +254,8 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
     setNewMessage(""); // Clear the message input
   };
 
+  
+  //////////////////////////////////// Handeling Discussion ////////////////////////////////////
   // Handle creating a discussion post
   const handleCreateDiscussionPost = async () => {
     if (!discussionTitle.trim() || !discussionDescription.trim()) return;
@@ -266,6 +274,8 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
     setShowDiscussionForm(false); // Close discussion form
   };
 
+
+  //////////////////////////////////// Window Movement ////////////////////////////////////
   // Handle mouse down for dragging
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
@@ -338,6 +348,8 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   }, [isDragging, isResizing]); // Depend on dragging and resizing state
   const initials = getInitials(firstName, lastName); // Get initials for the user
 
+
+  //////////////////////////////////// Chat HTML ////////////////////////////////////
   return (
     <div
       ref={chatRef} // Reference to chat div
@@ -351,129 +363,151 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
       onMouseDown={handleMouseDown} // Handle mouse down for dragging
     >
       {/* Chat header with user info */}
-      <div className="flex justify-between items-center bg-gray-200 px-4 py-3 rounded-t-lg cursor-move">
+      <div className={styles.header}>
+        {/* Back Button */}
         {selectedUser && (
-          <button
-            className="text-black font-bold p-2 rounded hover:bg-gray-300 transition"
-            onClick={() => setSelectedUser(null)} // Go back to chat list
-          >
+          <button className={styles.backButton} onClick={() => setSelectedUser(null)}>
             ← Back
           </button>
         )}
-        <h3 className="text-black">
-          {selectedUser ? `Chatting with ${otherfirstName} ${otherlastName}` : "Chats"} 
+        {/* Chat Header */}
+        <h3 className={styles.chatTitle}>
+          {selectedUser ? `${otherfirstName} ${otherlastName}` : "Chats"}
         </h3>
-      </div>
-
-      {/* Discussion Post Form */}
-      {!selectedUser && showDiscussionForm && (
-        <div className={styles.discussionForm}>
-          <input
-            type="text"
-            placeholder="Enter the title of your discussion"
-            value={discussionTitle}
-            onChange={(e) => setDiscussionTitle(e.target.value)} // Update discussion title
-            className={styles.inputField}
-          />
-          <textarea
-            placeholder="Enter the description of your discussion"
-            value={discussionDescription}
-            onChange={(e) => setDiscussionDescription(e.target.value)} // Update discussion description
-            className={`${styles.inputField} ${styles.textarea}`}
-          />
-          <button onClick={handleCreateDiscussionPost}>Create Discussion</button> 
-        </div>
-      )}
-
-      {!selectedUser && (
-        <button onClick={() => setShowDiscussionForm(!showDiscussionForm)}> 
-          {showDiscussionForm ? "Cancel" : "Create Discussion Post"}
+        {/* Close Button */}
+        <button className={styles.closeButton} onClick={onClose}>
+          X
         </button>
-      )}
-
-      {/* User selection */}
-      <div className="flex flex-col p-3">
-        {users.length === 0 ? (
-          <p className="text-gray-500">No active chats</p> // No chats message
-        ) : (
-          users
-            .filter((user) => user.hasMessages) // Filter users with messages
-            .map((user) => (
-              <div key={user.email} onClick={() => {
-                setChatId(user.chatId); // Set chat ID
-                setSelectedUser(user.email); // Set selected user
-              }}>
-                <div className="flex items-center space-x-4">
-                  <button
-                    className="p-0 bg-transparent border-white"
+      </div>
+  
+      <div className={styles.contentWrapper}>
+        {/* Left section: Create Post Button & User Selection (vertical scroll) */}
+        <div className={styles.leftSection}>
+          {/* Create Discussion Post Button */}
+          <button
+            onClick={() => setShowDiscussionForm(!showDiscussionForm)}
+            className={styles.createPostButton}
+          >
+            {showDiscussionForm ? "Cancel" : "Create Discussion Post"}
+          </button>
+  
+          {/* User selection */}
+          <div className="flex flex-col p-3">
+            {users.length === 0 ? (
+              <p className="text-gray-500">No active chats</p> // No chats message
+            ) : (
+              users
+                .filter((user) => user.hasMessages) // Filter users with messages
+                .map((user) => (
+                  <div
+                    key={user.email}
                     onClick={() => {
                       setChatId(user.chatId); // Set chat ID
-                      setSelectedUser(user); // Set selected user
+                      setSelectedUser(user.email); // Set selected user
                     }}
                   >
-                    {user.profileImageUrl ? (
-                      <img src={user.profileImageUrl} alt="Profile" width={75} height={75} className="rounded-square border" />
-                    ) : (
-                      <div className="w-24 h-24 rounded-square border flex items-center justify-center">
-                        <span className="text-black font-bold text-3xl">
-                          {getInitials(otherfirstName, otherlastName)} 
-                        </span>
+                    <div className="flex items-center space-x-4">
+                      <button
+                        className="p-0 bg-transparent border-white"
+                        onClick={() => {
+                          setChatId(user.chatId); // Set chat ID
+                          setSelectedUser(user); // Set selected user
+                        }}
+                      >
+                        {user.profileImageUrl ? (
+                          <img
+                            src={user.profileImageUrl}
+                            alt="Profile"
+                            width={75}
+                            height={75}
+                            className="rounded-square border"
+                          />
+                        ) : (
+                          <div className="w-24 h-24 rounded-square border flex items-center justify-center">
+                            <span className="text-black font-bold text-3xl">
+                              {getInitials(otherfirstName, otherlastName)}
+                            </span>
+                          </div>
+                        )}
+                      </button>
+                      <div className="flex flex-col">
+                        <h4 className="font-semibold text-gray-900">{user.firstName} {user.lastName}</h4>
                       </div>
-                    )}
-                  </button>
-                  <div className="flex flex-col">
-                    <h4 className="font-semibold text-gray-900">{user.firstName} {user.lastName}</h4>
+                    </div>
                   </div>
-                </div>
+                ))
+            )}
+          </div>
+        </div>
+  
+        {/* Right section: Chat & Discussion Form */}
+        <div className={styles.rightSection}>
+          {/* Discussion Post Form */}
+          {!selectedUser && showDiscussionForm && (
+            <div className={styles.discussionForm}>
+              <input
+                type="text"
+                placeholder="Enter the title of your discussion"
+                value={discussionTitle}
+                onChange={(e) => setDiscussionTitle(e.target.value)} // Update discussion title
+                className={styles.inputField}
+              />
+              <textarea
+                placeholder="Enter the description of your discussion"
+                value={discussionDescription}
+                onChange={(e) => setDiscussionDescription(e.target.value)} // Update discussion description
+                className={`${styles.inputField} ${styles.textarea}`}
+              />
+              <button onClick={handleCreateDiscussionPost}>Create Discussion</button>
+            </div>
+          )}
+  
+          {/* Chat messages */}
+          {selectedUser && (
+            <>
+              {/* Scrollable messages container */}
+              <div className={styles.messageContainer}>
+                {messages.map((message, index) => (
+                  <div
+                    key={index}
+                    className={`${styles.message} ${message.sender === userEmail ? styles.myMessage : styles.otherMessage}`}
+                  >
+                    <p>{message.text}</p>
+                    <span style={{ fontSize: "12px", color: "#555" }}>
+                      {message.timestamp ? new Date(message.timestamp.seconds * 1000).toLocaleString() : "Just now"}
+                    </span>
+                  </div>
+                ))}
               </div>
-            ))
-        )}
+  
+              {/* Message input area */}
+              <div className={styles.inputArea}>
+                <textarea
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)} // Update message input
+                  className={`${styles.textarea} ${styles.messageInput}`}
+                  placeholder="Type your message..." // Placeholder for message input
+                />
+                <button
+                  onClick={handleSendMessage}
+                  disabled={!newMessage.trim()} // Disable button if message is empty
+                  className={styles.sendButton}
+                >
+                  Send
+                </button> {/* Button to send message */}
+              </div>
+            </>
+          )}
+        </div>
       </div>
-
-      {selectedUser && (
-        <>
-          {/* Scrollable messages container */}
-          <div className={styles.messageContainer}>
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={`${styles.message} ${message.sender === userEmail ? styles.myMessage : styles.otherMessage}`} // Conditional styling based on message sender
-              >
-                <p>{message.text}</p> 
-                <span style={{ fontSize: "12px", color: "#555" }}>
-                  {message.timestamp ? new Date(message.timestamp.seconds * 1000).toLocaleString() : "Just now"} 
-                </span>
-              </div>
-            ))}
-          </div>
-
-          {/* Message input area */}
-          <div className={styles.inputArea}>
-            <textarea
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)} // Update message input
-              className={`${styles.textarea} ${styles.messageInput}`}
-              placeholder="Type your message..." // Placeholder for message input
-            />
-            <button
-              onClick={handleSendMessage}
-              disabled={!newMessage.trim()} // Disable button if message is empty
-              className={styles.sendButton}
-            >
-              Send
-            </button> // Button to send message
-          </div>
-        </>
-      )}
-
+  
       {/* Resize handles */}
-      <div className="w-6 h-6 bg-gray-300 absolute top-0 left-0 cursor-nwse-resize" onMouseDown={(e) => handleResizeMouseDown(e, "top-left")} /> {/* Top left resize handle */}
-      <div className="w-6 h-6 bg-gray-300 absolute top-0 right-0 cursor-nese-resize" onMouseDown={(e) => handleResizeMouseDown(e, "top-right")} /> {/* Top right resize handle */}
-      <div className="w-6 h-6 bg-gray-300 absolute bottom-0 left-0 cursor-sws-resize" onMouseDown={(e) => handleResizeMouseDown(e, "bottom-left")} /> {/* Bottom left resize handle */}
-      <div className="w-6 h-6 bg-gray-300 absolute bottom-0 right-0 cursor-se-resize" onMouseDown={(e) => handleResizeMouseDown(e, "bottom-right")} /> {/* Bottom right resize handle */}
+      <div className="w-6 h-6 bg-gray-300 absolute top-0 left-0 cursor-nwse-resize" onMouseDown={(e) => handleResizeMouseDown(e, "top-left")} />
+      <div className="w-6 h-6 bg-gray-300 absolute top-0 right-0 cursor-nese-resize" onMouseDown={(e) => handleResizeMouseDown(e, "top-right")} />
+      <div className="w-6 h-6 bg-gray-300 absolute bottom-0 left-0 cursor-sws-resize" onMouseDown={(e) => handleResizeMouseDown(e, "bottom-left")} />
+      <div className="w-6 h-6 bg-gray-300 absolute bottom-0 right-0 cursor-se-resize" onMouseDown={(e) => handleResizeMouseDown(e, "bottom-right")} />
     </div>
-  );
-
+  );  
 };
 
 export default ChatOverlay;
