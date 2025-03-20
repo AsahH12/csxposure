@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import Link from 'next/link';
 import { db } from '../../firebaseconfig';
 import { collection, getDocs, doc, getDoc, query } from "firebase/firestore";
@@ -174,7 +175,11 @@ const HomePage: React.FC = () => {
         <div className="col">
           <div className={styles.scrollableContainer}>
             {loading ? (
-              <p>Loading...</p>
+              <DotLottieReact
+              src="./loading_PurpleComputer.json"
+              loop
+              autoplay
+            />
             ) : (
               <div className={styles.cardContainer}>
                 {filteredCards.map((card, index) => (
