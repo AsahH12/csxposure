@@ -1,10 +1,11 @@
 'use client';
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams, useParams } from "next/navigation";
-import { doc, getDoc, collection, query, where, getDocs,addDoc } from "firebase/firestore";
+import { useRouter, useSearchParams } from "next/navigation";
+import { doc, getDoc, collection, query, where, getDocs, addDoc } from "firebase/firestore";
 import { db, auth } from "../../firebaseconfig";
 import './studentProfile.css';
 import ChatOverlay from "../Components/ChatOverlay";
+
 const StudentProfilePage: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -18,12 +19,12 @@ const StudentProfilePage: React.FC = () => {
   const [profileImage, setProfileImage] = useState("");
   const [projects, setProjects] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-const [chatId, setChatId] = useState<string | null>(null);
-const [selectedUser, setSelectedUser] = useState<string | null>(null);
-const [userEmail, setUserEmail] = useState<string | null>(null);
-const [isChatOpen, setChatOverlayOpen] = useState(false);
-    const currentUser = auth.currentUser; // Get logged-in user
-    useEffect(() => {
+  const [chatId, setChatId] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] = useState<string | null>(null);
+  const [isChatOpen, setChatOverlayOpen] = useState(false);
+  const currentUser = auth.currentUser;
+
+  useEffect(() => {
     if (!userId) {
       console.log("No userID received");
       setLoading(false);
@@ -32,7 +33,7 @@ const [isChatOpen, setChatOverlayOpen] = useState(false);
 
     const fetchUserData = async () => {
       try {
-        const userDocRef = doc(db, "users", userId,'details', 'profileData');
+        const userDocRef = doc(db, "users", userId, 'details', 'profileData');
         const userDocSnap = await getDoc(userDocRef);
 
         if (userDocSnap.exists()) {
@@ -51,77 +52,65 @@ const [isChatOpen, setChatOverlayOpen] = useState(false);
       }
     };
 
-    const fetchUserProjects = async () => {
-      try {
-        const projectsRef = collection(db, "Projects");
-        const q = query(projectsRef, where("ownerId", "==", userId));
-        const projectSnapshots = await getDocs(q);
-        const projectList = projectSnapshots.docs.map(doc => doc.data().projectName);
-        setProjects(projectList);
-      } catch (error) {
-        console.error("Error fetching projects:", error);
-      }
-    };
-
     fetchUserData();
-    fetchUserProjects();
     setLoading(false);
   }, [userId]);
   
+  const handleOpenChat = async () => {
+    if (!userId || !currentUser) return;
 
-const handleOpenChat = async () => {
-  const { userId } = useParams(); // Get user ID from the URL
-  if (!userId) return;
-
-  try {
-    // Fetch user details using userId
-    const userRef = doc(db, "users");
-    const userSnap = await getDoc(userRef);
-
-    if (!userSnap.exists()) {
-      console.error("User not found");
-      return;
-    }
-
-    const userEmail = userSnap.data().email; // Get email from Firestore
-    if (!userEmail) {
-      console.error("User email not found");
-      return;
-    }
-
-    // Find if a chat already exists
-    const chatRef = collection(db, "chats");
-    const chatQuery = query(chatRef, where("participants", "array-contains", currentUser.email));
-    const snapshot = await getDocs(chatQuery);
-
-    let chatId = null;
-    snapshot.docs.forEach((doc) => {
-      if (doc.data().participants.includes(userEmail)) {
-        chatId = doc.id;
+    try {
+      const userDocRef = doc(db, "users", userId);
+      const userSnap = await getDoc(userDocRef);
+      if (!userSnap.exists()) {
+        console.error("User not found");
+        return;
       }
-    });
 
-    if (!chatId) {
-      // Create a new chat if it doesn't exist
-      const newChatRef = await addDoc(chatRef, {
-        participants: [currentUser.email, userEmail],
-        unreadMessages: { [userEmail]: 0, [currentUser.email]: 0 },
-        lastMessage: "",
-        createdAt: new Date(),
+      const selectedUserEmail = userSnap.data().email;
+      if (!selectedUserEmail) {
+        console.error("Selected user's email not found");
+        return;
+      }
+
+      const chatRef = collection(db, "chats");
+      const chatQuery = query(chatRef, where("participants", "array-contains", currentUser.email));
+      const snapshot = await getDocs(chatQuery);
+      
+      let chatId = null;
+      snapshot.docs.forEach((doc) => {
+        const chatData = doc.data();
+        if (chatData.participants.includes(selectedUserEmail)) {
+          chatId = doc.id;
+        }
       });
-      chatId = newChatRef.id;
+
+      if (!chatId) {
+        const newChatRef = await addDoc(chatRef, {
+          participants: [currentUser.email, selectedUserEmail],
+          unreadMessages: { [selectedUserEmail]: 0, [currentUser.email]: 0 },
+          lastMessage: "A new chat has been created.",
+          createdAt: new Date(),
+        });
+
+        chatId = newChatRef.id;
+
+        const messagesRef = collection(db, "chats", chatId, "messages");
+        await addDoc(messagesRef, {
+          sender: "System",
+          text: "A new chat has been created.",
+          timestamp: new Date(),
+        });
+      }
+
+      setChatOverlayOpen(true);
+      setSelectedUser(selectedUserEmail);
+      setChatId(chatId);
+    } catch (error) {
+      console.error("Error opening chat:", error);
     }
+  };
 
-    // Open ChatOverlay
-    setChatOverlayOpen(true);
-    setSelectedUser(userEmail);
-    setChatId(chatId);
-  } catch (error) {
-    console.error("Error opening chat:", error);
-  }
-};
-
-  
   if (loading) return <div>Loading...</div>;
 
   return (
@@ -151,16 +140,6 @@ const handleOpenChat = async () => {
             </div>
 
             <div className="form-group">
-              <label>Status:</label>
-              <div className="input-field">Student</div>
-            </div>
-
-            <div className="form-group">
-              <label>School:</label>
-              <div className="input-field">{school}</div>
-            </div>
-
-            <div className="form-group">
               <label>Bio:</label>
               <h1 className="bio-field">{bio}</h1>
             </div>
@@ -173,9 +152,7 @@ const handleOpenChat = async () => {
             </div>
 
             <div className="chat-button-container">
-              <button className="chat-button"
-              onClick={()=>setChatOverlayOpen(false)}
-              >Chat</button>
+              <button className="chat-button" onClick={handleOpenChat}>Chat</button>
             </div>
           </div>
         </div>

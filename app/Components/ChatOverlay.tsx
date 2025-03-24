@@ -406,6 +406,7 @@ const [otherlastName, othersetLastName] = useState<string>("");
 {/* User selection */}
 <div className="flex flex-col p-3">
 <div className="flex flex-col p-3">
+
   {users.length === 0 ? (
     <p className="text-gray-500">No active chats</p>
   ) : (
@@ -452,6 +453,7 @@ const [otherlastName, othersetLastName] = useState<string>("");
       );
     })
 )}
+
 
 </div>
 
@@ -530,9 +532,7 @@ const [otherlastName, othersetLastName] = useState<string>("");
       <div className="w-6 h-6 bg-gray-300 absolute bottom-0 left-0 cursor-sws-resize" onMouseDown={(e) => handleResizeMouseDown(e, "bottom-left")} />
       <div className="w-6 h-6 bg-gray-300 absolute bottom-0 right-0 cursor-se-resize" onMouseDown={(e) => handleResizeMouseDown(e, "bottom-right")} />
     </div>
-      
-  
-  );
+  ); 
 };
 
 
