@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 const Page1 = () => {
   const router = useRouter();
   const navigateToPageSignUPTemp = () => {
-    router.push('/Home');
+    router.push('/CodeEditor');
   };
 
   return (
