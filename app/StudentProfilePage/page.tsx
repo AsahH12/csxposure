@@ -130,6 +130,10 @@ const StudentProfilePage: React.FC = () => {
     }
   };
 
+  const handleClick = (projectId: string) => {
+    router.push(`/StudentProjectPage?id=${projectId}`);
+  };
+
 
   if (loading) return <div>Loading...</div>;
 
