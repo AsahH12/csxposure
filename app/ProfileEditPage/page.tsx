@@ -36,6 +36,7 @@ const ProfileEditPage: React.FC = () => {
 
           if (userDocSnap.exists()) {
             const data = userDocSnap.data();
+            console.log("Profile Data:", data);
             setFirstName(data.firstName || '');
             setLastName(data.lastName || '');
             setStatus(data.status || '');
@@ -62,6 +63,7 @@ const ProfileEditPage: React.FC = () => {
 
           const userProjects = (await Promise.all(projectPromises)).filter(project => project !== null);
           setProjects(userProjects);
+          console.log(userProjects);
         } catch (error) {
           console.error("Error fetching profile or projects:", error);
           alert("Failed to fetch data.");
@@ -70,12 +72,11 @@ const ProfileEditPage: React.FC = () => {
       setLoading(false);
       setLoading(false);
       // If school is pre-selected, skip validation
-      console.log("School Valid:", isSchoolValid);
-      console.log("School:", school);
+    
       if (school != null) { setIsSchoolValid(true); }
-      console.log("School Valid:", isSchoolValid);
+     
     });
-
+    
     return () => unsubscribe();
   }, [setProfileImage]);
 
@@ -186,10 +187,13 @@ const ProfileEditPage: React.FC = () => {
       <Link key={project.id} className="link" href={`/ProjectEditPage?id=${project.id}`}>
       <div className="project-card">
       {project.images ? (
-            <img src={project.images} className="project-thumbnail" />
+            <img src={project.images} className="project-thumbnail"   onLoad={() => console.log("Projects:", projects)} 
+/>
           ) : (
             <div className="no-thumbnail">No Image</div> 
+            
           )}
+          
  <p className="project-title">{project.projectName || "Unnamed Project"}</p>
       </div>
 
@@ -203,7 +207,7 @@ const ProfileEditPage: React.FC = () => {
 
           <div className="profile-form">
             <label className="profile-picture" htmlFor="imageUpload">
-              {localProfileImage ? (
+              {localProfileImage && typeof localProfileImage === "string" ? (
                 <img src={localProfileImage} alt="Profile" className="profile-img" />
               ) : (
                 <span className="text">Click to upload</span>

@@ -73,7 +73,7 @@ const ProjectEditPage: React.FC = () => {
         video.playsInline = true;
   
         video.oncanplay = () => {
-          video.currentTime = 0.5; // Capture at 1 second
+          video.currentTime = 0.5; // Capture at 0.5 second
            
           const canvas = document.createElement("canvas");
           canvas.width = video.videoWidth;
@@ -92,9 +92,13 @@ const ProjectEditPage: React.FC = () => {
         };
       } else {
         // If it's an image, just use the file URL
-        const newMedia = [...images];
-        newMedia[index] = fileURL;
-        setImages(newMedia);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const newMedia = [...images];
+          newMedia[index] = reader.result as string;
+          setImages(newMedia);
+        };
+        reader.readAsDataURL(file);
       }
     }
   };

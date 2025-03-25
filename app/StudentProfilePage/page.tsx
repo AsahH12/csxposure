@@ -1,13 +1,12 @@
 'use client';
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams, useParams } from "next/navigation";
-import { doc, getDoc, collection, query, where, getDocs,addDoc } from "firebase/firestore";
+import { useRouter, useSearchParams } from "next/navigation";
+import { doc, getDoc, collection, query, where, getDocs, addDoc } from "firebase/firestore";
 import { db, auth } from "../../firebaseconfig";
 import './studentProfile.css';
 import ChatOverlay from "../Components/ChatOverlay";
 
 const StudentProfilePage: React.FC = () => {
-
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = searchParams.get("userId");
@@ -19,14 +18,13 @@ const StudentProfilePage: React.FC = () => {
   const [status, setStatus] = useState<string[]>([]);
   const [links, setLinks] = useState<{ type: string; url: string }[]>([]);
   const [profileImage, setProfileImage] = useState("");
-  const [projects, setProjects] = useState<string[]>([]);
+  const [projects, setProjects] = useState<{ id: string; projectName: string }[]>([]);
   const [loading, setLoading] = useState(true);
-  const [chatId, setChatId] = useState<string | null>(null);
-const [selectedUser, setSelectedUser] = useState<string | null>(null);
-const [userEmail, setUserEmail] = useState<string | null>(null);
-const [isChatOpen, setChatOverlayOpen] = useState(false);
-    const currentUser = auth.currentUser; // Get logged-in user
-    useEffect(() => {
+  const [isChatOpen, setChatOverlayOpen] = useState(false);
+
+  const currentUser = auth.currentUser; // Get logged-in user
+
+  useEffect(() => {
     if (!userId) {
       console.log("No userID received");
       setLoading(false);
@@ -35,7 +33,7 @@ const [isChatOpen, setChatOverlayOpen] = useState(false);
 
     const fetchUserData = async () => {
       try {
-        const userDocRef = doc(db, "users", userId,'details', 'profileData');
+        const userDocRef = doc(db, "users", userId, 'details', 'profileData');
         const userDocSnap = await getDoc(userDocRef);
 
         if (userDocSnap.exists()) {
@@ -60,7 +58,10 @@ const [isChatOpen, setChatOverlayOpen] = useState(false);
         const projectsRef = collection(db, "Projects");
         const q = query(projectsRef, where("ownerId", "==", userId));
         const projectSnapshots = await getDocs(q);
-        const projectList = projectSnapshots.docs.map(doc => doc.data().projectName);
+        const projectList = projectSnapshots.docs.map(doc => ({
+          id: doc.id, 
+          projectName: doc.data().projectName
+        }));
         setProjects(projectList);
       } catch (error) {
         console.error("Error fetching projects:", error);
@@ -71,63 +72,11 @@ const [isChatOpen, setChatOverlayOpen] = useState(false);
     fetchUserProjects();
     setLoading(false);
   }, [userId]);
-  
-// const handleProjectClick = (project) => {
-//   navigate(`/StudentProjectPage/${project.id}`);
-// };
-const handleOpenChat = async () => {
-  const { userId } = useParams(); // Get user ID from the URL
-  if (!userId) return;
 
-  try {
-    // Fetch user details using userId
-    const userRef = doc(db, "users");
-    const userSnap = await getDoc(userRef);
+  const handleClick = (projectId: string) => {
+    router.push(`/StudentProjectPage?id=${projectId}`);
+  };
 
-    if (!userSnap.exists()) {
-      console.error("User not found");
-      return;
-    }
-
-    const userEmail = userSnap.data().email; // Get email from Firestore
-    if (!userEmail) {
-      console.error("User email not found");
-      return;
-    }
-
-    // Find if a chat already exists
-    const chatRef = collection(db, "chats");
-    const chatQuery = query(chatRef, where("participants", "array-contains", currentUser.email));
-    const snapshot = await getDocs(chatQuery);
-
-    let chatId = null;
-    snapshot.docs.forEach((doc) => {
-      if (doc.data().participants.includes(userEmail)) {
-        chatId = doc.id;
-      }
-    });
-
-    if (!chatId) {
-      // Create a new chat if it doesn't exist
-      const newChatRef = await addDoc(chatRef, {
-        participants: [currentUser.email, userEmail],
-        unreadMessages: { [userEmail]: 0, [currentUser.email]: 0 },
-        lastMessage: "",
-        createdAt: new Date(),
-      });
-      chatId = newChatRef.id;
-    }
-
-    // Open ChatOverlay
-    setChatOverlayOpen(true);
-    setSelectedUser(userEmail);
-    setChatId(chatId);
-  } catch (error) {
-    console.error("Error opening chat:", error);
-  }
-};
-
-  
   if (loading) return <div>Loading...</div>;
 
   return (
@@ -137,8 +86,10 @@ const handleOpenChat = async () => {
           <div className="project-section">
             <div className="project-grid">
               {projects.length > 0 ? (
-                projects.map((project, index) => (
-                  <button key={index} className="show-project">{project}</button>
+                projects.map((project) => (
+                  <button key={project.id} className="show-project" onClick={() => handleClick(project.id)}>
+                    {project.projectName}
+                  </button>
                 ))
               ) : (
                 <p>No projects available</p>
@@ -179,16 +130,12 @@ const handleOpenChat = async () => {
             </div>
 
             <div className="chat-button-container">
-              <button className="chat-button"
-              onClick={()=>setChatOverlayOpen(false)}
-              >Chat</button>
+              <button className="chat-button" onClick={() => setChatOverlayOpen(true)}>Chat</button>
             </div>
           </div>
         </div>
       </div>
-      {isChatOpen && (
-        <ChatOverlay onClose={() => setChatOverlayOpen(false)} />
-      )}
+      {isChatOpen && <ChatOverlay onClose={() => setChatOverlayOpen(false)} />}
     </div>
   );
 };
