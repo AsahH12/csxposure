@@ -1,0 +1,147 @@
+.container {
+  position: fixed;
+  top: 50%;
+  right: 5px;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border: 1px solid #ccc;
+  z-index: 1000;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  max-height: 540px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f0f0f0;
+  padding: 10px 15px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  cursor: move;
+  position: relative;
+}
+
+.backButton {
+  color: black;
+  font-weight: bold;
+  border-radius: 4px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.backButton:hover {
+  background-color: #d1d5db; /* Equivalent to bg-gray-300 */
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #333;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.closeButton:hover {
+  color: red; /* Change color on hover */
+}
+
+
+.contentWrapper {
+  display: grid;
+  grid-template-columns: 1fr 3fr; /* Left side (user selection & button), Right side (chat & form) */
+  grid-template-rows: 1fr; /* Make it scrollable vertically */
+  height: 100%;
+  overflow-y: auto;
+}
+
+.leftSection {
+  display: flex;
+  max-height: 600px;
+  flex-direction: column;
+  padding: 10px;
+  overflow-y: auto; 
+  display: flex;
+  align-items: center;
+  background-color: #00743f;
+  &::-webkit-scrollbar {
+    display: none; /* Hide scrollbar */
+  }
+}
+
+.rightSection {
+  display: flex;
+  flex-direction: column;
+  padding: 2px;
+}
+
+.chatTitle {
+  color: black;
+  font-weight: bold;
+  flex-grow: 1;
+  text-align: center;
+}
+
+.messageContainer {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.message {
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 8px;
+}
+
+.myMessage {
+  background-color: #007aff;
+  color: white;
+  text-align: right;
+}
+
+.otherMessage {
+  background-color: #e5e5ea;
+  color: black;
+  text-align: left;
+}
+
+.inputArea {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+.textarea {
+  width: 100%;
+  height: 80px;
+  padding: 10px;
+  resize: none;
+}
+
+.sendButton {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  margin-top: 10px;
+  align-self: flex-end;
+}
+
+.discussionForm {
+  display: flex;
+  flex-direction: column;
+  margin: 10px;
+}
+
+.inputField {
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}

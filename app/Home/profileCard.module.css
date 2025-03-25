@@ -1,64 +1,68 @@
 .card {
   width: 18rem;
-  margin: 10px;
-  border: none; 
-  border-radius: 10px; 
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-  transition: box-shadow 0.3s ease; 
+  background-color: #fff;
+  margin: 5px;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
   padding: 10px;
 }
 
 .card:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); 
+  box-shadow: 0 8px 16px #25b396;
+  transform: scale(1.10); /* Slight grow effect */
+  transition: transform 0.3s ease-in-out;
+  text-decoration: none;
 }
-  
-  .profileImageContainer {
-    width: 150px; 
-    height: 150px; 
-    background-color: #6c757d; 
-    border-radius: 10%; /* Rounded Corners */
-    margin: 0 auto 10px; 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-  }
-  
-  .profileImage {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .initials {
-    color: #fff;
-    font-size: 20px;
-  }
-  
-  .nameContainer {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-  
-  .cardTitle {
-    margin: 0;
-    text-align: center;
-    color: black;
-  }
 
-  .cardSubtitle {
-    margin-bottom: 0.5rem;
-    color: #6c757d;
-    text-align: center;
-  }
-  
-  .cardText {
-    margin: 0;
-    text-align: center;
-    color: black;
-  }
+.profileImageContainer {
+  width: 150px;
+  height: 150px;
+  background-color: #6c757d;
+  border-radius: 10%;
+  margin: 0 auto 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
 
-  .cardLink {
-    text-decoration: none;
-  }
+.profileImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.initials {
+  color: #fff;
+  font-size: 20px;
+}
+
+.nameContainer {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.cardTitle {
+  margin: 0;
+  text-align: center;
+  color: black;
+}
+
+.cardSubtitle {
+  margin-bottom: 0.5rem;
+  color: #6c757d;
+  text-align: center;
+}
+
+.cardText {
+  margin: 0;
+  text-align: center;
+  color: black;
+}
+
+.cardLink, .cardLink:hover {
+  text-decoration: none;
+}
