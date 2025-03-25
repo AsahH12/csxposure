@@ -10,7 +10,7 @@
 }
 
 .card:hover {
-  box-shadow: 0 8px 16px #00743f;
+  box-shadow: 0 8px 16px #25b396;
   transform: scale(1.10); /* Slight grow effect */
   transition: transform 0.3s ease-in-out;
   text-decoration: none;

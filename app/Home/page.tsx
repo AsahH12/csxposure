@@ -176,7 +176,7 @@ const HomePage: React.FC = () => {
           <div className={styles.scrollableContainer}>
             {loading ? (
               <DotLottieReact
-              src="./loading_PurpleComputer.json"
+              src="./loading_BlueComputer.json"
               loop
               autoplay
             />
