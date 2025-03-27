@@ -61,6 +61,7 @@
   margin: 0;
   text-align: center;
   color: black;
+  word-wrap: break-word;
 }
 
 .cardLink, .cardLink:hover {
