@@ -20,16 +20,22 @@
   
   /* project section */
   .project-section {
-    width: 60%;
+    width: 65%;
     background-color: #e5e7eb;
+    overflow-y: auto; /* Enables horizontal scrolling */
+    &::-webkit-scrollbar {
+      display: none; /* Hide scrollbar */
+    }
     padding: 1rem;
     border-radius: 0.5rem;
+    max-height: 650px; /* Adjust based on your design needs */
   }
   
   .project-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 0.5rem;
+    max-width:100%;
   }
 
   .project-card {
@@ -37,7 +43,7 @@
     padding: 1rem;
     border-radius: 0.5rem;
     text-align: center;
-    width: 200px;
+    min-width: 200px;
     height: 200px;
   }
 

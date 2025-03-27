@@ -4,6 +4,7 @@ import { useRouter, useSearchParams, useParams } from "next/navigation";
 import { doc, getDoc, collection, query, where, getDocs, addDoc } from "firebase/firestore";
 import { db, auth } from "../../firebaseconfig";
 import './studentProfile.css';
+import Link from 'next/link'
 import ChatOverlay from "../Components/ChatOverlay";
 
 const StudentProfilePage: React.FC = () => {
@@ -18,7 +19,7 @@ const StudentProfilePage: React.FC = () => {
   const [status, setStatus] = useState<string[]>([]);
   const [links, setLinks] = useState<{ type: string; url: string }[]>([]);
   const [profileImage, setProfileImage] = useState("");
-  const [projects, setProjects] = useState<{ id: string; projectName: string }[]>([]);
+  const [projects, setProjects] = useState<{ id: string; projectName: string; images: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [chatId, setChatId] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
@@ -60,10 +61,16 @@ const StudentProfilePage: React.FC = () => {
         const projectsRef = collection(db, "Projects");
         const q = query(projectsRef, where("ownerId", "==", userId));
         const projectSnapshots = await getDocs(q);
-        const projectList = projectSnapshots.docs.map(doc => ({
-          id: doc.id, 
-          projectName: doc.data().projectName
-        }));
+        
+        const projectList = projectSnapshots.docs.map((doc) => {
+          const projectData = doc.data();
+          return {
+            id: doc.id,
+            projectName: projectData.projectName,
+            images: projectData.images || "", // Ensure images field matches Profile Edit Page
+          };
+        });
+
         setProjects(projectList);
       } catch (error) {
         console.error("Error fetching projects:", error);
@@ -75,9 +82,7 @@ const StudentProfilePage: React.FC = () => {
     setLoading(false);
   }, [userId]);
 
-  // const handleProjectClick = (project) => {
-  //   navigate(`/StudentProjectPage/${project.id}`);
-  // };
+
   const handleOpenChat = async () => {
     const { userId } = useParams(); // Get user ID from the URL
     if (!userId) return;
@@ -142,16 +147,19 @@ const StudentProfilePage: React.FC = () => {
       <div className="student-profile-container">
         <div className="student-profile-card">
           <div className="project-section">
-            <div className="project-grid">
-              {projects.length > 0 ? (
-                projects.map((project) => (
-                  <button key={project.id} className="show-project" onClick={() => handleClick(project.id)}>
-                    {project.projectName}
-                  </button>
-                ))
-              ) : (
-                <p>No projects available</p>
-              )}
+          <div className="project-grid">
+              {projects.map((project) => (
+                <Link key={project.id} className="link" href={`/StudentProjectPage?id=${project.id}`}>
+                  <div className="project-card">
+                    {project.images ? (
+                      <img src={project.images} className="project-thumbnail" alt={project.projectName} />
+                    ) : (
+                      <div className="no-thumbnail">No Image</div>
+                    )}
+                    <p className="project-title">{project.projectName || "Unnamed Project"}</p>
+                  </div>
+                </Link>
+              ))}
             </div>
           </div>
 

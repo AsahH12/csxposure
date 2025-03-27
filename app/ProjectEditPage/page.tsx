@@ -10,7 +10,7 @@ import "./projectEdit.css";
 const ProjectEditPage: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const projectId = searchParams.get("id"); // Get projectId from URL
+  const projectId = searchParams.get("id"); 
   const [projectName, setProjectName] = useState("");
   const [description, setDescription] = useState("");
   const [websiteLink, setWebsiteLink] = useState("");
@@ -65,27 +65,30 @@ const ProjectEditPage: React.FC = () => {
   const handleMediaUpload = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
-      const fileURL = URL.createObjectURL(file);
 
       // Check if it's a video file
       if (file.type.startsWith("video/")) {
+        const fileURL = URL.createObjectURL(file);
         const video = document.createElement("video");
         video.src = fileURL;
         video.crossOrigin = "anonymous"; // Ensure cross-origin safety
         video.muted = true; // Mute to allow autoplay
         video.playsInline = true;
 
+        video.onloadedmetadata = () => {
+          // Limit thumbnail to first 5 seconds or midpoint of video
+          video.currentTime = Math.min(video.duration / 2, 5);
+        };
+
         video.oncanplay = () => {
-          video.currentTime = 0.5; // Capture at 0.5 second
-           
           const canvas = document.createElement("canvas");
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
+          canvas.width = 320;
+          canvas.height = 240; 
 
           const ctx = canvas.getContext("2d");
           if (ctx) {
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const thumbnailURL = canvas.toDataURL("image/png");
+            const thumbnailURL = canvas.toDataURL("image/jpeg", 0.6); // Reduced quality
 
             // Update state with the thumbnail
             const newMedia = [...images];
@@ -94,7 +97,7 @@ const ProjectEditPage: React.FC = () => {
           }
         };
       } else {
-        // If it's an image, just use the file URL
+        // If it's an image, just use the existing logic
         const reader = new FileReader();
         reader.onloadend = () => {
           const newMedia = [...images];
@@ -105,8 +108,6 @@ const ProjectEditPage: React.FC = () => {
       }
     }
   };
-
-
 
   // Add a collaborator
   const addCollaborator = () => {
@@ -142,7 +143,6 @@ const ProjectEditPage: React.FC = () => {
       return;
     }
 
-
     try {
       const projectData = {
         projectName,
@@ -150,7 +150,7 @@ const ProjectEditPage: React.FC = () => {
         websiteLink,
         githubLink,
         collaborators,
-        images: images.filter((img) => img !== ""),
+        images: images.filter((img) => img !== ""), 
         categories,
         updatedAt: new Date(),
         ownerId: userId,
@@ -188,11 +188,9 @@ const ProjectEditPage: React.FC = () => {
     }
   };
 
-
   if (loading) return <div>Loading...</div>;
 
   return (
-    // <div className="project-container">
     <div className="project-content">
       <div className="left-section">
         <h1 className="project-title">{projectId ? "Edit Project" : "New Project"}</h1>
@@ -279,12 +277,8 @@ const ProjectEditPage: React.FC = () => {
                 onChange={(event) => handleMediaUpload(index, event)}
               />
             </label>
-
           ))}
         </div>
-
-
-
 
         <button className="save-button" onClick={saveProjectToFirebase}>Save Changes</button>
 
@@ -295,7 +289,6 @@ const ProjectEditPage: React.FC = () => {
         )}
       </div>
     </div>
-    // </div>
   );
 };
 
