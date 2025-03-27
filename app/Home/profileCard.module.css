@@ -1,3 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Platypi&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Platypi&family=Trocchi&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lateef&display=swap');
+
 .card {
   width: 18rem;
   background-color: #fff;
@@ -49,18 +53,25 @@
   margin: 0;
   text-align: center;
   color: black;
+  font-family: 'trocchi', serif;
+  font-weight: bold;
+  font-size: 25px;
 }
 
 .cardSubtitle {
   margin-bottom: 0.5rem;
   color: #6c757d;
   text-align: center;
+  font-family: 'platypi', sans-serif;
 }
 
 .cardText {
   margin: 0;
   text-align: center;
   color: black;
+  word-wrap: break-word;
+  font-family: 'lateef', cursive;
+  font-size: 20px;
 }
 
 .cardLink, .cardLink:hover {
