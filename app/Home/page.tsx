@@ -132,6 +132,8 @@ const HomePage: React.FC = () => {
 
   //////////////////////////////////// Card Component ////////////////////////////////////
   const CardComponent: React.FC<CardProps> = ({ userId, userType, firstName, lastName, school, description, profileImageUrl }) => {
+    const truncatedDescription = description.length > 60 ? description.slice(0, 60) + '...' : description;
+
     const profileUrl = userType === 'student'
       ? `/StudentProfilePage?userId=${userId}`
       : `/BusinessProfilePage?userId=${userId}`;
@@ -149,7 +151,7 @@ const HomePage: React.FC = () => {
             </div>
             <h5 className={cardstyles.cardTitle}>{firstName} {lastName}</h5>
             <h6 className={cardstyles.cardSubtitle}>{school}</h6>
-            <p className={cardstyles.cardText}>{description}</p>
+            <p className={cardstyles.cardText}>{truncatedDescription}</p>
           </div>
         </div>
       </Link>

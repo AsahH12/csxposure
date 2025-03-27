@@ -110,3 +110,11 @@ a:hover {
 .chat-button:hover {
     background: #56437c;
 }
+
+.first-name, .last-name {
+    display: inline-block;
+    margin-right: 10px; /* Space between first and last name */
+    font-family: 'trocchi', serif;
+    font-size: 25px;
+    font-weight: bold;
+  }
