@@ -75,14 +75,10 @@ const BusinessProfilePage: React.FC = () => {
                 <div className="default-avatar">No Image</div>
               )}
             </div>
+            <div className="first-name">{firstName}</div>
+            <div className="last-name">{lastName}</div>
 
-            <div className="name-group">
-              <div className="name-container">
-                <div className="name-field first-name">{firstName}</div>
-                <div className="name-field last-name">{lastName}</div>
-              </div>
-              <div className="business-name">{businessName}</div>
-            </div>
+            <div className="business-name">{businessName}</div>
 
             <div className="form-group">
               <label>Occupation:</label>
