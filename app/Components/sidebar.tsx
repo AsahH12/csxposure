@@ -43,6 +43,14 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [apps, setApps] = useState(false);
   const [games, setGames] = useState(false);
 
+  // Function to redirect user to the home page if not already there
+  const redirectToHomeIfNeeded = () => {
+    if (window.location.pathname !== '/Home') {
+      // Redirect user to home page
+      window.location.href = '/Home';
+    }
+  };
+
   //////////////////////////////////// Discussion Board ////////////////////////////////////
   // Fetch current user's email
   useEffect(() => {
@@ -180,6 +188,11 @@ const Sidebar: React.FC<SidebarProps> = ({
     setSortType(sort);
   };
 
+  // Filter the posts based on the search input (only search in title and description)
+  const filteredPosts = discussionPosts.filter((post) =>
+    post.title.toLowerCase().includes(searchInput.toLowerCase()) ||
+    post.description.toLowerCase().includes(searchInput.toLowerCase())
+  );
 
   //////////////////////////////////// School Filter ////////////////////////////////////
   // Fetch university list
@@ -193,6 +206,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   // Filter school dropdown
   const handleSchoolInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    redirectToHomeIfNeeded();  // Redirect if not on home page
     const query = event.target.value;
     setSchoolInput(query);
 
@@ -214,6 +228,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   // Select a school from suggestions
   const handleSelectSchool = (school: string) => {
+    redirectToHomeIfNeeded();  // Redirect if not on home page
     setSchoolInput(school);
     setSchoolSuggestions([]);
     onSchoolChange(school); // Pass selected school to HomePage
@@ -232,36 +247,42 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   //////////////////////////////////// Check Filters ////////////////////////////////////
   const handleGraduatedChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    redirectToHomeIfNeeded();  // Redirect if not on home page
     const isChecked = event.target.checked;
     setGraduated(isChecked);
     onGraduatedChange(isChecked); // Pass the graduated state to HomePage
   };
 
   const handleVolunteerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    redirectToHomeIfNeeded();  // Redirect if not on home page
     const isChecked = event.target.checked;
     setVolunteer(isChecked);
     onVolunteerChange(isChecked); // Pass the volunteer state to HomePage
   }
 
   const handleStudentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    redirectToHomeIfNeeded();  // Redirect if not on home page
     const isChecked = event.target.checked;
     setStudent(isChecked);
     onStudentChange(isChecked); // Pass the student state to HomePage
   }
 
   const handleWebsitesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    redirectToHomeIfNeeded();  // Redirect if not on home page
     const isChecked = event.target.checked;
     setWebsites(isChecked);
     onWebsitesChange(isChecked);
   };
 
   const handleAppsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    redirectToHomeIfNeeded();  // Redirect if not on home page
     const isChecked = event.target.checked;
     setApps(isChecked);
     onAppsChange(isChecked);
   };
 
   const handleGamesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    redirectToHomeIfNeeded();  // Redirect if not on home page
     const isChecked = event.target.checked;
     setGames(isChecked);
     onGamesChange(isChecked);
@@ -270,16 +291,11 @@ const Sidebar: React.FC<SidebarProps> = ({
   //////////////////////////////////// Name Filter ////////////////////////////////////
   // Handle search input change
   const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    redirectToHomeIfNeeded();  // Redirect if not on home page
     const query = event.target.value;
     setNameInput(query);
     onNameSearchChange(query); // Pass search query to HomePage
   };
-
-  // Filter the posts based on the search input (only search in title and description)
-  const filteredPosts = discussionPosts.filter((post) =>
-    post.title.toLowerCase().includes(searchInput.toLowerCase()) ||
-    post.description.toLowerCase().includes(searchInput.toLowerCase())
-  );
 
   return (
     <div className={styles.sidebar}>
