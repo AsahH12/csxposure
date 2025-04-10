@@ -193,17 +193,53 @@
     color: #aaa !important;
     transform: scale(0.95); /* Slight shrink effect */
     transition: transform 0.1s ease-in-out;
-}
+    }
+    .active {
+    background-color: #c7f3ec;
+    color: #555;
+    font-weight: bold;
+  }
   .sortDropdown {
     padding: 8px;
     font-size: 14px;
     background-color: #42a092;
     border: 1px solid #23675c;
   }
-  .active {
+  .sortDropdown:hover {
     background-color: #c7f3ec;
     color: #555;
-    font-weight: bold;
+}
+    .sortDropdown:active {
+        background-color: #c7f3ec !important; /* Darker shade for click effect */
+        color: #aaa !important;
+        transform: scale(0.95); /* Slight shrink effect */
+        transition: transform 0.1s ease-in-out;
+        box-shadow: none;
+    }
+  .sortDropdown:focus {
+    background-color: #c7f3ec;
+    color: #555;
+    box-shadow: none;
+  }
+  /* Change the background color of the dropdown when open */
+  .btn-group .btn:focus, /* Focused button */
+  .btn-group .btn:active, /* Active button */
+  .btn-group .btn:focus-within { /* Any child element has focus */
+    color: white; /* Change text color when the dropdown is focused */
+  }
+  /* Customize the dropdown menu when it's open */
+  .sortDropdown:focus + .dropdown-menu {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Add a shadow effect when the dropdown is open */
+  }
+  /* Style the dropdown options */
+  .sortDropdown option {
+    background-color: #fff; /* White background for dropdown options */
+    color: #333; /* Dark text color */
+  }
+  /* Change background color of dropdown options on hover */
+  .sortDropdown option:hover {
+    background-color: #f1a104; /* Highlight on hover */
+    color: white; /* Change text color on hover */
   }
   
 
