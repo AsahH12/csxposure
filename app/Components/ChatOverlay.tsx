@@ -47,7 +47,7 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   const [unreadCount, setUnreadCount] = useState<number>(0); // Count of unread messages
   const [users, setUsers] = useState<any[]>([]); // Store users list
   const [resizeDirection, setResizeDirection] = useState<ResizeDirection | null>(null); // Direction for resizing
-  const [position, setPosition] = useState({ x: 0, y: 0 }); // Position of the chat overlay
+  const [position, setPosition] = useState({ x: window.innerWidth / 2 - 250, y: window.innerHeight / 2 - 200 }); 
   const [size, setSize] = useState({ width: 500, height: 400 }); // Size of the chat overlay
   const chatRef = useRef<HTMLDivElement | null>(null); // Reference to the chat overlay div
   const dragOffset = useRef({ x: 0, y: 0 }); // Offset for dragging
