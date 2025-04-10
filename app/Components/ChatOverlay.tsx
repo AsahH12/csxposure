@@ -63,20 +63,31 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   const selectedUserObject = users.find((user) => user.email === selectedUser); // Object of the selected user
   const [otherfirstName, setOtherFirstName] = useState<string>(""); // Other user's first name
   const [otherlastName, setOtherLastName] = useState<string>(""); // Other user's last name
+  const [userType, setUserType] =  useState<string | null>(null);
 
 
   //////////////////////////////////// Fetching or Saving Data ////////////////////////////////////
   // Get current user's email
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUserEmail(user.email); // Set user's email
+
+        // Fetch userType
+        const userDocRef = doc(db, "users", user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (userDocSnap.exists()) {
+          const data = userDocSnap.data();
+          console.log('user type', data.userType);
+          setUserType(data.userType); // Set user type
+        }
       }
     });
-
     return () => unsubscribe(); // Cleanup subscription on unmount
   }, []);
+
 
   // Fetch all users except the current user
   useEffect(() => {
@@ -273,8 +284,8 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
       description: discussionDescription,
       createdAt: new Date(), // Set creation date
       createdBy: userEmail, // Set creator's email
+      userType: userType, // Set user type
     });
-
     // Reset the fields and close the form
     setDiscussionTitle(""); // Clear title
     setDiscussionDescription(""); // Clear description

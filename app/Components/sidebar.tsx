@@ -5,7 +5,7 @@ import { db } from "../../firebaseconfig";
 import { collection, getDocs } from "firebase/firestore";
 import styles from "./sidebar.module.css";
 import { fetchUniversities } from "../Utility/fetchUniversities"; // Import the utility function
-
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 // Handle search
 interface SidebarProps {
@@ -23,15 +23,18 @@ const Sidebar: React.FC<SidebarProps> = ({
   onNameSearchChange, onSchoolChange, onGraduatedChange, onVolunteerChange, onWebsitesChange, onAppsChange, onGamesChange, onStudentChange
 }) => {
   const [discussionPosts, setDiscussionPosts] = useState([]); // Stores discussion posts from database
+  const [discussionSearch, setDiscussionSearch] = useState(""); // Discussion search input
+  const [filteredDiscussions, setFilteredDiscussions] = useState([]); // Discussions based on search
+  const [searchInput, setSearchInput] = useState(""); // For "Search discussions..." only
+  const [activeFilters, setActiveFilters] = useState<string[]>([]); // Active filter for discussions
+  const [sortType, setSortType] = useState("newest");
+  const [currentUserEmail, setCurrentUserEmail] = useState<string>(""); // Current user's email
+
   const [nameSearch, setNameInput] = useState("");  // Name search input
   const [allSchools, setAllSchools] = useState<string[]>([]); // All schools from API
   const [schoolInput, setSchoolInput] = useState(""); // School search input
   const [schoolSuggestions, setSchoolSuggestions] = useState<string[]>([]); // Schools based on search
   const [isFocused, setIsFocused] = useState(false); // For school suggestions
-  const [discussionSearch, setDiscussionSearch] = useState(""); // Discussion search input
-  const [filteredDiscussions, setFilteredDiscussions] = useState([]); // Discussions based on search
-  const [searchInput, setSearchInput] = useState(""); // For "Search discussions..." only
-  const [activeFilters, setActiveFilters] = useState<string[]>([]); // Active filter for discussions
 
   const [graduated, setGraduated] = useState(false);
   const [student, setStudent] = useState(false);
@@ -41,6 +44,14 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [games, setGames] = useState(false);
 
   //////////////////////////////////// Discussion Board ////////////////////////////////////
+  // Fetch current user's email
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) { setCurrentUserEmail(user.email || ""); } });
+      return () => unsubscribe();
+    }, []);
+
   // Populate discussion posts
   useEffect(() => {
     const fetchDiscussions = async () => {
@@ -60,6 +71,8 @@ const Sidebar: React.FC<SidebarProps> = ({
               description: data.description,
               createdAt: data.createdAt?.toDate() || null,
               commentCount: commentsSnapshot.size,
+              createdBy: data.createdBy,
+              createdUserType: data.userType,
             };
           })
         );
@@ -74,6 +87,47 @@ const Sidebar: React.FC<SidebarProps> = ({
     fetchDiscussions();
   }, []);
 
+  useEffect(() => {
+    if (!currentUserEmail && activeFilters.includes("Created")) return;
+  
+    let filtered = [...discussionPosts];
+  
+    if (discussionSearch.trim()) {
+      filtered = filtered.filter(
+        (post) =>
+          post.title.toLowerCase().includes(discussionSearch.toLowerCase()) ||
+          post.description.toLowerCase().includes(discussionSearch.toLowerCase())
+      );
+    }
+  
+    if (activeFilters.includes("Created")) {
+      filtered = filtered.filter((post) => post.createdBy === currentUserEmail);
+    }
+  
+    if (activeFilters.includes("Joined")) {
+      filtered = filtered.filter((post) =>
+        post.joinedBy?.includes(currentUserEmail)
+      );
+    }
+  
+    if (activeFilters.includes("Business")) {
+      filtered = filtered.filter((post) => post.createdUserType === "business");
+    }
+  
+    // Sorting
+    filtered.sort((a, b) => {
+      if (!a.createdAt || !b.createdAt) return 0;
+  
+      if (sortType === "newest") return b.createdAt - a.createdAt;
+      if (sortType === "oldest") return a.createdAt - b.createdAt;
+      if (sortType === "most_comments") return b.commentCount - a.commentCount;
+      if (sortType === "least_comments") return a.commentCount - b.commentCount;
+      return 0;
+    });
+  
+    setFilteredDiscussions(filtered);
+  }, [discussionPosts, activeFilters, discussionSearch, sortType, currentUserEmail]);
+  
   const handleDiscussionSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value.toLowerCase();
     setDiscussionSearch(query);
@@ -89,18 +143,41 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const handleFilter = (filterType: string) => {
-    setActiveFilters((prevFilters) =>
-      prevFilters.includes(filterType)
-        ? prevFilters.filter((filter) => filter !== filterType) // Remove if already selected
-        : [...prevFilters, filterType] // Add if not selected
-    );
-    console.log("Active Filters:", activeFilters);
-    // Implement filter logic here
+    const updatedFilters = activeFilters.includes(filterType)
+      ? activeFilters.filter((filter) => filter !== filterType)
+      : [...activeFilters, filterType];
+  
+    setActiveFilters(updatedFilters);
+  
+    // Apply the updated filters to discussion posts
+    let filtered = discussionPosts;
+  
+    if (updatedFilters.includes("Created")) {
+      filtered = filtered.filter((post) => post.createdBy === currentUserEmail); 
+    }
+  
+    if (updatedFilters.includes("Joined")) {
+      filtered = filtered.filter((post) => post.joinedBy);
+    }
+  
+    if (updatedFilters.includes("Business")) {
+      filtered = filtered.filter((post) => post.createdUserType === "business");
+    }
+  
+    // Optionally re-apply search query as well
+    if (discussionSearch.trim() !== "") {
+      filtered = filtered.filter(
+        (post) =>
+          post.title.toLowerCase().includes(discussionSearch.toLowerCase()) ||
+          post.description.toLowerCase().includes(discussionSearch.toLowerCase())
+      );
+    }
+  
+    setFilteredDiscussions(filtered);
   };
-
-  const handleSort = (sortType: string) => {
-    console.log("Sort selected:", sortType);
-    // Implement sorting logic here
+  
+  const handleSort = (sort: string) => {
+    setSortType(sort);
   };
 
 
@@ -339,7 +416,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 <h6>{post.title}</h6>
                 <p>{post.description}</p>
                 <div className={styles.postInfo}>
-                  <p>{post.createdAt ? post.createdAt.toLocaleDateString() : "No date"} | {post.commentCount} {post.commentCount === 1 ? "Comments" : "Comments"}</p>
+                  <p>{post.createdAt ? post.createdAt.toLocaleDateString() : "No date"} | {post.commentCount} {post.commentCount === 1 ? "Comment" : "Comments"}</p>
                 </div>
               </div>
             </Link>
