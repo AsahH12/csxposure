@@ -189,10 +189,13 @@ const HomePage: React.FC = () => {
 
     const showCategoryBar = index < 4;
 
+    const cardClass = index < 4 ? `${cardstyles.card} ${cardstyles.highlightedCard}` : cardstyles.card;
+
     return (
       <Link className={cardstyles.cardLink} href={profileUrl}>
-        <div className={cardstyles.card}>
-        {showCategoryBar && categoryLabel && <div className={cardstyles.categoryBar}>{categoryLabel}</div>}          <div className={cardstyles.cardBody}>
+        <div className={cardClass}>
+        {showCategoryBar && categoryLabel && <div className={cardstyles.categoryBar}>{categoryLabel}</div>}          
+        <div className={cardstyles.cardBody}>
             <div className={cardstyles.profileImageContainer}>
               {profileImageUrl ? (
                 <img src={profileImageUrl} alt="Profile" className={cardstyles.profileImage} />
