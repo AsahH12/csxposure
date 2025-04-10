@@ -71,7 +71,37 @@ const HomePage: React.FC = () => {
           }
         }
 
-        setCards(fetchedUsers);
+        console.log("Fetched users:", fetchedUsers);
+        // Identify the top user for each category without duplication
+        const topUsers: CardProps[] = [];
+
+        // Find top user for general (most combined projects)
+        const mostGeneral = fetchedUsers.sort((a, b) => 
+          (b.categoryCounts?.Game + b.categoryCounts?.App + b.categoryCounts?.Website) - 
+          (a.categoryCounts?.Game + a.categoryCounts?.App + a.categoryCounts?.Website)
+        )[0];
+
+        // Find top user for website projects
+        const mostWebsite = fetchedUsers.sort((a, b) => (b.categoryCounts?.Website || 0) - (a.categoryCounts?.Website || 0))[0];
+
+        // Find top user for app projects
+        const mostApp = fetchedUsers.sort((a, b) => (b.categoryCounts?.App || 0) - (a.categoryCounts?.App || 0))[0];
+
+        // Find top user for game projects
+        const mostGame = fetchedUsers.sort((a, b) => (b.categoryCounts?.Game || 0) - (a.categoryCounts?.Game || 0))[0];
+
+        // Ensure users are unique by checking if they are already added to the top users array
+        if (mostGeneral && !topUsers.some(user => user.userId === mostGeneral.userId)) topUsers.push(mostGeneral);
+        if (mostWebsite && !topUsers.some(user => user.userId === mostWebsite.userId)) topUsers.push(mostWebsite);
+        if (mostApp && !topUsers.some(user => user.userId === mostApp.userId)) topUsers.push(mostApp);
+        if (mostGame && !topUsers.some(user => user.userId === mostGame.userId)) topUsers.push(mostGame);
+
+        // Add the top users to the front and the rest of the users afterwards
+        const restOfTheUsers = fetchedUsers.filter(user => 
+          !topUsers.some(topUser => topUser.userId === user.userId)
+        );
+
+        setCards([...topUsers, ...restOfTheUsers]);
 
       } catch (error) {
         console.error("Error fetching user profiles:", error);
@@ -130,18 +160,39 @@ const HomePage: React.FC = () => {
     setShowGames(games);
   };
 
+  // Function to determine what the user has the most of
+  const getMostCategory = (categoryCounts: { Game: number; App: number; Website: number }) => {
+    const categories = ['Game', 'App', 'Website'];
+    let mostCategory = categories[0];
+    let maxCount = categoryCounts[mostCategory];
+
+    categories.forEach(category => {
+      if (categoryCounts[category] > maxCount) {
+        mostCategory = category;
+        maxCount = categoryCounts[category];
+      }
+    });
+
+    return mostCategory;
+  };
+
   //////////////////////////////////// Card Component ////////////////////////////////////
-  const CardComponent: React.FC<CardProps> = ({ userId, userType, firstName, lastName, school, description, profileImageUrl }) => {
+  const CardComponent: React.FC<CardProps & { index: number }> = ({ userId, userType, firstName, lastName, school, description, profileImageUrl, categoryCounts, index}) => {
     const truncatedDescription = description.length > 60 ? description.slice(0, 60) + '...' : description;
 
     const profileUrl = userType === 'student'
       ? `/StudentProfilePage?userId=${userId}`
       : `/BusinessProfilePage?userId=${userId}`;
 
+    const mostCategory = getMostCategory(categoryCounts || { Game: 0, App: 0, Website: 0 });
+    const categoryLabel = mostCategory ? `Most ${mostCategory} Projects` : "";
+
+    const showCategoryBar = index < 4;
+
     return (
       <Link className={cardstyles.cardLink} href={profileUrl}>
         <div className={cardstyles.card}>
-          <div className={cardstyles.cardBody}>
+        {showCategoryBar && categoryLabel && <div className={cardstyles.categoryBar}>{categoryLabel}</div>}          <div className={cardstyles.cardBody}>
             <div className={cardstyles.profileImageContainer}>
               {profileImageUrl ? (
                 <img src={profileImageUrl} alt="Profile" className={cardstyles.profileImage} />
@@ -185,7 +236,7 @@ const HomePage: React.FC = () => {
             ) : (
               <div className={styles.cardContainer}>
                 {filteredCards.map((card, index) => (
-                  <CardComponent key={index} {...card} />
+                  <CardComponent key={index} index={index} {...card} />
                 ))}
               </div>
             )}

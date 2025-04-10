@@ -20,6 +20,16 @@
   text-decoration: none;
 }
 
+.categoryBar {
+  background-color: #f1a104; /* Yellow */
+  color: white;
+  padding: 5px;
+  text-align: center;
+  font-weight: bold;
+  border-radius: 5px 5px 0 0;
+  margin-bottom: 5px;
+}
+
 .profileImageContainer {
   width: 150px;
   height: 150px;
