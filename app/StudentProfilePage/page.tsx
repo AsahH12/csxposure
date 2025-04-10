@@ -78,6 +78,7 @@ const StudentProfilePage: React.FC = () => {
     };
 
     fetchUserData();
+    fetchUserProjects();
     setLoading(false);
   }, [userId]);
   

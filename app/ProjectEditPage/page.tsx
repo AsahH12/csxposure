@@ -65,39 +65,47 @@ const ProjectEditPage: React.FC = () => {
   const handleMediaUpload = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
-
+  
       // Check if it's a video file
       if (file.type.startsWith("video/")) {
         const fileURL = URL.createObjectURL(file);
         const video = document.createElement("video");
+        video.preload = "metadata"; 
         video.src = fileURL;
-        video.crossOrigin = "anonymous"; // Ensure cross-origin safety
-        video.muted = true; // Mute to allow autoplay
+        video.crossOrigin = "anonymous";
+        video.muted = true;
         video.playsInline = true;
-
+  
         video.onloadedmetadata = () => {
-          // Limit thumbnail to first 5 seconds or midpoint of video
+          // Check if video duration exceeds 5 minutes (300 seconds)
+          if (video.duration > 300) {
+            window.alert("The video is too long. Please upload a video shorter than 5 minutes.");
+            URL.revokeObjectURL(fileURL);
+            return;
+          }
+  
           video.currentTime = Math.min(video.duration / 2, 5);
-        };
-
+        
+  
         video.oncanplay = () => {
           const canvas = document.createElement("canvas");
           canvas.width = 320;
-          canvas.height = 240; 
-
+          canvas.height = 240;
+  
           const ctx = canvas.getContext("2d");
           if (ctx) {
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const thumbnailURL = canvas.toDataURL("image/jpeg", 0.6); // Reduced quality
-
-            // Update state with the thumbnail
+            const thumbnailURL = canvas.toDataURL("image/jpeg", 0.6);
+  
             const newMedia = [...images];
             newMedia[index] = thumbnailURL;
             setImages(newMedia);
           }
+          URL.revokeObjectURL(fileURL); // Clean up
+        };
         };
       } else {
-        // If it's an image, just use the existing logic
+        // If it's an image
         const reader = new FileReader();
         reader.onloadend = () => {
           const newMedia = [...images];
@@ -108,7 +116,7 @@ const ProjectEditPage: React.FC = () => {
       }
     }
   };
-
+  
   // Add a collaborator
   const addCollaborator = () => {
     const newCollaborator = prompt("Enter collaborator's name:");
