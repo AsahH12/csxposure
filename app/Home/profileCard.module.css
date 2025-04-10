@@ -20,6 +20,28 @@
   text-decoration: none;
 }
 
+.highlightedCard {
+}
+
+.highlightedCard:hover {
+  box-shadow: 0 8px 16px #f1a104;
+  background-color: #f8f8e6;
+  background-image: url('/gif_FallingStars.gif');
+  background-size: cover; /* Ensure the gif covers the card */
+  background-position: center; /* Center the gif */
+  background-repeat: no-repeat; /* Prevent repeating the gif */
+}
+
+.categoryBar {
+  background-color: #f1a104; /* Yellow */
+  color: white;
+  padding: 5px;
+  text-align: center;
+  font-weight: bold;
+  border-radius: 5px 5px 0 0;
+  margin-bottom: 5px;
+}
+
 .profileImageContainer {
   width: 150px;
   height: 150px;
