@@ -466,13 +466,13 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
                   placeholder="Enter the title of your discussion"
                   value={discussionTitle}
                   onChange={(e) => setDiscussionTitle(e.target.value)} // Update discussion title
-                  className={styles.inputField}
+                  className={styles.inputFieldTitle}
                 />
                 <textarea
                   placeholder="Enter the description of your discussion"
                   value={discussionDescription}
                   onChange={(e) => setDiscussionDescription(e.target.value)} // Update discussion description
-                  className={`${styles.inputField} ${styles.textarea}`}
+                  className={`${styles.inputFieldDescription} ${styles.textarea}`}
                 />
                 <button onClick={handleCreateDiscussionPost}>Create Discussion</button>
               </div>
