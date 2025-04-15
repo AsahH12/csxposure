@@ -98,19 +98,26 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
 
             const userQuery = query(collection(db, "users"), where("email", "==", otherUserEmail));
             const userSnap = await getDocs(userQuery);
-
-            let userId = "";
-            if (!userSnap.empty) {
-              userId = userSnap.docs[0].id; // Get the userId (document ID)
+            console.log("Querying for email:", otherUserEmail);
+            if (userSnap.empty) {
+              return null; // Exit early if no user is found
             }
+            const userId = userSnap.docs[0].id; // Get the userId (document ID)
+
+            console.log(userId);
             // Fetch the user's profile image from the nested structure
             const userDocRef = doc(db, "users", userId, "details", "profileData");
             console.log('UserRefrence', userDocRef);
+
             const userDoc = await getDoc(userDocRef);
 
             let profileImageUrl = null;
+            let firstName = null;
+            let lastName = null;
             if (userDoc.exists()) {
               profileImageUrl = userDoc.data()?.profileImage || null; // Get the profile image URL
+              firstName = userDoc.data()?.firstName || null;
+              lastName = userDoc.data()?.lastName || null;
               setOtherFirstName(userDoc.data()?.firstName || null); // Set the first name
               setOtherLastName(userDoc.data()?.lastName || null); // Set the last name
               console.log('profile name', userDoc.data()?.firstName, (userDoc.data()?.lastName));
@@ -121,6 +128,8 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
               chatId: chatDoc.id,
               hasMessages: true,
               profileImageUrl,
+              firstName,
+              lastName,
               userId, // Add userId to the return data
             };
           }
@@ -197,6 +206,9 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   const handleUserClick = (user) => {
     setSelectedUser(user.email); // Set the selected user
     setChatId(user.chatId); // Set the chatId for the selected user
+      setOtherFirstName(user.firstName);
+  setOtherLastName(user.lastName);
+  console.log(user.email,user.chatId,user.firstName,user.lastName);
   };
   
   //////////////////////////////////// Handeling Messages ////////////////////////////////////
@@ -395,7 +407,9 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
                   .map((user) => (
                     <div
                       key={user.email}
-                      onClick={() => handleUserClick(user)} // Update selectedUser state
+                      onClick={() => handleUserClick(user)
+                        
+                      } // Update selectedUser state
                     >
                       <div className={styles.userContainer}>
                         <button
@@ -420,7 +434,6 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
                           )}
                         </button>
                         <div className={styles.userInfo}>
-                          <h4>{user.firstName} {user.lastName}</h4>
                         </div>
                       </div>
                     </div>
