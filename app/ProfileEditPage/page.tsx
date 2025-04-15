@@ -194,7 +194,7 @@ const ProfileEditPage: React.FC = () => {
       if (!user) return;
 
       const userDocRef = doc(db, "users", user.uid, "details", "profileData");
-      await updateDoc(userDocRef, {
+      await setDoc(userDocRef, {
         firstName,
         lastName,
         status,
@@ -203,7 +203,7 @@ const ProfileEditPage: React.FC = () => {
         links: validLinks,
         volunteerAgreement,
         profileImage: localProfileImage, // Save the selected image
-      });
+      }, { merge: true });
 
       // Update context only after successful save
       setProfileImage(localProfileImage);
