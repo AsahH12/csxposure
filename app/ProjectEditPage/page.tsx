@@ -15,6 +15,7 @@ const ProjectEditPage: React.FC = () => {
   const [description, setDescription] = useState("");
   const [websiteLink, setWebsiteLink] = useState("");
   const [githubLink, setGithubLink] = useState("");
+  const [youtubeLink, setYoutubeLink] = useState("");
   const [collaborators, setCollaborators] = useState<string[]>([]);
   const [images, setImages] = useState<string[]>(["", "", "", ""]);
   const [loading, setLoading] = useState(true);
@@ -45,6 +46,7 @@ const ProjectEditPage: React.FC = () => {
           setDescription(projectData.description || "");
           setWebsiteLink(projectData.websiteLink || "");
           setGithubLink(projectData.githubLink || "");
+          setYoutubeLink(projectData.youtubeLink || "");
           setCollaborators(Array.isArray(projectData.collaborators) ? projectData.collaborators : []);
           setImages(Array.isArray(projectData.images) ? [...projectData.images, "", "", "", ""].slice(0, 4) : ["", "", "", ""]);
           setCategories(Array.isArray(projectData.categories) ? projectData.categories : []);
@@ -157,6 +159,7 @@ const ProjectEditPage: React.FC = () => {
         description,
         websiteLink,
         githubLink,
+        youtubeLink,
         collaborators,
         images: images.filter((img) => img !== ""), 
         categories,
@@ -244,7 +247,7 @@ const ProjectEditPage: React.FC = () => {
             type="text"
             value={websiteLink}
             onChange={(e) => setWebsiteLink(e.target.value)}
-            placeholder="Enter website link"
+            placeholder="Enter Website link"
           />
         </div>
 
@@ -255,6 +258,16 @@ const ProjectEditPage: React.FC = () => {
             value={githubLink}
             onChange={(e) => setGithubLink(e.target.value)}
             placeholder="Enter GitHub link"
+          />
+        </div>
+
+        <div className="input-group">
+          <label>Video Link</label>
+          <input
+            type="text"
+            value={youtubeLink}
+            onChange={(e) => setYoutubeLink(e.target.value)}
+            placeholder="Enter Video link"
           />
         </div>
 

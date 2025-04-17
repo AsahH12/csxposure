@@ -13,6 +13,7 @@ const StudentProjectPage: React.FC = () => {
   const [description, setDescription] = useState("");
   const [websiteLink, setWebsiteLink] = useState("");
   const [githubLink, setGithubLink] = useState("");
+  const [youtubeLink, setYoutubeLink] = useState("");
   const [collaborators, setCollaborators] = useState<string[]>([]);
   const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,6 +36,7 @@ const StudentProjectPage: React.FC = () => {
           setDescription(projectData.description || "No description available.");
           setWebsiteLink(projectData.websiteLink || "#");
           setGithubLink(projectData.githubLink || "#");
+          setYoutubeLink(projectData.youtubeLink || '#');
           setCollaborators(projectData.collaborators || []);
           setImages(projectData.images || []);
         } else {
@@ -63,6 +65,9 @@ const StudentProjectPage: React.FC = () => {
           </a>
           <a href={githubLink} target="_blank" rel="noopener noreferrer" className="project-link">
             GitHub Link
+          </a>
+          <a href={youtubeLink} target="_blank" rel="nooopener noreferrer" className="project-link">
+            Video Link
           </a>
         </div>
 
