@@ -47,7 +47,7 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   const [unreadCount, setUnreadCount] = useState<number>(0); // Count of unread messages
   const [users, setUsers] = useState<any[]>([]); // Store users list
   const [resizeDirection, setResizeDirection] = useState<ResizeDirection | null>(null); // Direction for resizing
-  const [position, setPosition] = useState({ x: 0, y: 0 }); // Position of the chat overlay
+  const [position, setPosition] = useState({ x: window.innerWidth / 2 - 250, y: window.innerHeight / 2 - 200 }); 
   const [size, setSize] = useState({ width: 500, height: 400 }); // Size of the chat overlay
   const chatRef = useRef<HTMLDivElement | null>(null); // Reference to the chat overlay div
   const dragOffset = useRef({ x: 0, y: 0 }); // Offset for dragging
@@ -63,20 +63,31 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   const selectedUserObject = users.find((user) => user.email === selectedUser); // Object of the selected user
   const [otherfirstName, setOtherFirstName] = useState<string>(""); // Other user's first name
   const [otherlastName, setOtherLastName] = useState<string>(""); // Other user's last name
+  const [userType, setUserType] =  useState<string | null>(null);
 
 
   //////////////////////////////////// Fetching or Saving Data ////////////////////////////////////
   // Get current user's email
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUserEmail(user.email); // Set user's email
+
+        // Fetch userType
+        const userDocRef = doc(db, "users", user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (userDocSnap.exists()) {
+          const data = userDocSnap.data();
+          console.log('user type', data.userType);
+          setUserType(data.userType); // Set user type
+        }
       }
     });
-
     return () => unsubscribe(); // Cleanup subscription on unmount
   }, []);
+
 
   // Fetch all users except the current user
   useEffect(() => {
@@ -285,8 +296,8 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
       description: discussionDescription,
       createdAt: new Date(), // Set creation date
       createdBy: userEmail, // Set creator's email
+      userType: userType, // Set user type
     });
-
     // Reset the fields and close the form
     setDiscussionTitle(""); // Clear title
     setDiscussionDescription(""); // Clear description
@@ -468,13 +479,13 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
                   placeholder="Enter the title of your discussion"
                   value={discussionTitle}
                   onChange={(e) => setDiscussionTitle(e.target.value)} // Update discussion title
-                  className={styles.inputField}
+                  className={styles.inputFieldTitle}
                 />
                 <textarea
                   placeholder="Enter the description of your discussion"
                   value={discussionDescription}
                   onChange={(e) => setDiscussionDescription(e.target.value)} // Update discussion description
-                  className={`${styles.inputField} ${styles.textarea}`}
+                  className={`${styles.inputFieldDescription} ${styles.textarea}`}
                 />
                 <button onClick={handleCreateDiscussionPost}>Create Discussion</button>
               </div>
