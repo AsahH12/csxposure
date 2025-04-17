@@ -273,7 +273,11 @@ const AuthPage = () => {
     <div
       className="d-flex justify-content-center align-items-center min-vh-100"
       style={{
-        backgroundColor: isBusiness ? "#2d2d2d" : "#f7fafc", // Dark grey background for business
+        backgroundImage: `url('/logo_Vertical.png')`,
+        backgroundRepeat: 'repeat', // makes it tile across the whole background
+        backgroundSize: '100px 100px',
+        backgroundPosition: 'top left', // can be 'center', 'top left', etc.
+        backgroundColor: isBusiness ? "#2d2d2d" : "#f7fafc", // will show through transparent parts
         transition: "background-color 0.3s ease",
       }}
     >
