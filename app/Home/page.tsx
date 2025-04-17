@@ -121,7 +121,6 @@ const HomePage: React.FC = () => {
           let mostWebsite: CardProps | undefined;
           let mostGeneral: CardProps | undefined;
 
-          // Step 3: Find top user for each category in selection order
           const findTopUser = (category: keyof CardProps["categoryCounts"]) =>
             fetchedUsers
               .filter(u => !usedIds.has(u.userId))
@@ -136,7 +135,6 @@ const HomePage: React.FC = () => {
           mostWebsite = findTopUser("Website");
           if (mostWebsite) usedIds.add(mostWebsite.userId);
 
-          // Only find mostGeneral AFTER excluding previous winners
           mostGeneral = fetchedUsers
             .filter(u => !usedIds.has(u.userId))
             .sort((a, b) =>
@@ -149,7 +147,7 @@ const HomePage: React.FC = () => {
           // Step 4: Push to topList in desired display order
           const topList: { userId: string; highlightCategory: string }[] = [];
 
-          if (mostGeneral) topList.push({ userId: mostGeneral.userId, highlightCategory: "Projects" });
+          if (mostGeneral) topList.push({ userId: mostGeneral.userId, highlightCategory: "Number of" });
           if (mostGame) topList.push({ userId: mostGame.userId, highlightCategory: "Game" });
           if (mostApp) topList.push({ userId: mostApp.userId, highlightCategory: "App" });
           if (mostWebsite) topList.push({ userId: mostWebsite.userId, highlightCategory: "Website" });
