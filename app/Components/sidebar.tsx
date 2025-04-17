@@ -25,6 +25,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [discussionPosts, setDiscussionPosts] = useState([]); // Stores discussion posts from database
   const [discussionSearch, setDiscussionSearch] = useState(""); // Discussion search input
   const [filteredDiscussions, setFilteredDiscussions] = useState([]); // Discussions based on search
+  const [joinedDiscussionIds, setJoinedDiscussionIds] = useState<string[]>([]);
+
   const [searchInput, setSearchInput] = useState(""); // For "Search discussions..." only
   const [activeFilters, setActiveFilters] = useState<string[]>([]); // Active filter for discussions
   const [sortType, setSortType] = useState("newest");
@@ -56,8 +58,17 @@ const Sidebar: React.FC<SidebarProps> = ({
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) { setCurrentUserEmail(user.email || ""); } });
-      return () => unsubscribe();
+      if (user) { 
+        setCurrentUserEmail(user.email || ""); 
+
+        // Fetch joined discussion IDs
+        const joinedRef = collection(db, "users", user.uid, "joinedDiscussions");
+        const joinedSnap = await getDocs(joinedRef);
+        const ids = joinedSnap.docs.map(doc => doc.id); // Just the discussion IDs
+        setJoinedDiscussionIds(ids);
+      }
+    });
+    return () => unsubscribe();
     }, []);
 
   // Populate discussion posts
@@ -114,7 +125,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   
     if (activeFilters.includes("Joined")) {
       filtered = filtered.filter((post) =>
-        post.joinedBy?.includes(currentUserEmail)
+        joinedDiscussionIds.includes(post.id)
       );
     }
   

@@ -6,6 +6,8 @@ import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import Footer from '../Components/footer';
 
+import styles from './signup.module.css';
+
 // SignUp Component
 const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusiness: React.Dispatch<React.SetStateAction<boolean>> }) => {
   const [email, setEmail] = useState("");
@@ -45,20 +47,14 @@ const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusin
 
   return (
     <div
-      className="card p-4 shadow-lg"
-      style={{
-        width: "100%",
-        maxWidth: "400px",
-        backgroundColor: isBusiness ? "#1e3a8a" : "white", // Dark blue for business
-        color: isBusiness ? "white" : "black", // Text color
-      }}
+      className={`${styles.card} ${isBusiness ? styles.cardBusiness : styles.cardStudent}`}
     >
-      <h2 className="card-title text-center">Sign Up</h2>
-      {error && <p className="text-danger text-center mb-3">{error}</p>}
-
+      <h2 className={styles.cardTitle}>Sign Up</h2>
+      {error && <p className={styles.statusText}>{error}</p>}
+  
       <form onSubmit={handleSignUp}>
-        <div className="mb-3">
-          <label htmlFor="email" className="form-label">
+        <div className={styles.formGroup}>
+          <label htmlFor="email" className={styles.label}>
             Email
           </label>
           <input
@@ -66,14 +62,14 @@ const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusin
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="form-control"
+            className={styles.input}
             placeholder="Enter your email"
             required
           />
         </div>
-
-        <div className="mb-3">
-          <label htmlFor="password" className="form-label">
+  
+        <div className={styles.formGroup}>
+          <label htmlFor="password" className={styles.label}>
             Password
           </label>
           <input
@@ -81,14 +77,14 @@ const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusin
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="form-control"
+            className={styles.input}
             placeholder="Enter your password"
             required
           />
         </div>
-
-        <div className="mb-3">
-          <label htmlFor="confirmPassword" className="form-label">
+  
+        <div className={styles.formGroup}>
+          <label htmlFor="confirmPassword" className={styles.label}>
             Confirm Password
           </label>
           <input
@@ -96,27 +92,25 @@ const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusin
             id="confirmPassword"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="form-control"
+            className={styles.input}
             placeholder="Confirm your password"
             required
           />
         </div>
-
-        <div className="mb-3">
+  
+        <div className={styles.formGroup}>
           <button
             type="submit"
-            className={`btn btn-primary w-100 ${loading ? "disabled" : ""}`}
+            className={styles.button}
             disabled={loading}
           >
             {loading ? "Signing Up..." : "Sign Up"}
           </button>
         </div>
-
-        {/* Clickable question to toggle between Business and Student */}
-        <div className="d-flex justify-content-center mt-3">
+  
+        <div className={styles.toggleBusinessStudent}>
           <span
-            className="me-2"
-            style={{ cursor: "pointer", textDecoration: "underline" }}
+            className={styles.toggleText}
             onClick={() => setIsBusiness(!isBusiness)}
           >
             {isBusiness ? "Are you a student?" : "Are you a business?"}
@@ -179,19 +173,13 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
 
   return (
     <div
-      className="card p-4 shadow-lg"
-      style={{
-        width: "100%",
-        maxWidth: "400px",
-        backgroundColor: isBusiness ? "#1e3a8a" : "white", // Dark blue for business
-        color: isBusiness ? "white" : "black", // Text color
-      }}
+      className={`${styles.card} ${isBusiness ? styles.cardBusiness : styles.cardStudent}`}
     >
-      <h2 className="card-title text-center">Login</h2>
-      {status && <p className="text-danger text-center mb-3">{status}</p>}
-
+      <h2 className={`${styles.cardTitle}`}>Login</h2>
+      {status && <p className={`${styles.statusText}`}>{status}</p>}
+  
       <form onSubmit={handleLogin}>
-        <div className="mb-3">
+        <div className={`${styles.formGroup}`}>
           <label htmlFor="email" className="form-label">
             Email
           </label>
@@ -205,8 +193,8 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
             required
           />
         </div>
-
-        <div className="mb-3">
+  
+        <div className={`${styles.formGroup}`}>
           <label htmlFor="password" className="form-label">
             Password
           </label>
@@ -220,8 +208,8 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
             required
           />
         </div>
-
-        <div className="mb-3">
+  
+        <div className={`${styles.formGroup}`}>
           <button
             type="submit"
             className={`btn btn-primary w-100 ${loading ? "disabled" : ""}`}
@@ -230,30 +218,28 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
             {loading ? "Logging In..." : "Log In"}
           </button>
         </div>
-
+  
         {/* Forgot Password link */}
-        <div className="d-flex justify-content-center mt-3">
+        <div className={`${styles.forgotPasswordLinkContainer}`}>
           <span
-            className="me-2"
-            style={{ cursor: "pointer", textDecoration: "underline" }}
+            className={`${styles.forgotPasswordLink}`}
             onClick={handlePasswordReset}
           >
             Forgot username or password?
           </span>
         </div>
-
+  
         {/* Display message if reset email was sent */}
         {emailSent && (
-          <div className="mt-3 text-center">
-            <p style={{ color: "green" }}>Password reset email sent!</p>
+          <div className={`${styles.resetEmailMessage}`}>
+            <p>Password reset email sent!</p>
           </div>
         )}
-
+  
         {/* Clickable question to toggle between Business and Student */}
-        <div className="d-flex justify-content-center mt-3">
+        <div className={`${styles.toggleBusinessStudent}`}>
           <span
-            className="me-2"
-            style={{ cursor: "pointer", textDecoration: "underline" }}
+            className={`${styles.toggleText}`}
             onClick={() => setIsBusiness(!isBusiness)}
           >
             {isBusiness ? "Are you a student?" : "Are you a business?"}
@@ -262,6 +248,7 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
       </form>
     </div>
   );
+  
 };
 
 // AuthPage Component
@@ -270,23 +257,23 @@ const AuthPage = () => {
 
   return (
     <div>
-    <div
-      className="d-flex justify-content-center align-items-center min-vh-100"
-      style={{
-        backgroundImage: `url('/logo_Vertical.png')`,
-        backgroundRepeat: 'repeat', // makes it tile across the whole background
-        backgroundSize: '100px 100px',
-        backgroundPosition: 'top left', // can be 'center', 'top left', etc.
-        backgroundColor: isBusiness ? "#2d2d2d" : "#f7fafc", // will show through transparent parts
-        transition: "background-color 0.3s ease",
-      }}
-    >
-      <div className="d-flex flex-column flex-md-row gap-4">
-        <SignUp isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
-        <Login isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
+      <div
+        className={`${styles.container} ${
+          isBusiness ? styles.businessBackground : styles.studentBackground
+        }`}
+      >
+        <div className={styles.contentWrapper}>
+          <h1 className={`${styles.userTypeTitle} ${isBusiness ? styles.businessText : styles.studentText}`}>
+            {isBusiness ? "Business" : "Student"}
+          </h1>
+          
+          <div className={styles.formWrapper}>
+            <SignUp isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
+            <Login isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
+          </div>
+        </div>
       </div>
-    </div>
-    <Footer />
+      <Footer />
     </div>
   );
 };
