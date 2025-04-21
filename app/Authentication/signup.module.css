@@ -1,91 +1,165 @@
-/* Global Styling */
-body {
-  font-family: 'Arial', sans-serif;
-  background-color: #f7f7f7;
+.container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  margin: 0;
-}
-.log-in-container{
-  background: white;
-  border-radius: 8px;
-  padding: 40px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
+  min-height: 86.55vh;
+  background-repeat: repeat;
+  background-size: 100px 100px;
+  background-position: top left;
+  transition: background 1.2s ease, background-image 1.5s ease;
 }
 
-/* Sign-In Container */
-.sign-in-container {
-  background: white;
-  border-radius: 8px;
-  padding: 40px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
-}
-
-.form-container {
+.contentWrapper {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  align-items: center;
+  width: 100%;
+  max-width: 900px; /* Adjust based on your design needs */
 }
 
-.form-container h2 {
+.userTypeTitle {
   text-align: center;
-  font-size: 24px;
-  margin-bottom: 20px;
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+.businessText {
+  color: #ced5ea;
+}
+
+.studentText {
+  color: #2d2d2d;
+}
+
+.card {
+  padding: 1rem;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: background 1.0s ease, color 1.0s ease;
+}
+
+.cardBusiness {
+  background-color: #1e3a8a;
+  color: white;
+}
+
+.cardStudent {
+  background-color: white;
+  color: black;
+}
+
+.cardTitle {
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.statusText {
+  color: red;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.formGroup {
+  margin-bottom: 1rem;
+}
+
+.forgotPasswordLinkContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.forgotPasswordLink {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.forgotPasswordLink:hover {
+  color: #0056b3; /* Optional hover effect */
+}
+
+.resetEmailMessage {
+  margin-top: 1rem;
+  text-align: center;
+  color: green;
+}
+
+.toggleBusinessStudent {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.errorText {
+  color: red;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.toggleText {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
 }
 
 .input {
   width: 100%;
-  padding: 10px;
-  margin: 8px 0;
-  border-radius: 4px;
+  padding: 0.5rem;
   border: 1px solid #ccc;
-  font-size: 16px;
+  border-radius: 0.25rem;
 }
 
-.input:focus {
-  border-color: #007bff;
-  outline: none;
-}
-
-.submit-btn {
-  padding: 12px;
-  background-color: #007bff;
+.button {
+  width: 100%;
+  padding: 0.5rem;
+  background-color: #0d6efd;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 0.25rem;
+  font-weight: 500;
   cursor: pointer;
-  font-size: 16px;
+  transition: opacity 0.3s ease;
 }
 
-.submit-btn:hover {
-  background-color: #0056b3;
+.button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
-.status-message {
-  color: red;
-  text-align: center;
-  font-size: 14px;
+/* Business version - Gradient Background Color */
+.businessBackground {
+  background-color: #2d2d2d;
+  background-image: url('/logo_VerticalWhite.png'); /* Separate image */
 }
 
-.toggle-link {
-  text-align: center;
-  font-size: 14px;
+/* Consumer version - Gradient Background Color */
+.studentBackground {
+  background-color: #e3e6e8;
+  background-image: url('/logo_VerticalDarkGrey.png'); /* Separate image */
 }
 
-.link-btn {
-  color: #007bff;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
+.formWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.link-btn:hover {
-  text-decoration: underline;
+@media (min-width: 768px) {
+  .formWrapper {
+    flex-direction: row;
+  }
 }
+
+

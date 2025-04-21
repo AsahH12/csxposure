@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import Link from 'next/link';
 import { db } from '../../firebaseconfig';
-import { collection, getDocs, doc, getDoc, query } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, query, setDoc } from "firebase/firestore";
 import Sidebar from '../Components/sidebar';
 import styles from './home.module.css';
 import cardstyles from './profileCard.module.css';
@@ -20,6 +20,7 @@ interface CardProps {
   profileImageUrl?: string;
   status?: string;
   volunteer?: boolean;
+  highlightCategory?: string;
   categoryCounts?: { Game: number; App: number; Website: number; Other: number };
 }
 
@@ -42,74 +43,189 @@ const HomePage: React.FC = () => {
 
     const fetchUsers = async () => {
       try {
+        const featuredRef = doc(db, "featured", "topUsers");
+        const featuredSnap = await getDoc(featuredRef);
+        const now = new Date();
+        let topUsers: CardProps[] = [];
+    
+        // Check if featured data exists and is fresh
+        if (featuredSnap.exists()) {
+          const data = featuredSnap.data();
+          const lastUpdated = data.lastUpdated?.toDate?.() || new Date(0);
+          const ageInDays = (now.getTime() - lastUpdated.getTime()) / (1000 * 60 * 60 * 24);
+    
+          if (ageInDays < 3 && data.users?.length > 0) {
+            // Fetch full profiles for each cached top user
+            const topUserPromises = data.users.map(async (u: { userId: string; highlightCategory: string }) => {
+              const profileRef = doc(db, "users", u.userId, "details", "profileData");
+              const profileSnap = await getDoc(profileRef);
+    
+              if (profileSnap.exists()) {
+                const profile = profileSnap.data();
+                return {
+                  userId: u.userId,
+                  userType: "student", // adjust if needed
+                  firstName: profile.firstName || "N/A",
+                  lastName: profile.lastName || "N/A",
+                  school: profile.school || "Unknown School",
+                  description: profile.bio || "No bio available",
+                  profileImageUrl: profile.profileImage || '',
+                  status: profile.status || '',
+                  volunteer: profile.volunteerAgreement || false,
+                  categoryCounts: profile.categoryCounts || { Game: 0, App: 0, Website: 0, Other: 0 },
+                  highlightCategory: u.highlightCategory,
+                };
+              }
+              return null;
+            });
+    
+            const resolved = await Promise.all(topUserPromises);
+            topUsers = resolved.filter(Boolean) as CardProps[];
+            console.log("Loaded cached top users:", topUsers);
+          }
+        }
+    
+        // If no recent data, recalculate top users
+        if (topUsers.length === 0) {
+          const usersCollection = collection(db, "users");
+          const userDocs = await getDocs(usersCollection);
+          const fetchedUsers: CardProps[] = [];
+    
+          for (const userDoc of userDocs.docs) {
+            const userId = userDoc.id;
+            const userType = userDoc.data().userType;
+            const profileDocRef = doc(db, "users", userId, "details", "profileData");
+            const profileDocSnap = await getDoc(profileDocRef);
+    
+            if (profileDocSnap.exists()) {
+              const profile = profileDocSnap.data();
+              fetchedUsers.push({
+                userId,
+                userType,
+                firstName: profile.firstName || "N/A",
+                lastName: profile.lastName || "N/A",
+                school: profile.school || "Unknown School",
+                description: profile.bio || "No bio available",
+                profileImageUrl: profile.profileImage || '',
+                status: profile.status || '',
+                volunteer: profile.volunteerAgreement || false,
+                categoryCounts: profile.categoryCounts || { Game: 0, App: 0, Website: 0, Other: 0 },
+              });
+            }
+          }
+
+          const usedIds = new Set<string>();
+
+          let mostGame: CardProps | undefined;
+          let mostApp: CardProps | undefined;
+          let mostWebsite: CardProps | undefined;
+          let mostGeneral: CardProps | undefined;
+
+          const findTopUser = (category: keyof CardProps["categoryCounts"]) =>
+            fetchedUsers
+              .filter(u => !usedIds.has(u.userId))
+              .sort((a, b) => (b.categoryCounts?.[category] || 0) - (a.categoryCounts?.[category] || 0))[0];
+
+          mostGame = findTopUser("Game");
+          if (mostGame) usedIds.add(mostGame.userId);
+
+          mostApp = findTopUser("App");
+          if (mostApp) usedIds.add(mostApp.userId);
+
+          mostWebsite = findTopUser("Website");
+          if (mostWebsite) usedIds.add(mostWebsite.userId);
+
+          mostGeneral = fetchedUsers
+            .filter(u => !usedIds.has(u.userId))
+            .sort((a, b) =>
+              (b.categoryCounts?.Game || 0) + (b.categoryCounts?.App || 0) + (b.categoryCounts?.Website || 0) -
+              ((a.categoryCounts?.Game || 0) + (a.categoryCounts?.App || 0) + (a.categoryCounts?.Website || 0))
+            )[0];
+
+          if (mostGeneral) usedIds.add(mostGeneral.userId);
+
+          // Step 4: Push to topList in desired display order
+          const topList: { userId: string; highlightCategory: string }[] = [];
+
+          if (mostGeneral) topList.push({ userId: mostGeneral.userId, highlightCategory: "Number of" });
+          if (mostGame) topList.push({ userId: mostGame.userId, highlightCategory: "Game" });
+          if (mostApp) topList.push({ userId: mostApp.userId, highlightCategory: "App" });
+          if (mostWebsite) topList.push({ userId: mostWebsite.userId, highlightCategory: "Website" });
+
+          // Write lean version to Firestore
+          await setDoc(featuredRef, {
+            lastUpdated: new Date(),
+            users: topList,
+          });
+
+          // Fetch full profiles for new top users
+          const topUserPromises = topList.map(async (u) => {
+            const profileRef = doc(db, "users", u.userId, "details", "profileData");
+            const profileSnap = await getDoc(profileRef);
+            const userDoc = await getDoc(doc(db, "users", u.userId));
+    
+            if (profileSnap.exists()) {
+              const profile = profileSnap.data();
+              return {
+                userId: u.userId,
+                userType: userDoc.exists() ? userDoc.data().userType : "student",
+                firstName: profile.firstName || "N/A",
+                lastName: profile.lastName || "N/A",
+                school: profile.school || "Unknown School",
+                description: profile.bio || "No bio available",
+                profileImageUrl: profile.profileImage || '',
+                status: profile.status || '',
+                volunteer: profile.volunteerAgreement || false,
+                categoryCounts: profile.categoryCounts || { Game: 0, App: 0, Website: 0, Other: 0 },
+                highlightCategory: u.highlightCategory,
+              };
+            }
+            return null;
+          });
+    
+          const resolved = await Promise.all(topUserPromises);
+          topUsers = resolved.filter(Boolean) as CardProps[];
+          console.log("Updated and saved new top users:", topUsers);
+        }
+    
+        // Fetch rest of users
         const usersCollection = collection(db, "users");
         const userDocs = await getDocs(usersCollection);
-
-        const fetchedUsers: CardProps[] = [];
-
+        const allUsers: CardProps[] = [];
+    
         for (const userDoc of userDocs.docs) {
           const userId = userDoc.id;
           const userType = userDoc.data().userType;
-          const profileDocRef = doc(db, "users", userId, "details", "profileData");
-          const profileDocSnap = await getDoc(profileDocRef);
-
-          if (profileDocSnap.exists()) {
-            const profileData = profileDocSnap.data();
-            
-            fetchedUsers.push({
+          const profileRef = doc(db, "users", userId, "details", "profileData");
+          const profileSnap = await getDoc(profileRef);
+    
+          if (profileSnap.exists()) {
+            const data = profileSnap.data();
+            allUsers.push({
               userId,
               userType,
-              firstName: profileData.firstName || "N/A",
-              lastName: profileData.lastName || "N/A",
-              school: profileData.school || "Unknown School",
-              description: profileData.bio || "No bio available",
-              profileImageUrl: profileData.profileImage || '',
-              status: profileData.status || '',
-              volunteer: profileData.volunteerAgreement || false,
-              categoryCounts: profileData.categoryCounts || { Game: 0, App: 0, Website: 0, Other: 0 },
+              firstName: data.firstName || "N/A",
+              lastName: data.lastName || "N/A",
+              school: data.school || "Unknown School",
+              description: data.bio || "No bio available",
+              profileImageUrl: data.profileImage || '',
+              status: data.status || '',
+              volunteer: data.volunteerAgreement || false,
+              categoryCounts: data.categoryCounts || { Game: 0, App: 0, Website: 0, Other: 0 },
             });
           }
         }
-
-        console.log("Fetched users:", fetchedUsers);
-        // Identify the top user for each category without duplication
-        const topUsers: CardProps[] = [];
-
-        // Find top user for general (most combined projects)
-        const mostGeneral = fetchedUsers.sort((a, b) => 
-          (b.categoryCounts?.Game + b.categoryCounts?.App + b.categoryCounts?.Website) - 
-          (a.categoryCounts?.Game + a.categoryCounts?.App + a.categoryCounts?.Website)
-        )[0];
-
-        // Find top user for website projects
-        const mostWebsite = fetchedUsers.sort((a, b) => (b.categoryCounts?.Website || 0) - (a.categoryCounts?.Website || 0))[0];
-
-        // Find top user for app projects
-        const mostApp = fetchedUsers.sort((a, b) => (b.categoryCounts?.App || 0) - (a.categoryCounts?.App || 0))[0];
-
-        // Find top user for game projects
-        const mostGame = fetchedUsers.sort((a, b) => (b.categoryCounts?.Game || 0) - (a.categoryCounts?.Game || 0))[0];
-
-        // Ensure users are unique by checking if they are already added to the top users array
-        if (mostGeneral && !topUsers.some(user => user.userId === mostGeneral.userId)) topUsers.push(mostGeneral);
-        if (mostWebsite && !topUsers.some(user => user.userId === mostWebsite.userId)) topUsers.push(mostWebsite);
-        if (mostApp && !topUsers.some(user => user.userId === mostApp.userId)) topUsers.push(mostApp);
-        if (mostGame && !topUsers.some(user => user.userId === mostGame.userId)) topUsers.push(mostGame);
-
-        // Add the top users to the front and the rest of the users afterwards
-        const restOfTheUsers = fetchedUsers.filter(user => 
-          !topUsers.some(topUser => topUser.userId === user.userId)
-        );
-
-        setCards([...topUsers, ...restOfTheUsers]);
-
+    
+        const restOfUsers = allUsers.filter(user => !topUsers.some(t => t.userId === user.userId));
+        setCards([...topUsers, ...restOfUsers]);
+    
       } catch (error) {
         console.error("Error fetching user profiles:", error);
       } finally {
         setLoading(false);
       }
-    };
-
+    };    
+    
     fetchUsers();
   }, []);
 
@@ -177,7 +293,7 @@ const HomePage: React.FC = () => {
   };
 
   //////////////////////////////////// Card Component ////////////////////////////////////
-  const CardComponent: React.FC<CardProps & { index: number }> = ({ userId, userType, firstName, lastName, school, description, profileImageUrl, categoryCounts, index}) => {
+  const CardComponent: React.FC<CardProps & { index: number }> = ({ userId, userType, firstName, lastName, school, description, profileImageUrl, highlightCategory, categoryCounts, index}) => {
     const truncatedDescription = description.length > 60 ? description.slice(0, 60) + '...' : description;
 
     const profileUrl = userType === 'student'
@@ -185,7 +301,7 @@ const HomePage: React.FC = () => {
       : `/BusinessProfilePage?userId=${userId}`;
 
     const mostCategory = getMostCategory(categoryCounts || { Game: 0, App: 0, Website: 0 });
-    const categoryLabel = mostCategory ? `Most ${mostCategory} Projects` : "";
+    const categoryLabel = index < 4 && highlightCategory ? `Most ${highlightCategory} Projects` : "";
 
     const showCategoryBar = index < 4;
 

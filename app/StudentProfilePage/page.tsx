@@ -163,6 +163,9 @@ const StudentProfilePage: React.FC = () => {
           </div>
 
           <div className="profile-form">
+          <div className="chat-button-container" style={{ position: 'relative', top: '10px', right: '10px' }}>
+          <button className="chat-button" onClick={handleOpenChat}>Chat</button>
+        </div>
             <div className="profile-picture">
               {profileImage ? (
                 <img src={profileImage} alt="Profile" />
@@ -198,10 +201,6 @@ const StudentProfilePage: React.FC = () => {
               {links.map((link, index) => (
                 <a key={index} href={link.url} className={link.type.toLowerCase()}>{link.type}</a>
               ))}
-            </div>
-
-            <div className="chat-button-container">
-              <button className="chat-button" onClick={handleOpenChat}>Chat</button>
             </div>
           </div>
         </div>

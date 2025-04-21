@@ -1,3 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Platypi&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Platypi&family=Trocchi&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lateef&display=swap');
+
 .business-profile-container {
     display: flex;
     justify-content: center;
@@ -13,6 +17,7 @@
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
     text-align: center;
+    font-family: 'platypi', sans-serif;
 }
 
 .profile-form {
@@ -114,7 +119,7 @@ a:hover {
 .first-name, .last-name {
     display: inline-block;
     margin-right: 10px; /* Space between first and last name */
-    font-family: 'trocchi', serif;
+    font-family: 'trocchi', serif !important;
     font-size: 25px;
     font-weight: bold;
   }

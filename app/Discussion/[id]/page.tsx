@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { db } from '../../../firebaseconfig';
-import { doc, getDoc, collection, query, getDocs, orderBy, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, collection, query, getDocs, orderBy, serverTimestamp, setDoc } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import styles from './Discussion.module.css';
 import Sidebar from '../../Components/sidebar';
@@ -154,6 +154,11 @@ const DiscussionPost: React.FC<{ params: Promise<DiscussionParams> }> = ({ param
                 text: newComment,
                 userId,
                 createdAt: serverTimestamp(),
+            });
+
+            const joinedDiscussionRef = doc(db, "users", userId, "joinedDiscussions", id!);
+            await setDoc(joinedDiscussionRef, {
+              joinedAt: serverTimestamp(),
             });
 
             setComments((prevComments) => [

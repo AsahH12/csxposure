@@ -1,3 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Platypi&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Platypi&family=Trocchi&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lateef&display=swap');
+
 .student-profile-container {
     display: flex;
     justify-content: center;
@@ -8,9 +12,9 @@
   }
   
   .profile-picture {
-    width: 6rem; /* Adjust size as needed */
-    height: 6rem;
-    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+    border-radius: 10%;
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -18,7 +22,6 @@
     background-color: #d1d5db; /* Placeholder color if no image */
     margin: 0 auto 1rem;
 }
-
   
   .profile-picture img {
     width: 100%;
@@ -26,13 +29,18 @@
     object-fit: cover;
   }
   
-
   .first-name {
-    margin-left: 15rem;
+    margin-left: 10.5rem;
+    font-family: 'trocchi', serif;
+    font-weight: bold;
+    font-size: larger;
   }
 
   .last-name {
     margin-left: 0rem;
+    font-family: 'trocchi', serif;
+    font-weight: bold;
+    font-size: larger;
   }
   
   .student-profile-card {
@@ -43,6 +51,7 @@
     padding: 1.5rem;
     width: 100%;
     max-width: 1300px;
+    font-family: 'lateef', cursive;
   }
   
   .project-section {
@@ -102,6 +111,8 @@
     border-radius: 0.5rem; /* Optional: makes edges rounded */ 
   }
 
+
+  
   .project-title {
     margin-top: 1rem;
     font-size: 1.5rem;
