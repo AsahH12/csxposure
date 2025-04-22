@@ -342,7 +342,7 @@ const AuthPage = () => {
                   <h1>Are you showcasing projects?</h1>
                   <button
                     className={styles.ghost}
-                    onClick={() => setRightPanelActive(false)}
+                    onClick={() => {setRightPanelActive(false); setIsBusiness(false);}} 
                   >
                     Student Login
                   </button>
@@ -351,7 +351,7 @@ const AuthPage = () => {
                   <h1>Are you a Business or Employer?</h1>
                   <button
                     className={styles.ghost}
-                    onClick={() => setRightPanelActive(true)}
+                    onClick={() => {setRightPanelActive(true); setIsBusiness(true);}}
                   >
                     Business Login
                   </button>
