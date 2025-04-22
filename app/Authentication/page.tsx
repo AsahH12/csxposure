@@ -1,4 +1,4 @@
-"use client"; 
+"use client";
 import React, { useState } from "react";
 import { auth, db } from "../../firebaseconfig";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "firebase/auth";
@@ -51,7 +51,7 @@ const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusin
     >
       <h2 className={styles.cardTitle}>Sign Up</h2>
       {error && <p className={styles.statusText}>{error}</p>}
-  
+
       <form onSubmit={handleSignUp}>
         <div className={styles.formGroup}>
           <label htmlFor="email" className={styles.label}>
@@ -67,7 +67,7 @@ const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusin
             required
           />
         </div>
-  
+
         <div className={styles.formGroup}>
           <label htmlFor="password" className={styles.label}>
             Password
@@ -82,7 +82,7 @@ const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusin
             required
           />
         </div>
-  
+
         <div className={styles.formGroup}>
           <label htmlFor="confirmPassword" className={styles.label}>
             Confirm Password
@@ -97,7 +97,7 @@ const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusin
             required
           />
         </div>
-  
+
         <div className={styles.formGroup}>
           <button
             type="submit"
@@ -107,7 +107,7 @@ const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusin
             {loading ? "Signing Up..." : "Sign Up"}
           </button>
         </div>
-  
+
         <div className={styles.toggleBusinessStudent}>
           <span
             className={styles.toggleText}
@@ -139,7 +139,7 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
 
       // Sign in the user with email and password
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      
+
       // Fetch user type from Firestore to verify if it's a business or student
       const userDoc = doc(db, "users", userCredential.user.uid);
       const userSnapshot = await getDoc(userDoc);
@@ -177,7 +177,7 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
     >
       <h2 className={`${styles.cardTitle}`}>Login</h2>
       {status && <p className={`${styles.statusText}`}>{status}</p>}
-  
+
       <form onSubmit={handleLogin}>
         <div className={`${styles.formGroup}`}>
           <label htmlFor="email" className="form-label">
@@ -193,7 +193,7 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
             required
           />
         </div>
-  
+
         <div className={`${styles.formGroup}`}>
           <label htmlFor="password" className="form-label">
             Password
@@ -208,7 +208,7 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
             required
           />
         </div>
-  
+
         <div className={`${styles.formGroup}`}>
           <button
             type="submit"
@@ -218,7 +218,7 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
             {loading ? "Logging In..." : "Log In"}
           </button>
         </div>
-  
+
         {/* Forgot Password link */}
         <div className={`${styles.forgotPasswordLinkContainer}`}>
           <span
@@ -228,14 +228,14 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
             Forgot username or password?
           </span>
         </div>
-  
+
         {/* Display message if reset email was sent */}
         {emailSent && (
           <div className={`${styles.resetEmailMessage}`}>
             <p>Password reset email sent!</p>
           </div>
         )}
-  
+
         {/* Clickable question to toggle between Business and Student */}
         <div className={`${styles.toggleBusinessStudent}`}>
           <span
@@ -248,7 +248,7 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
       </form>
     </div>
   );
-  
+
 };
 
 // AuthPage Component
@@ -258,18 +258,33 @@ const AuthPage = () => {
   return (
     <div>
       <div
-        className={`${styles.container} ${
-          isBusiness ? styles.businessBackground : styles.studentBackground
-        }`}
+        className={`${styles.container} ${isBusiness ? styles.businessBackground : styles.studentBackground
+          }`}
       >
         <div className={styles.contentWrapper}>
           <h1 className={`${styles.userTypeTitle} ${isBusiness ? styles.businessText : styles.studentText}`}>
             {isBusiness ? "Business" : "Student"}
           </h1>
-          
-          <div className={styles.formWrapper}>
-            <SignUp isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
-            <Login isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
+
+          <div className={styles.main}>
+            {/* Hidden toggle checkbox for sliding */}
+            <input type="checkbox" id="chk" className={styles.chkToggle} aria-hidden="true" />
+
+            {/* Sign Up Form */}
+            <div className={styles.signup}>
+              <SignUp isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
+              <label htmlFor="chk" className={styles.toggleLink}>
+                Already have an account? Log In
+              </label>
+            </div>
+
+            {/* Login Form */}
+            <div className={styles.login}>
+              <Login isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
+              <label htmlFor="chk" className={styles.toggleLink}>
+                Don't have an account? Sign Up
+              </label>
+            </div>
           </div>
         </div>
       </div>
