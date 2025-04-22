@@ -30,21 +30,29 @@
   
   .project-links {
     display: flex;
+    gap: 20px;
+    margin: 20px 0;
     justify-content: center;
-    gap: 30px;
-    margin-bottom: 30px;
   }
   
   .project-link {
+    padding: 8px 16px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
     text-decoration: none;
+    color: #0066cc;
     font-weight: bold;
-    font-size: 18px;
+    transition: background-color 0.3s;
+  }
+  
+  .project-link:hover {
+    background-color: #e0e0e0;
   }
   
   .project-media {
     display: flex;
     justify-content: space-between;
-    margin-top: 100px;
+    margin-top: 60px;
     gap: 30px;
   }
   
@@ -90,4 +98,29 @@
     min-height: calc(100vh - 80px); 
     padding-bottom: 50px;
   }
+
+  /* Youtube preview */
+
+  .youtube-embed-container {
+    margin: 30px 0;
+    width: 100%;
+    height: 100%;
+  }
   
+  .youtube-embed {
+    position: relative;
+    width: 100%;
+    height: 80%;
+    padding-bottom: 56%; /* 16:9 Aspect Ratio */
+    overflow: hidden;
+  }
+  
+  .youtube-embed iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }

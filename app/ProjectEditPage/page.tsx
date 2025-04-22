@@ -7,6 +7,35 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../firebaseconfig";
 import "./projectEdit.css";
 
+interface NotificationProps {
+  type: 'success' | 'error';
+  title: string;
+  message: string;
+  onClose: () => void;
+}
+
+const Notification: React.FC<NotificationProps> = ({ type, title, message, onClose }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose();
+    }, 3000); // Notification will disappear after 3 seconds
+
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div className={`notification notification-${type}`}>
+      <div className="notification-icon">
+        {type === 'success' ? '✓' : '✕'}
+      </div>
+      <div className="notification-content">
+        <div className="notification-title">{title}</div>
+        <div className="notification-message">{message}</div>
+      </div>
+    </div>
+  );
+};
+
 const ProjectEditPage: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -21,6 +50,19 @@ const ProjectEditPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
+  
+  // Notification state
+  const [notification, setNotification] = useState<{
+    show: boolean;
+    type: 'success' | 'error';
+    title: string;
+    message: string;
+  }>({
+    show: false,
+    type: 'success',
+    title: '',
+    message: ''
+  });
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -63,6 +105,21 @@ const ProjectEditPage: React.FC = () => {
     fetchProjectData();
   }, [projectId]);
 
+  // Show notification
+  const showNotification = (type: 'success' | 'error', title: string, message: string) => {
+    setNotification({
+      show: true,
+      type,
+      title, 
+      message
+    });
+  };
+
+  // Hide notification
+  const hideNotification = () => {
+    setNotification(prev => ({ ...prev, show: false }));
+  };
+
   // Handle image/video upload
   const handleMediaUpload = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -81,30 +138,29 @@ const ProjectEditPage: React.FC = () => {
         video.onloadedmetadata = () => {
           // Check if video duration exceeds 5 minutes (300 seconds)
           if (video.duration > 300) {
-            window.alert("The video is too long. Please upload a video shorter than 5 minutes.");
+            showNotification('error', 'Video Too Long', 'Please upload a video shorter than 5 minutes.');
             URL.revokeObjectURL(fileURL);
             return;
           }
   
           video.currentTime = Math.min(video.duration / 2, 5);
         
-  
-        video.oncanplay = () => {
-          const canvas = document.createElement("canvas");
-          canvas.width = 320;
-          canvas.height = 240;
-  
-          const ctx = canvas.getContext("2d");
-          if (ctx) {
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const thumbnailURL = canvas.toDataURL("image/jpeg", 0.6);
-  
-            const newMedia = [...images];
-            newMedia[index] = thumbnailURL;
-            setImages(newMedia);
-          }
-          URL.revokeObjectURL(fileURL); // Clean up
-        };
+          video.oncanplay = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = 320;
+            canvas.height = 240;
+    
+            const ctx = canvas.getContext("2d");
+            if (ctx) {
+              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+              const thumbnailURL = canvas.toDataURL("image/jpeg", 0.6);
+    
+              const newMedia = [...images];
+              newMedia[index] = thumbnailURL;
+              setImages(newMedia);
+            }
+            URL.revokeObjectURL(fileURL); // Clean up
+          };
         };
       } else {
         // If it's an image
@@ -144,12 +200,12 @@ const ProjectEditPage: React.FC = () => {
   // Save project to Firebase
   const saveProjectToFirebase = async () => {
     if (!projectName || !description) {
-      alert("Project name and description are required!");
+      showNotification('error', 'Missing Information', 'Project name and description are required!');
       return;
     }
 
     if (!userId) {
-      alert("You must be logged in to save a project.");
+      showNotification('error', 'Authentication Error', 'You must be logged in to save a project.');
       return;
     }
 
@@ -169,6 +225,7 @@ const ProjectEditPage: React.FC = () => {
 
       if (projectId) {
         await setDoc(doc(db, "Projects", projectId), projectData);
+        await setDoc(doc(db, "users", userId, "Projects", projectId), projectData);
       } else {
         const newProjectRef = await addDoc(collection(db, "Projects"), projectData);
         const newProjectId = newProjectRef.id;
@@ -176,10 +233,10 @@ const ProjectEditPage: React.FC = () => {
         router.push(`/ProjectEditPage?id=${newProjectId}`);
       }
 
-      alert("Project saved successfully!");
+      showNotification('success', 'Success', 'Project saved successfully!');
     } catch (error) {
       console.error("Error saving project:", error);
-      alert("Failed to save project.");
+      showNotification('error', 'Save Failed', 'Failed to save project. Please try again.');
     }
   };
 
@@ -191,125 +248,144 @@ const ProjectEditPage: React.FC = () => {
 
     try {
       await deleteDoc(doc(db, "Projects", projectId));
-      alert("Project deleted successfully!");
-      router.push("/ProfileEditPage"); // Redirect to projects page
+      if (userId) {
+        await deleteDoc(doc(db, "users", userId, "Projects", projectId));
+      }
+      showNotification('success', 'Success', 'Project deleted successfully!');
+      
+      // Give a little time for notification to be seen before redirecting
+      setTimeout(() => {
+        router.push("/ProfileEditPage");
+      }, 1500);
     } catch (error) {
       console.error("Error deleting project:", error);
-      alert("Failed to delete project.");
+      showNotification('error', 'Delete Failed', 'Failed to delete project. Please try again.');
     }
   };
 
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="project-content">
-      <div className="left-section">
-        <h1 className="project-title">{projectId ? "Edit Project" : "New Project"}</h1>
+    <>
+      {/* Render notification if it's visible */}
+      {notification.show && (
+        <Notification
+          type={notification.type}
+          title={notification.title}
+          message={notification.message}
+          onClose={hideNotification}
+        />
+      )}
+      
+      <div className="project-content">
+        <div className="left-section">
+          <h1 className="project-title">{projectId ? "Edit Project" : "New Project"}</h1>
 
-        <div className="input-group">
-          <label>Project Name</label>
-          <input
-            type="text"
-            value={projectName}
-            onChange={(e) => setProjectName(e.target.value)}
-            placeholder="Enter project name"
-          />
+          <div className="input-group">
+            <label>Project Name</label>
+            <input
+              type="text"
+              value={projectName}
+              onChange={(e) => setProjectName(e.target.value)}
+              placeholder="Enter project name"
+            />
+          </div>
+
+          <div className="input-group">
+            <label className="description">Description</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Enter project description"
+            />
+          </div>
+
+          <div className="input-group category-checkboxes">
+            <label>Project Category:</label>
+            <div className="checkbox-container category-checkboxes">
+              {['Game', 'App', 'Website', 'Other'].map((category) => (
+                <label key={category} className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={categories.includes(category)}
+                    onChange={() => handleCategoryChange(category)}
+                  />
+                  {category}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="input-group">
+            <label>Website Link</label>
+            <input
+              type="text"
+              value={websiteLink}
+              onChange={(e) => setWebsiteLink(e.target.value)}
+              placeholder="Enter Website link"
+            />
+          </div>
+
+          <div className="input-group">
+            <label>GitHub Link</label>
+            <input
+              type="text"
+              value={githubLink}
+              onChange={(e) => setGithubLink(e.target.value)}
+              placeholder="Enter GitHub link"
+            />
+          </div>
+
+          <div className="input-group">
+            <label>Video Link</label>
+            <input
+              type="text"
+              value={youtubeLink}
+              onChange={(e) => setYoutubeLink(e.target.value)}
+              placeholder="Enter Video link"
+            />
+          </div>
+
+          <h2 className="collaborator-title">Collaborators</h2>
+          {collaborators.map((name, index) => (
+            <div key={index}>
+              <span>{name}</span>
+              <button onClick={() => removeCollaborator(index)}>Remove</button>
+            </div>
+          ))}
+          <button className="add-collab" onClick={addCollaborator}>+ Add Collaborator</button>
         </div>
 
-        <div className="input-group">
-          <label className="description">Description</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Enter project description"
-          />
-        </div>
-
-        <div className="input-group category-checkboxes">
-          <label>Project Category:</label>
-          <div className="checkbox-container category-checkboxes">
-            {['Game', 'App', 'Website', 'Other'].map((category) => (
-              <label key={category} className="checkbox-label">
+        <div className="right-section">
+          <h2 className="media-upload">Upload Media</h2>
+          <div className="media-upload-grid">
+            {images.map((media, index) => (
+              <label key={index} className="upload-box">
+                {media ? (
+                  <img src={media} alt="Uploaded media" className="uploaded-media" />
+                ) : (
+                  "Upload Image/Video"
+                )}
                 <input
-                  type="checkbox"
-                  checked={categories.includes(category)}
-                  onChange={() => handleCategoryChange(category)}
+                  type="file"
+                  accept="image/*,video/*"
+                  style={{ display: "none" }}
+                  onChange={(event) => handleMediaUpload(index, event)}
                 />
-                {category}
               </label>
             ))}
           </div>
-        </div>
 
-        <div className="input-group">
-          <label>Website Link</label>
-          <input
-            type="text"
-            value={websiteLink}
-            onChange={(e) => setWebsiteLink(e.target.value)}
-            placeholder="Enter Website link"
-          />
-        </div>
+          <button className="save-button" onClick={saveProjectToFirebase}>Save Changes</button>
 
-        <div className="input-group">
-          <label>GitHub Link</label>
-          <input
-            type="text"
-            value={githubLink}
-            onChange={(e) => setGithubLink(e.target.value)}
-            placeholder="Enter GitHub link"
-          />
+          {projectId && (
+            <button className="delete-button" onClick={deleteProjectFromFirebase}>
+              Delete Project
+            </button>
+          )}
         </div>
-
-        <div className="input-group">
-          <label>Video Link</label>
-          <input
-            type="text"
-            value={youtubeLink}
-            onChange={(e) => setYoutubeLink(e.target.value)}
-            placeholder="Enter Video link"
-          />
-        </div>
-
-        <h2 className="collaborator-title">Collaborators</h2>
-        {collaborators.map((name, index) => (
-          <div key={index}>
-            <span>{name}</span>
-            <button onClick={() => removeCollaborator(index)}>Remove</button>
-          </div>
-        ))}
-        <button className="add-collab" onClick={addCollaborator}>+ Add Collaborator</button>
       </div>
-
-      <div className="right-section">
-        <h2 className="media-upload">Upload Media</h2>
-        <div className="media-upload-grid">
-          {images.map((media, index) => (
-            <label key={index} className="upload-box">
-              {media ? (
-                <img src={media} alt="Uploaded media" className="uploaded-media" />
-              ) : (
-                "Upload Image/Video"
-              )}
-              <input
-                type="file"
-                accept="image/*,video/*"
-                style={{ display: "none" }}
-                onChange={(event) => handleMediaUpload(index, event)}
-              />
-            </label>
-          ))}
-        </div>
-
-        <button className="save-button" onClick={saveProjectToFirebase}>Save Changes</button>
-
-        {projectId && (
-          <button className="delete-button" onClick={deleteProjectFromFirebase}>
-            Delete Project
-          </button>
-        )}
-      </div>
-    </div>
+    </>
   );
 };
 

@@ -17,6 +17,36 @@ interface Project {
   images?: string[];      // Optional field for project images
 }
 
+// Notification Component
+interface NotificationProps {
+  type: 'success' | 'error';
+  title: string;
+  message: string;
+  onClose: () => void;
+}
+
+const Notification: React.FC<NotificationProps> = ({ type, title, message, onClose }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose();
+    }, 3000); // Notification will disappear after 3 seconds
+
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div className={`notification notification-${type}`}>
+      <div className="notification-icon">
+        {type === 'success' ? '✓' : '✕'}
+      </div>
+      <div className="notification-content">
+        <div className="notification-title">{title}</div>
+        <div className="notification-message">{message}</div>
+      </div>
+    </div>
+  );
+};
+
 const ProfileEditPage: React.FC = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -39,6 +69,34 @@ const ProfileEditPage: React.FC = () => {
     Website: 0,
     Other: 0
   });
+  
+  // Notification state
+  const [notification, setNotification] = useState<{
+    show: boolean;
+    type: 'success' | 'error';
+    title: string;
+    message: string;
+  }>({
+    show: false,
+    type: 'success',
+    title: '',
+    message: ''
+  });
+
+  // Show notification
+  const showNotification = (type: 'success' | 'error', title: string, message: string) => {
+    setNotification({
+      show: true,
+      type,
+      title, 
+      message
+    });
+  };
+
+  // Hide notification
+  const hideNotification = () => {
+    setNotification(prev => ({ ...prev, show: false }));
+  };
 
   //Fetch profile data
   useEffect(() => {
@@ -93,13 +151,12 @@ const ProfileEditPage: React.FC = () => {
               if (categoryCounter[category] !== undefined) {
                 categoryCounter[category] += 1;
               } else {
-                categoryCounter['Other'] += 1; // If category is unrecognized, count as 'Other'
+                categoryCounter['Other'] += 1; 
               }
             });
           });
           setCategoryCounts(categoryCounter);
 
-          // Save categoryCounts and totalProjects to the Firestore database
           const userProfileRef = doc(db, "users", user.uid, "details", "profileData");
           await updateDoc(userProfileRef, {
             totalProjects: userProjects.length,
@@ -108,10 +165,9 @@ const ProfileEditPage: React.FC = () => {
 
         } catch (error) {
           console.error("Error fetching profile or projects:", error);
-          alert("Failed to fetch data.");
+          showNotification('error', 'Error', 'Failed to fetch data.');
         }
       }
-      setLoading(false);
       setLoading(false);
       // If school is pre-selected, skip validation
     
@@ -172,7 +228,7 @@ const ProfileEditPage: React.FC = () => {
 
   const addLink = () => {
     if (links.length >= 4) {
-      alert("You can only add up to 4 links.");
+      showNotification('error', 'Link Limit', 'You can only add up to 4 links.');
       return;
     }
     setLinks([...links, { type: '', url: '' }]);
@@ -181,11 +237,10 @@ const ProfileEditPage: React.FC = () => {
   // Save profile information into the database
   const saveProfile = async () => {
     if (!isSchoolValid) {
-      alert("Please select a school from the suggestions.");
+      showNotification('error', 'Invalid School', 'Please select a school from the suggestions.');
       return;
     }
 
-    // Filter out links with empty type and URL
     const validLinks = links.filter((link) => link.type.trim() !== "" || link.url.trim() !== "");
     setLinks(validLinks);
 
@@ -202,17 +257,26 @@ const ProfileEditPage: React.FC = () => {
         bio,
         links: validLinks,
         volunteerAgreement,
-        profileImage: localProfileImage, // Save the selected image
+        profileImage: localProfileImage, 
       }, { merge: true });
 
       // Update context only after successful save
       setProfileImage(localProfileImage);
 
-      alert("Profile saved successfully!");
+      showNotification('success', 'Success', 'Profile saved successfully!');
     } catch (error) {
       console.error("Error saving profile:", error);
-      alert("Failed to save profile.");
+      showNotification('error', 'Save Failed', 'Failed to save profile.');
     }
+  };
+
+  // Helper function to get the first image from an array or return null
+  const getFirstImage = (images?: string[] | string): string | null => {
+    if (!images) return null;
+    
+    if (typeof images === 'string') return images;
+    
+    return images.length > 0 ? images[0] : null;
   };
 
   if (loading) {
@@ -220,6 +284,16 @@ const ProfileEditPage: React.FC = () => {
   }
   return (
     <div>
+      {/* Render notification if it's visible */}
+      {notification.show && (
+        <Notification
+          type={notification.type}
+          title={notification.title}
+          message={notification.message}
+          onClose={hideNotification}
+        />
+      )}
+
       <div className="profile-edit-container">
         <div className="profile-edit-card">
           <div className="project-section">
@@ -228,14 +302,14 @@ const ProfileEditPage: React.FC = () => {
               {projects.map((project) => (
                 <Link key={project.id} className="link" href={`/ProjectEditPage?id=${project.id}`}>
                   <div className="project-card">
-                    {project.images ? (
-                      <img src={project.images} className="project-thumbnail" />
+                  
+                    {getFirstImage(project.images) ? (
+                      <img src={getFirstImage(project.images) as string} className="project-thumbnail" alt={project.projectName || "Project"} />
                     ) : (
                       <div className="no-thumbnail">No Image</div>
                     )}
                     <p className="project-title">{project.projectName || "Unnamed Project"}</p>
                   </div>
-
                 </Link>
               ))}
               <Link className="link" href="/ProjectEditPage">
