@@ -49,6 +49,9 @@ const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusin
     <div
       className={`${styles.card} ${isBusiness ? styles.cardBusiness : styles.cardStudent}`}
     >
+      <h1 className={`${styles.userTypeTitle} ${isBusiness ? styles.businessText : styles.studentText}`}>
+            {isBusiness ? "Business" : "Student"}
+          </h1>
       <h2 className={styles.cardTitle}>Sign Up</h2>
       {error && <p className={styles.statusText}>{error}</p>}
 
@@ -175,6 +178,9 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
     <div
       className={`${styles.card} ${isBusiness ? styles.cardBusiness : styles.cardStudent}`}
     >
+      <h1 className={`${styles.userTypeTitle} ${isBusiness ? styles.businessText : styles.studentText}`}>
+            {isBusiness ? "Business" : "Student"}
+          </h1>
       <h2 className={`${styles.cardTitle}`}>Login</h2>
       {status && <p className={`${styles.statusText}`}>{status}</p>}
 
@@ -254,36 +260,103 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
 // AuthPage Component
 const AuthPage = () => {
   const [isBusiness, setIsBusiness] = useState(false);
+  const [rightPanelActive, setRightPanelActive] = useState(false);
 
   return (
     <div>
+      {/*Background */}
       <div
-        className={`${styles.container} ${isBusiness ? styles.businessBackground : styles.studentBackground
-          }`}
+        className={`${styles.container} ${
+          isBusiness ? styles.businessBackground : styles.studentBackground
+        }`}
       >
-        <div className={styles.contentWrapper}>
-          <h1 className={`${styles.userTypeTitle} ${isBusiness ? styles.businessText : styles.studentText}`}>
-            {isBusiness ? "Business" : "Student"}
-          </h1>
-
-          <div className={styles.main}>
-            {/* Hidden toggle checkbox for sliding */}
-            <input type="checkbox" id="chk" className={styles.chkToggle} aria-hidden="true" />
-
-            {/* Sign Up Form */}
-            <div className={styles.signup}>
-              <SignUp isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
-              <label htmlFor="chk" className={styles.toggleLink}>
-                Already have an account? Log In
-              </label>
+        {/* Login/Sign Up */}
+        <div
+          className={`${styles.contentWrapper} ${
+            rightPanelActive ? styles.containerRightPanelActive : ""
+          }`}
+        >
+          <div className={styles.mainContainer}>
+            {/* Right Side - Student Login/SignUp */}
+            <div className={`${styles.formContainer} ${styles.studentContainer}`}>
+              <div className={styles.main}>
+                {/* Hidden toggle checkbox for sliding */}
+                <input
+                  type="checkbox"
+                  id="chk"
+                  className={styles.chkToggle}
+                  aria-hidden="true"
+                />
+  
+                {/* Sign Up Form */}
+                <div className={styles.signup}>
+                  <SignUp isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
+                  <label htmlFor="chk" className={styles.toggleLink}>
+                    Already have an account? Log In
+                  </label>
+                </div>
+  
+                {/* Login Form */}
+                <div className={styles.login}>
+                  <Login isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
+                  <label htmlFor="chk" className={styles.toggleLink}>
+                    Don't have an account? Sign Up
+                  </label>
+                </div>
+              </div>
             </div>
-
-            {/* Login Form */}
-            <div className={styles.login}>
-              <Login isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
-              <label htmlFor="chk" className={styles.toggleLink}>
-                Don't have an account? Sign Up
-              </label>
+  
+            {/* Left Side - Business Login/SignUp */}
+            <div className={`${styles.formContainer} ${styles.businessContainer}`}>
+              <div className={styles.main}>
+                {/* Hidden toggle checkbox for sliding */}
+                <input
+                  type="checkbox"
+                  id="chk"
+                  className={styles.chkToggle}
+                  aria-hidden="true"
+                />
+  
+                {/* Sign Up Form */}
+                <div className={styles.signup}>
+                  <SignUp isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
+                  <label htmlFor="chk" className={styles.toggleLink}>
+                    Already have an account? Log In
+                  </label>
+                </div>
+  
+                {/* Login Form */}
+                <div className={styles.login}>
+                  <Login isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
+                  <label htmlFor="chk" className={styles.toggleLink}>
+                    Don't have an account? Sign Up
+                  </label>
+                </div>
+              </div>
+            </div>
+  
+            {/* Overlay for Business and Student Login */}
+            <div className={styles.overlayContainer}>
+              <div className={styles.overlay}>
+                <div className={`${styles.overlayPanel} ${styles.overlayLeft}`}>
+                  <h1>Are you showcasing projects?</h1>
+                  <button
+                    className={styles.ghost}
+                    onClick={() => setRightPanelActive(false)}
+                  >
+                    Student Login
+                  </button>
+                </div>
+                <div className={`${styles.overlayPanel} ${styles.overlayRight}`}>
+                  <h1>Are you a Business or Employer?</h1>
+                  <button
+                    className={styles.ghost}
+                    onClick={() => setRightPanelActive(true)}
+                  >
+                    Business Login
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

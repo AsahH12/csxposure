@@ -17,20 +17,140 @@
   max-width: 900px; /* Adjust based on your design needs */
 }
 
+.mainContainer {
+	background-color: #fff;
+	border-radius: 10px;
+  	box-shadow: 0 14px 28px rgba(0,0,0,0.25), 
+			0 10px 10px rgba(0,0,0,0.22);
+	position: relative;
+	overflow: hidden;
+	width: 768px;
+	max-width: 100%;
+	min-height: 480px;
+  display: flex;
+  flex-direction: row; /* ensures side-by-side */
+  position: relative;
+  overflow: hidden;
+}
+
+.formContainer {
+  width: 50% !important;
+	top: 0;
+	height: 100%;
+	transition: all 0.6s ease-in-out;
+}
+
+.studentContainer {
+	left: 0;
+	width: 50%;
+	z-index: 2;
+}
+
+.maincontainer.rightPanelActive .businessContainer {
+	transform: translateX(100%);
+}
+
+.businessContainer {
+	left: 0;
+	width: 50%;
+	opacity: 0;
+	z-index: 1;
+}
+
+@keyframes show {
+  0%, 49.99% {
+    opacity: 0;
+    z-index: 1;
+  }
+
+  50%, 100% {
+    opacity: 1;
+    z-index: 5;
+  }
+}
+
+/* Container with active panel */
+.containerRightPanelActive .studentContainer {
+  transform: translateX(100%);
+  opacity: 1;
+  z-index: 5;
+  animation: show 0.6s;
+}
+
+.overlayContainer {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  transition: transform 0.6s ease-in-out;
+  z-index: 100;
+}
+
+.containerRightPanelActive .overlayContainer {
+  transform: translateX(-100%);
+}
+
+.overlay {
+  background: #FF416C;
+  background: -webkit-linear-gradient(to right, #FF4B2B, #FF416C);
+  background: linear-gradient(to right, #FF4B2B, #FF416C);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 0 0;
+  color: #FFFFFF;
+  position: relative;
+  left: -100%;
+  height: 100%;
+  width: 200%;
+  transform: translateX(0);
+  transition: transform 0.6s ease-in-out;
+}
+
+.containerRightPanelActive .overlay {
+  transform: translateX(50%);
+}
+
+.overlayPanel {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 40px;
+  text-align: center;
+  top: 0;
+  height: 100%;
+  width: 50%;
+  transform: translateX(0);
+  transition: transform 0.6s ease-in-out;
+}
+
+.overlayLeft {
+  transform: translateX(-20%);
+}
+
+.containerRightPanelActive .overlayLeft {
+  transform: translateX(0);
+}
+
+.overlayRight {
+  right: 0;
+  transform: translateX(0);
+}
+
+.containerRightPanelActive .overlayRight {
+  transform: translateX(20%);
+}
+
+/* Card Component CSS */
 .userTypeTitle {
   text-align: center;
   font-size: 2.5rem;
   font-weight: bold;
   margin-bottom: 2rem;
   color: #333;
-}
-
-.businessText {
-  color: #ced5ea;
-}
-
-.studentText {
-  color: #2d2d2d;
 }
 
 .card {
@@ -43,16 +163,6 @@
   justify-content: center;
   align-items: center;
   transition: background 1.0s ease, color 1.0s ease;
-}
-
-.cardBusiness {
-  background-color: #1e3a8a;
-  color: white;
-}
-
-.cardStudent {
-  background-color: white;
-  color: black;
 }
 
 .cardTitle {
@@ -138,18 +248,6 @@
   cursor: not-allowed;
 }
 
-/* Business version - Gradient Background Color */
-.businessBackground {
-  background-color: #2d2d2d;
-  background-image: url('/logo_VerticalWhite.png'); /* Separate image */
-}
-
-/* Consumer version - Gradient Background Color */
-.studentBackground {
-  background-color: #e3e6e8;
-  background-image: url('/logo_VerticalDarkGrey.png'); /* Separate image */
-}
-
 .formWrapper {
   display: flex;
   flex-direction: column;
@@ -168,7 +266,6 @@
   height: 550px;
   background: white;
   border-radius: 10px;
-  box-shadow: 5px 20px 50px rgba(0, 0, 0, 0.3);
   overflow: hidden;
 }
 
@@ -218,6 +315,41 @@
   color: #555;
   cursor: pointer;
 }
+
+/* Business Card CSS */
+.businessText {
+  color: #ced5ea;
+}
+.cardBusiness {
+  background-color: #1e3a8a;
+  color: white;
+}
+
+/* Student Card CSS */
+.studentText {
+  color: #2d2d2d;
+}
+.cardStudent {
+  background-color: white;
+  color: black;
+}
+
+
+/* Business version - Gradient Background Color */
+.businessBackground {
+  background-color: #2d2d2d;
+  background-image: url('/logo_VerticalWhite.png'); /* Separate image */
+}
+
+.studentBackground {
+  background-color: #e3e6e8;
+  background-image: url('/logo_VerticalDarkGrey.png'); /* Separate image */
+}
+
+
+
+
+
 
 
 
