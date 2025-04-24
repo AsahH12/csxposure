@@ -211,6 +211,11 @@
 
 .loginMargin {
   margin-left: 5px;
+  margin-top: -120px;
+}
+
+.signUpMargin{
+  padding-bottom: 40px;
 }
 
 .userTypeTitle {
@@ -221,7 +226,7 @@
   color: #333;
   font-family: trocchi, sans-serif;
   font-weight: bold;
-  margin-top: -10px;
+  margin-top: -65px;
 }
 
 .businessText {
@@ -240,17 +245,23 @@
 
 .signUpTitle {
   margin-top: -15px;
+  margin-bottom: 20px;
 }
 
 .loginTitle {
-  margin-top: -160px;
+  
   margin-bottom: 40px;
 }
 
 .statusText {
-  color: red;
+  color: rgb(216, 11, 11);
   text-align: center;
   margin-bottom: 1rem;
+  position: absolute; 
+  top: 60%; 
+  left: 50%;
+  transform: translate(-50%, -50%); 
+  width: 100%; 
 }
 
 .formGroup {
@@ -304,8 +315,16 @@
 .input {
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 0.25rem;
+  border:none;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.1);
+}
+.input:focus {
+  outline: none;
+  box-shadow: 0 2px 0 rgba(38, 114, 135, 0.3);
+}
+.input.error {
+  box-shadow: 0 2px 0px rgba(255, 0, 0, 0.6); /* Red shadow */
+  border: 1px solid red; /* Red border on error */
 }
 
 .button {

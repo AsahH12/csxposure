@@ -54,53 +54,44 @@ const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusin
           </h1>
 
       <h2 className={`${styles.cardTitle} ${styles.signUpTitle}`}>Sign Up</h2>
-      {error && <p className={styles.statusText}>{error}</p>}
 
       <form onSubmit={handleSignUp}>
         <div className={styles.formGroup}>
-          <label htmlFor="email" className={styles.label}>
-            Email
-          </label>
           <input
             type="email"
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className={styles.input}
+            className={`${styles.input} ${error && !email ? styles.error : ""}`}  // Add error class here
             placeholder="Enter your email"
             required
           />
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="password" className={styles.label}>
-            Password
-          </label>
           <input
             type="password"
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className={styles.input}
+            className={`${styles.input} ${error && password !== confirmPassword ? styles.error : ""}`}  // Add error class if passwords don't match
             placeholder="Enter your password"
             required
           />
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="confirmPassword" className={styles.label}>
-            Confirm Password
-          </label>
           <input
             type="password"
             id="confirmPassword"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className={styles.input}
+            className={`${styles.input} ${error && password !== confirmPassword ? styles.error : ""}`}  // Add error class if passwords don't match
             placeholder="Confirm your password"
             required
           />
         </div>
+        {error && <p className={styles.errorText}>{error}</p>}
 
         <div className={styles.formGroup}>
           <button
@@ -171,13 +162,9 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
       className={`${styles.card}  ${styles.loginMargin} ${isBusiness ? styles.cardBusiness : styles.cardStudent}`}
     >
       <h2 className={`${styles.cardTitle} ${styles.loginTitle}`}>Login</h2>
-      {status && <p className={`${styles.statusText}`}>{status}</p>}
 
       <form onSubmit={handleLogin}>
         <div className={`${styles.formGroup}`}>
-          <label htmlFor="email" className="form-label">
-            Email
-          </label>
           <input
             type="email"
             id="email"
@@ -190,9 +177,6 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
         </div>
 
         <div className={`${styles.formGroup}`}>
-          <label htmlFor="password" className="form-label">
-            Password
-          </label>
           <input
             type="password"
             id="password"
@@ -203,6 +187,7 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
             required
           />
         </div>
+        {status && <p className={`${styles.statusText}`}>{status}</p>}
 
         <div className={`${styles.formGroup}`}>
           <button
