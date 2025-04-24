@@ -3,9 +3,10 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { doc, getDoc, collection, query, where, getDocs, addDoc } from "firebase/firestore";
 import { db, auth } from "../../firebaseconfig";
-import './studentProfile.css';
+//import './studentProfile.css';
 import Link from 'next/link'
 import ChatOverlay from "../Components/ChatOverlay";
+import styles from './studentProfile.module.css';
 
 const getFirstImage = (images?: string[] | string): string | null => {
   if (!images) return null;
@@ -153,63 +154,63 @@ const StudentProfilePage: React.FC = () => {
 
   return (
     <div>
-      <div className="student-profile-container">
-        <div className="student-profile-card">
-          <div className="project-section">
-          <div className="project-grid">
+      <div className={styles.container}>
+        <div className={styles.card}>
+          <div className={styles.projectSection}>
+            <div className={styles.projectGrid}>
               {projects.map((project) => (
-                <Link key={project.id} className="link" href={`/StudentProjectPage?id=${project.id}`}>
-                  <div className="project-card">
+                <Link key={project.id} className={styles.projectLink} href={`/StudentProjectPage?id=${project.id}`}>
+                  <div className={styles.projectCard}>
                     {getFirstImage(project.images) ? (
-                      <img src={getFirstImage(project.images) as string} className="project-thumbnail" alt={project.projectName} />
+                      <img
+                        src={getFirstImage(project.images) as string}
+                        className={styles.projectThumbnail}
+                        alt={project.projectName}
+                      />
                     ) : (
-                      <div className="no-thumbnail">No Image</div>
+                      <div className={styles.noThumbnail}>No Image</div>
                     )}
-                    <p className="project-title">{project.projectName || "Unnamed Project"}</p>
+                    <p className={styles.projectTitle}>{project.projectName || "Unnamed Project"}</p>
                   </div>
                 </Link>
               ))}
             </div>
           </div>
-
-          <div className="profile-form">
-          <div className="chat-button-container" style={{ position: 'relative', top: '10px', right: '10px' }}>
-          <button className="chat-button" onClick={handleOpenChat}>Chat</button>
-        </div>
-            <div className="profile-picture">
+  
+          <div className={styles.profileForm}>
+            <div className={styles.chatButtonContainer} style={{ position: 'relative', top: '10px', right: '10px' }}>
+              <button className={styles.chatButton} onClick={handleOpenChat}>Chat</button>
+            </div>
+  
+            <div className={styles.profilePicture}>
               {profileImage ? (
                 <img src={profileImage} alt="Profile" />
               ) : (
-                <div className="initials-placeholder">
-                  {firstName.charAt(0).toUpperCase()}{lastName.charAt(0).toUpperCase()}
-                </div>
+                <div className={styles.initials}>{firstName.charAt(0).toUpperCase()}{lastName.charAt(0).toUpperCase()}</div>
               )}
             </div>
-
-            <div className="name-group">
-              <div className="first-name">{firstName}</div>
-              <div className="last-name">{lastName}</div>
-            </div>
-
-            <div className="form-group">
+  
+            <div className={styles.fullName}>{`${firstName} ${lastName}`}</div>
+  
+            <div className={styles.formGroup}>
               <label>Status:</label>
-              <div className="input-field">{status}</div>
+              <div className={styles.inputField}>{status}</div>
             </div>
-
-            <div className="form-group">
+  
+            <div className={styles.formGroup}>
               <label>School:</label>
-              <div className="input-field">{school}</div>
+              <div className={styles.inputField}>{school}</div>
             </div>
-
-            <div className="form-group">
+  
+            <div className={styles.formGroup}>
               <label>Bio:</label>
-              <h1 className="bio-field">{bio}</h1>
+              <h1 className={styles.bioField}>{bio}</h1>
             </div>
-
-            <div className="form-group">
-              <h2 className="section-title">Links</h2>
+  
+            <div className={styles.formGroup}>
+              <h2 className={styles.sectionTitle}>Links</h2>
               {links.map((link, index) => (
-                <a key={index} href={link.url} className={link.type.toLowerCase()}>{link.type}</a>
+                <a key={index} href={link.url} className={styles[link.type.toLowerCase()]}>{link.type}</a>
               ))}
             </div>
           </div>

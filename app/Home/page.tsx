@@ -199,7 +199,7 @@ const HomePage: React.FC = () => {
           const profileRef = doc(db, "users", userId, "details", "profileData");
           const profileSnap = await getDoc(profileRef);
     
-          if (profileSnap.exists()) {
+          if (profileSnap.exists() && userType !== 'business') {
             const data = profileSnap.data();
             allUsers.push({
               userId,

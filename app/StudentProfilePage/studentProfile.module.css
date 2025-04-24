@@ -1,0 +1,194 @@
+/* Font Imports - Organized Alphabetically by Font Name */
+@import url('https://fonts.googleapis.com/css2?family=Lateef&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Platypi&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Platypi&family=Trocchi&display=swap');
+
+/* Layout Containers */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 95vh;
+  background-color: #f3f4f6;
+  padding: 1rem;
+}
+
+.card {
+  display: flex;
+  background: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 1300px;
+  font-family: 'Lateef', cursive;
+  font-size: 25px;
+}
+
+.projectSection {
+  width: 70%;
+  background-color: #e5e7eb;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  flex: 3;
+}
+
+.profileForm {
+  width: 30%;
+  padding: 1rem;
+  flex: 1;
+}
+
+/* Project Grid */
+.projectGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+.projectCard {
+  background: #d1d5db;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  width: 200px;
+  height: 200px;
+}
+
+.projectThumbnail {
+  width: 170px;
+  height: 170px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+.projectTitle {
+  margin-top: 1rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: black;
+}
+
+.projectLink {
+  text-decoration: none;
+  background: #6b7280;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.noThumbnail {
+  background: #9ca3af;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+}
+
+/* Profile Section */
+.profilePicture {
+  width: 150px;
+  height: 150px;
+  border-radius: 10%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #d1d5db;
+  margin: 0 auto 1rem;
+}
+
+.profilePicture img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fullName {
+  font-family: 'Trocchi', serif;
+  font-weight: bold;
+  font-size: larger;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+
+/* Form & Text Elements */
+.formGroup {
+  margin-bottom: 1rem;
+}
+
+.inputField {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+}
+
+.bioField {
+  height: 4rem;
+  font-size: 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+/* Chat Button */
+.chatButtonContainer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.chatButton {
+  background: #f1a104;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.chatButton:hover {
+  background: #fa7b36;
+}
+
+/* Links by Platform */
+.insta {
+  padding: 2rem;
+}
+
+.github {
+  padding: 2rem;
+}
+
+.linkedin {
+  padding: 2rem;
+}
+
+/* Placeholder Initials */
+.initials {
+  width: 100px;
+  height: 100px;
+  background-color: grey;
+  color: white;
+  font-size: 36px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  text-transform: uppercase;
+}
