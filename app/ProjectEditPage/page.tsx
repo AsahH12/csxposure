@@ -2,9 +2,11 @@
 import React, { useState, useEffect } from "react";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useRouter, useSearchParams } from "next/navigation";
-import { doc, setDoc, collection, getDoc, addDoc, deleteDoc } from "firebase/firestore";
+import { doc, setDoc, collection, getDoc, addDoc, deleteDoc, getDocs } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../firebaseconfig";
+import { query, where, } from "firebase/firestore";
+
 import "./projectEdit.css";
 
 interface NotificationProps {
@@ -50,7 +52,15 @@ const ProjectEditPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
-  
+  const [searchInput, setSearchInput] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [sendingInvite, setSendingInvite] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<{
+    id: string;
+    name: string;
+    email: string;
+  } | null>(null);
+  const currentUser = auth.currentUser; // Get logged-in user  
   // Notification state
   const [notification, setNotification] = useState<{
     show: boolean;
@@ -105,6 +115,114 @@ const ProjectEditPage: React.FC = () => {
     fetchProjectData();
   }, [projectId]);
 
+  const handleSearchChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchInput(query);
+  
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+  
+    const usersRef = collection(db, "users");
+    const snapshot = await getDocs(usersRef);
+    const results: any[] = [];
+  
+    for (const userDoc of snapshot.docs) {
+      const userId = userDoc.id;
+      const userData = userDoc.data();
+      const email = userData.email;
+  
+      try {
+        const detailsRef = doc(db, "users", userId, "details", "profileData");
+        const detailsSnap = await getDoc(detailsRef);
+  
+        const profileData = detailsSnap.exists() ? detailsSnap.data() : null;
+        const firstName = profileData?.firstName || "";
+        const lastName = profileData?.lastName || "";
+        const name = `${firstName} ${lastName}`.trim();
+  
+        if (
+          name.toLowerCase().includes(query.toLowerCase()) ||
+          email?.toLowerCase().includes(query.toLowerCase())
+        ) {
+          results.push({ id: userId, name, email });
+        }
+      } catch (err) {
+        console.error("Error fetching profile data for user:", userId, err);
+      }
+    }
+  
+    setSearchResults(results);
+    console.log(results);
+  };
+  
+  const sendInvite = async (selectedUser: { email: string; name: string; }) => {
+    if (!currentUser || !projectId || !selectedUser) return;
+  
+    setSendingInvite(true);
+  
+    try {
+      // 1. Check if a chat exists between currentUser and selectedUser
+      const chatRef = collection(db, "chats");
+      const chatQuery = query(chatRef, where("participants", "array-contains", currentUser.email));
+      const snapshot = await getDocs(chatQuery);
+  
+      let chatId: string | null = null;
+  
+      snapshot.forEach((doc) => {
+        const data = doc.data() as { participants?: string[] };
+        const participants = data.participants || [];
+  
+        // Check if selectedUser email is in the participants list
+        if (participants.includes(selectedUser.email)) {
+          chatId = doc.id;
+        }
+      });
+  
+      // 2. If no existing chat, create a new one
+      if (!chatId) {
+        const newChatRef = await addDoc(chatRef, {
+          participants: [currentUser.email, selectedUser.email],
+          unreadMessages: { [selectedUser.name]: 0, [currentUser.email]: 0 },
+          lastMessage: "A new chat has been created.",
+          createdAt: new Date(),
+        });
+
+        chatId = newChatRef.id;
+
+        const messagesRef = collection(db, "chats", chatId, "messages");
+        await addDoc(messagesRef, {
+          sender: currentUser.email,
+          text: "A new chat has been created.",
+          timestamp: new Date(),
+        });
+      }
+  
+      // 3. Send invite message in the chat
+      const messagesRef = collection(db, "chats", chatId, "messages");
+      await addDoc(messagesRef, {
+        senderId: currentUser.uid,
+        sender: currentUser.email,
+        type: "invite",
+        text: `You've been invited to collaborate on the project "${projectName}"`,
+        projectId,
+        timestamp: new Date(),
+        status: "pending",
+      });
+  
+      // 4. Mark collaborator as pending
+      setCollaborators((prev) => [...prev, `pending:${selectedUser.email}`]);
+      setSearchInput("");
+      setSearchResults([]);
+    } catch (error) {
+      console.error("Error sending invite:", error);
+    } finally {
+      setSendingInvite(false);
+    }
+  };
+  
+  
   // Show notification
   const showNotification = (type: 'success' | 'error', title: string, message: string) => {
     setNotification({
@@ -346,15 +464,54 @@ const ProjectEditPage: React.FC = () => {
             />
           </div>
 
-          <h2 className="collaborator-title">Collaborators</h2>
-          {collaborators.map((name, index) => (
-            <div key={index}>
-              <span>{name}</span>
-              <button onClick={() => removeCollaborator(index)}>Remove</button>
-            </div>
+          <div>
+        <label className="block mb-1 font-medium">Invite Collaborator</label>
+        <input
+          type="text"
+          value={searchInput}
+          onChange={handleSearchChange}
+          placeholder="Search users by name or email"
+          className="w-full border rounded px-3 py-2"
+        />
+        {searchResults.length > 0 && (
+          <div className="border mt-1 rounded shadow bg-white">
+            {searchResults.map((user) => (
+              <div
+                key={user.id}
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onMouseDown={() => setSelectedUser(user)}
+                >
+                {user.name} ({user.email})
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="mt-3">
+        <button
+          onClick={() => selectedUser && sendInvite(selectedUser) && console.log("button clicked", selectedUser.email)
+          }
+          disabled={!selectedUser || sendingInvite}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Send Invite
+        </button>
+      </div>
+      {selectedUser && (
+  <div className="mt-2 text-sm text-gray-700">
+    Selected: {selectedUser.name} ({selectedUser.email})
+  </div>
+)}
+  
+      <div>
+        <label className="block mb-1 font-medium">Collaborators</label>
+        <ul className="list-disc pl-5">
+          {collaborators.map((collab, index) => (
+            <li key={index}>{collab}</li>
           ))}
-          <button className="add-collab" onClick={addCollaborator}>+ Add Collaborator</button>
-        </div>
+        </ul>
+      </div>
+      </div>
 
         <div className="right-section">
           <h2 className="media-upload">Upload Media</h2>
