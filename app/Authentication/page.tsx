@@ -47,12 +47,13 @@ const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusin
 
   return (
     <div
-      className={`${styles.card} ${isBusiness ? styles.cardBusiness : styles.cardStudent}`}
+      className={`${styles.card} ${styles.signUpMargin} ${isBusiness ? styles.cardBusiness : styles.cardStudent}`}
     >
       <h1 className={`${styles.userTypeTitle} ${isBusiness ? styles.businessText : styles.studentText}`}>
             {isBusiness ? "Business" : "Student"}
           </h1>
-      <h2 className={styles.cardTitle}>Sign Up</h2>
+
+      <h2 className={`${styles.cardTitle} ${styles.signUpTitle}`}>Sign Up</h2>
       {error && <p className={styles.statusText}>{error}</p>}
 
       <form onSubmit={handleSignUp}>
@@ -109,15 +110,6 @@ const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusin
           >
             {loading ? "Signing Up..." : "Sign Up"}
           </button>
-        </div>
-
-        <div className={styles.toggleBusinessStudent}>
-          <span
-            className={styles.toggleText}
-            onClick={() => setIsBusiness(!isBusiness)}
-          >
-            {isBusiness ? "Are you a student?" : "Are you a business?"}
-          </span>
         </div>
       </form>
     </div>
@@ -176,12 +168,9 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
 
   return (
     <div
-      className={`${styles.card} ${isBusiness ? styles.cardBusiness : styles.cardStudent}`}
+      className={`${styles.card}  ${styles.loginMargin} ${isBusiness ? styles.cardBusiness : styles.cardStudent}`}
     >
-      <h1 className={`${styles.userTypeTitle} ${isBusiness ? styles.businessText : styles.studentText}`}>
-            {isBusiness ? "Business" : "Student"}
-          </h1>
-      <h2 className={`${styles.cardTitle}`}>Login</h2>
+      <h2 className={`${styles.cardTitle} ${styles.loginTitle}`}>Login</h2>
       {status && <p className={`${styles.statusText}`}>{status}</p>}
 
       <form onSubmit={handleLogin}>
@@ -241,16 +230,6 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
             <p>Password reset email sent!</p>
           </div>
         )}
-
-        {/* Clickable question to toggle between Business and Student */}
-        <div className={`${styles.toggleBusinessStudent}`}>
-          <span
-            className={`${styles.toggleText}`}
-            onClick={() => setIsBusiness(!isBusiness)}
-          >
-            {isBusiness ? "Are you a student?" : "Are you a business?"}
-          </span>
-        </div>
       </form>
     </div>
   );
@@ -287,25 +266,21 @@ const AuthPage = () => {
                   className={styles.chkToggle}
                   aria-hidden="true"
                 />
-  
-                {/* Sign Up Form */}
-                <div className={styles.signup}>
-                  <SignUp isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
-                  <label htmlFor="chk" className={styles.toggleLink}>
-                    Already have an account? Log In
-                  </label>
-                </div>
-  
+
                 {/* Login Form */}
                 <div className={styles.login}>
-                  <Login isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
-                  <label htmlFor="chk" className={styles.toggleLink}>
-                    Don't have an account? Sign Up
-                  </label>
+                  <SignUp isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
                 </div>
+
+                {/* Sign Up Form */}
+                <label htmlFor="chk" className={`${styles.signup} ${isBusiness ? styles.loginBusiness : styles.loginStudent}`} onClick={(e) => e.stopPropagation()}>
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <Login isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
+                  </div>
+                </label>
               </div>
             </div>
-  
+
             {/* Left Side - Business Login/SignUp */}
             <div className={`${styles.formContainer} ${styles.businessContainer}`}>
               <div className={styles.main}>
@@ -316,42 +291,39 @@ const AuthPage = () => {
                   className={styles.chkToggle}
                   aria-hidden="true"
                 />
-  
-                {/* Sign Up Form */}
-                <div className={styles.signup}>
-                  <SignUp isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
-                  <label htmlFor="chk" className={styles.toggleLink}>
-                    Already have an account? Log In
-                  </label>
-                </div>
-  
+
                 {/* Login Form */}
                 <div className={styles.login}>
-                  <Login isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
-                  <label htmlFor="chk" className={styles.toggleLink}>
-                    Don't have an account? Sign Up
-                  </label>
+                  <SignUp isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
                 </div>
+
+                {/* Sign Up Form */}
+                <label htmlFor="chk" className={`${styles.signup} ${isBusiness ? styles.loginBusiness : styles.loginStudent
+                  }`} onClick={(e) => e.stopPropagation()}>
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <Login isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
+                  </div>
+                </label>
               </div>
             </div>
-  
+
             {/* Overlay for Business and Student Login */}
             <div className={styles.overlayContainer}>
               <div className={styles.overlay}>
                 <div className={`${styles.overlayPanel} ${styles.overlayLeft}`}>
-                  <h1>Are you showcasing projects?</h1>
+                  <h1 className={styles.overlayText}>Are you showcasing projects?</h1>
                   <button
-                    className={styles.ghost}
-                    onClick={() => {setRightPanelActive(false); setIsBusiness(false);}} 
+                    className={`${styles.ghost} ${styles.studentSideButton}`}
+                    onClick={() => {setRightPanelActive(false); setTimeout(() => setIsBusiness(false), 325);}} 
                   >
                     Student Login
                   </button>
                 </div>
                 <div className={`${styles.overlayPanel} ${styles.overlayRight}`}>
-                  <h1>Are you a Business or Employer?</h1>
+                  <h1 className={styles.overlayText}>Are you a Business or Employer?</h1>
                   <button
-                    className={styles.ghost}
-                    onClick={() => {setRightPanelActive(true); setIsBusiness(true);}}
+                    className={`${styles.ghost} ${styles.businessSideButton}`}
+                    onClick={() => {setRightPanelActive(true); setTimeout(() => setIsBusiness(true), 325);}}
                   >
                     Business Login
                   </button>

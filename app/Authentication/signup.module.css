@@ -1,3 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Platypi&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Platypi&family=Trocchi&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lateef&display=swap');
+
 .container {
   display: flex;
   justify-content: center;
@@ -33,6 +37,10 @@
   overflow: hidden;
 }
 
+/* ///////////////////////////////////////////////////////////////////////////////////// */
+/* ////////// Right and Left Panels //////////*/
+/* ///////////////////////////////////////////////////////////////////////////////////// */
+
 .formContainer {
   width: 50% !important;
 	top: 0;
@@ -46,15 +54,15 @@
 	z-index: 2;
 }
 
-.maincontainer.rightPanelActive .businessContainer {
-	transform: translateX(100%);
-}
-
 .businessContainer {
 	left: 0;
 	width: 50%;
 	opacity: 0;
 	z-index: 1;
+}
+
+.rightPanelActive .studentContainer {
+	transform: translateX(100%);
 }
 
 @keyframes show {
@@ -74,8 +82,8 @@
   transform: translateX(100%);
   opacity: 1;
   z-index: 5;
-  animation: show 0.6s;
 }
+
 
 .overlayContainer {
   position: absolute;
@@ -143,20 +151,57 @@
   transform: translateX(20%);
 }
 
-/* Card Component CSS */
-.userTypeTitle {
-  text-align: center;
+.overlayText {
   font-size: 2.5rem;
-  font-weight: bold;
-  margin-bottom: 2rem;
-  color: #333;
+  color: white;
+  text-align: center;
+  margin-top: 1rem;
+  font-family: trocchi, sans-serif;
 }
+
+.studentSideButton {
+  background-color: #63A2A5;
+  color: white;
+  padding: 10px 40px;
+  border: none;
+  border-radius: 90px;
+  cursor: pointer;
+  font-size: 30px;
+  margin-top: 10px;
+  font-family: lateef, cursive;
+}
+.studentSideButton:hover {
+  box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.5);
+  transform: scale(1.05);
+  transition: all .2s ease-in-out;
+}
+
+.businessSideButton {
+  background-color: #1e3a8a;
+  color: white;
+  padding: 10px 40px;
+  border: none;
+  border-radius: 90px;
+  cursor: pointer;
+  font-size: 30px;
+  margin-top: 10px;
+  font-family: lateef, cursive;
+}
+.businessSideButton:hover {
+  box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.5);
+  transform: scale(1.05);
+  transition: all 0.2s ease-in-out;
+}
+
+/* ///////////////////////////////////////////////////////////////////////////////////// */
+/* ////////// Card Component CSS //////////*/
+/* ///////////////////////////////////////////////////////////////////////////////////// */
 
 .card {
   padding: 1rem;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -164,9 +209,42 @@
   transition: background 1.0s ease, color 1.0s ease;
 }
 
+.loginMargin {
+  margin-left: 5px;
+}
+
+.userTypeTitle {
+  text-align: center;
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  color: #333;
+  font-family: trocchi, sans-serif;
+  font-weight: bold;
+  margin-top: -10px;
+}
+
+.businessText {
+  color: #1e3a8a;
+}
+
+.studentText {
+  color: #63A2A5;
+}
+
 .cardTitle {
   text-align: center;
-  font-size: 1.5rem;
+  font-size: 2rem;
+  font-family: trocchi, sans-serif;
+}
+
+.signUpTitle {
+  margin-top: -15px;
+}
+
+.loginTitle {
+  margin-top: -160px;
+  margin-bottom: 40px;
 }
 
 .statusText {
@@ -247,6 +325,10 @@
   cursor: not-allowed;
 }
 
+/* ///////////////////////////////////////////////////////////////////////////////////// */
+/* ////////// Login and Sign Up Switch //////////*/
+/* ///////////////////////////////////////////////////////////////////////////////////// */
+
 .formWrapper {
   display: flex;
   flex-direction: column;
@@ -264,7 +346,6 @@
   width: 400px;
   height: 550px;
   background: white;
-  border-radius: 10px;
   overflow: hidden;
 }
 
@@ -287,22 +368,37 @@
   justify-content: center;
 }
 
-/* Login initially off-screen */
-.login {
-  transform: translateY(100%);
+/* signup initially off-screen */
+.signup {
+  transform: translateX(-10px) translateY(85%);
   z-index: 1;
+  border-radius: 60% / 10%;
+  transition: all 0.8s ease-in-out, border-radius 0.6s ease-in-out;
+  width: 410px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.loginStudent{
+  background-color: #63A2A5;
+  color: white;
+}
+.loginBusiness{
+  background-color: #1e3a8a;
+  color: white;
 }
 
 /* When checkbox is checked, slide Login in */
-.chkToggle:checked ~ .login {
-  transform: translateY(0%);
+.chkToggle:checked ~ .signup {
+  transform:translateX(-10px) translateY(30%);
   z-index: 2;
+  border-radius: 60px;
 }
 
-/* Shrink SignUp when login slides in */
-.chkToggle:checked ~ .signup {
-  transform: scale(0.8);
-  opacity: 0;
+/* Shrink login when signup slides in */
+.chkToggle:checked ~ .login {
+  transform: none;
+  opacity: 1;
   z-index: 1;
 }
 
@@ -314,25 +410,7 @@
   color: #555;
   cursor: pointer;
 }
-
-/* Business Card CSS */
-.businessText {
-  color: #ced5ea;
-}
-.cardBusiness {
-  background-color: #1e3a8a;
-  color: white;
-}
-
-/* Student Card CSS */
-.studentText {
-  color: #2d2d2d;
-}
-.cardStudent {
-  background-color: white;
-  color: black;
-}
-
+/* ///////////////////////////////////////////////////////////////////////////////////// */
 
 /* Business version - Gradient Background Color */
 .businessBackground {
