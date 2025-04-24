@@ -1,11 +1,19 @@
 'use client';
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { doc, getDoc, collection, query, where, getDocs,  addDoc } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs, addDoc } from "firebase/firestore";
 import { db, auth } from "../../firebaseconfig";
 import './studentProfile.css';
 import Link from 'next/link'
 import ChatOverlay from "../Components/ChatOverlay";
+
+const getFirstImage = (images?: string[] | string): string | null => {
+  if (!images) return null;
+  
+  if (typeof images === 'string') return images;
+  
+  return images.length > 0 ? images[0] : null;
+};
 
 const StudentProfilePage: React.FC = () => {
   const router = useRouter();
@@ -19,13 +27,13 @@ const StudentProfilePage: React.FC = () => {
   const [status, setStatus] = useState<string[]>([]);
   const [links, setLinks] = useState<{ type: string; url: string }[]>([]);
   const [profileImage, setProfileImage] = useState("");
-  const [projects, setProjects] = useState<{ id: string; projectName: string; images: string }[]>([]);
+  const [projects, setProjects] = useState<{ id: string; projectName: string; images: string | string[] }[]>([]);
   const [loading, setLoading] = useState(true);
   const [chatId, setChatId] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [isChatOpen, setChatOverlayOpen] = useState(false);
-  const currentUser = auth.currentUser; // Get logged-in user
+  const currentUser = auth.currentUser; 
 
   useEffect(() => {
     if (!userId) {
@@ -67,7 +75,7 @@ const StudentProfilePage: React.FC = () => {
           return {
             id: doc.id,
             projectName: projectData.projectName,
-            images: projectData.images || "", // Ensure images field matches Profile Edit Page
+            images: projectData.images || "", 
           };
         });
 
@@ -136,9 +144,11 @@ const StudentProfilePage: React.FC = () => {
       console.error("Error opening chat:", error);
     }
   };
+  
   const handleClick = (projectId: string) => {
     router.push(`/StudentProjectPage?id=${projectId}`);
   };
+  
   if (loading) return <div>Loading...</div>;
 
   return (
@@ -150,8 +160,8 @@ const StudentProfilePage: React.FC = () => {
               {projects.map((project) => (
                 <Link key={project.id} className="link" href={`/StudentProjectPage?id=${project.id}`}>
                   <div className="project-card">
-                    {project.images ? (
-                      <img src={project.images} className="project-thumbnail" alt={project.projectName} />
+                    {getFirstImage(project.images) ? (
+                      <img src={getFirstImage(project.images) as string} className="project-thumbnail" alt={project.projectName} />
                     ) : (
                       <div className="no-thumbnail">No Image</div>
                     )}

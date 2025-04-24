@@ -142,7 +142,7 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
         }
 
         setStatus("Login successful!");
-        router.push("/Dashboard");
+        router.push("/Home");
       } else {
         setStatus("User not found.");
       }

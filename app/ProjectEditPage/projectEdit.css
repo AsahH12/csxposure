@@ -21,6 +21,102 @@
   margin-top: 20px;
 }
 
+/* Notification Styles */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 16px 24px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.3s ease, fadeOut 0.5s ease 2.5s forwards;
+  z-index: 1000;
+  max-width: 400px;
+}
+
+.notification-success {
+  background-color: #ecf9f0;
+  border-left: 4px solid #34c759;
+  color: #1d7a3a;
+}
+
+.notification-error {
+  background-color: #feecec;
+  border-left: 4px solid #ff3b30;
+  color: #c42b20;
+}
+
+.notification-icon {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-title {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.notification-message {
+  font-size: 14px;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+.notification-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.action-button {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-button {
+  background-color: #95a5a6;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.notification-warning {
+  background-color: #f39c12;
+  color: white;
+}
+
 .right-section {
   width: 50%;
   margin-top: 50px;
@@ -33,8 +129,8 @@
 }
 
 .input-group {
-  margin-bottom: 50px;
-  
+  margin-bottom: 40px;
+  padding: 0px;
 }
 
 .input-group label {
@@ -47,7 +143,7 @@
 .input-group input,
 .input-group textarea {
   width: 100%;
-  padding: 5px;
+  padding: 1px;
   border: 1px solid #ccc;
   border-radius: 7px;
   border-top-left-radius: 7px;
@@ -124,7 +220,7 @@
 }
 
 .collaborator-title {
-  
+  margin-bottom: 10px;
 }
 
 .save-button {
