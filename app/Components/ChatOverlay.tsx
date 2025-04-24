@@ -547,7 +547,6 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
                       className={`${styles.message} ${message.sender === userEmail ? styles.myMessage : styles.otherMessage}`}
                       
                     >
-<p className="text-xs text-gray-400">From: {message.sender}</p>
 
                       {message.type === "invite" ? (
   <div>
