@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { db } from "../../firebaseconfig";
-import { ArrowLeft, User, User2 } from "lucide-react"; // Back Arrow icon
+import { db, setDoc } from "../../firebaseconfig";
+import { ArrowLeft, User, User2, Users } from "lucide-react"; // Back Arrow icon
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { arrayUnion } from "firebase/firestore";
 import styles from "./ChatOverlay.module.css";
@@ -64,7 +64,8 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   const [otherfirstName, setOtherFirstName] = useState<string>(""); // Other user's first name
   const [otherlastName, setOtherLastName] = useState<string>(""); // Other user's last name
   const [userType, setUserType] =  useState<string | null>(null);
-
+  const auth = getAuth();
+  const currentUserId = auth.currentUser?.uid;
 
   //////////////////////////////////// Fetching or Saving Data ////////////////////////////////////
   // Get current user's email
@@ -92,48 +93,57 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   // Fetch all users except the current user
   useEffect(() => {
     const fetchUsers = async () => {
+      console.log("user email", userEmail);
       if (!userEmail) return;
+  
       updateReadReceipts(userEmail); // Update read receipts
-      const chatQuery = query(collection(db, "chats"), where("participants", "array-contains", userEmail));
+  
+      const chatQuery = query(
+        collection(db, "chats"),
+        where("participants", "array-contains", userEmail)
+      );
       const chatSnapshot = await getDocs(chatQuery);
-
+  
       const usersList = await Promise.all(
         chatSnapshot.docs.map(async (chatDoc) => {
           const chatData = chatDoc.data();
           const messagesRef = collection(db, "chats", chatDoc.id, "messages");
           const messagesSnapshot = await getDocs(messagesRef);
-
-          // Check if messages exist between current user and other participant
+  
           if (!messagesSnapshot.empty) {
-            const otherUserEmail = chatData.participants.find((email: string) => email !== userEmail);
-
-            const userQuery = query(collection(db, "users"), where("email", "==", otherUserEmail));
+            const otherUserEmail = chatData.participants.find(
+              (email) => email !== userEmail
+            );
+  
+            const userQuery = query(
+              collection(db, "users"),
+              where("email", "==", otherUserEmail)
+            );
             const userSnap = await getDocs(userQuery);
             console.log("Querying for email:", otherUserEmail);
-            if (userSnap.empty) {
-              return null; // Exit early if no user is found
-            }
-            const userId = userSnap.docs[0].id; // Get the userId (document ID)
-
-            console.log(userId);
-            // Fetch the user's profile image from the nested structure
-            const userDocRef = doc(db, "users", userId, "details", "profileData");
-            console.log('UserRefrence', userDocRef);
-
-            const userDoc = await getDoc(userDocRef);
-
-            let profileImageUrl = null;
-            let firstName = null;
-            let lastName = null;
-            if (userDoc.exists()) {
-              profileImageUrl = userDoc.data()?.profileImage || null; // Get the profile image URL
-              firstName = userDoc.data()?.firstName || null;
-              lastName = userDoc.data()?.lastName || null;
-              setOtherFirstName(userDoc.data()?.firstName || null); // Set the first name
-              setOtherLastName(userDoc.data()?.lastName || null); // Set the last name
-              console.log('profile name', userDoc.data()?.firstName, (userDoc.data()?.lastName));
-            }
-
+  
+            if (userSnap.empty) return null;
+  
+            const userId = userSnap.docs[0].id;
+  
+            const profileRef = doc(
+              db,
+              "users",
+              userId,
+              "details",
+              "profileData"
+            );
+            const profileSnap = await getDoc(profileRef);
+  
+            if (!profileSnap.exists()) return null;
+  
+            const profileData = profileSnap.data();
+            const profileImageUrl = profileData.profileImage || null;
+            const firstName = profileData.firstName || "";
+            const lastName = profileData.lastName || "";
+  
+            console.log("Profile name:", firstName, lastName);
+  
             return {
               email: otherUserEmail,
               chatId: chatDoc.id,
@@ -141,18 +151,22 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
               profileImageUrl,
               firstName,
               lastName,
-              userId, // Add userId to the return data
+              userId,
             };
           }
+  
           return null;
         })
       );
-      console.log('user list', usersList)
-      setUsers(usersList.filter((user) => user !== null)); // Filter out null values and set users state
+  
+      const filtered = usersList.filter((user) => user !== null);
+      console.log("User list", filtered);
+      setUsers(filtered);
     };
-
-    if (userEmail) fetchUsers(); // Fetch users if userEmail is present
+  
+    if (userEmail) fetchUsers();
   }, [userEmail]);
+  
 
   // Find or create a chat when a user is selected
   useEffect(() => {
@@ -215,6 +229,7 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
 
   // When a user is selected from the list
   const handleUserClick = (user) => {
+    console.log("user Email: ",userEmail);
     setSelectedUser(user.email); // Set the selected user
     setChatId(user.chatId); // Set the chatId for the selected user
       setOtherFirstName(user.firstName);
@@ -376,8 +391,33 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
       document.removeEventListener("mouseup", handleMouseUp); // Cleanup mouse up event listener
     };
   }, [isDragging, isResizing]); // Depend on dragging and resizing state
-
+  const handleAcceptInvite = async (messageId: string, chatId: string, projectId: string) => {
+    try {
+      const msgRef = doc(db, "chats", chatId, "messages", messageId);
+      const collaboratorRef = doc(db, "Projects", projectId, "collaborators", currentUserId);
+      await setDoc(collaboratorRef, {
+        userId: currentUserId,
+        addedAt: new Date(),
+        status: "active"
+      });
+  
+      await updateDoc(msgRef, { status: "accepted" });
+    } catch (err) {
+      console.error("Error accepting invite:", err);
+    }
+  };
+  
+  const handleDeclineInvite = async (messageId: string, chatId: string,projectId: string) => {
+    try {
+      const msgRef = doc(db, "chats", chatId, "messages", messageId);
+      await updateDoc(msgRef, { status: "declined" });
+    } catch (err) {
+      console.error("Error declining invite:", err);
+    }
+  };
+  
   //////////////////////////////////// Chat HTML ////////////////////////////////////
+  
   return (
       <div
         ref={chatRef} // Reference to chat div
@@ -440,8 +480,11 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
                             />
                           ) : (
                             <div className={styles.userInitials}>
-                              <span>{getInitials(otherfirstName, otherlastName)}</span>
-                            </div>
+  <span>
+      {(() => {
+        return getInitials(user.firstName, user.lastName);
+      })()}
+    </span>    </div>
                           )}
                         </button>
                         <div className={styles.userInfo}>
@@ -480,6 +523,7 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
                   value={discussionTitle}
                   onChange={(e) => setDiscussionTitle(e.target.value)} // Update discussion title
                   className={styles.inputFieldTitle}
+                  
                 />
                 <textarea
                   placeholder="Enter the description of your discussion"
@@ -498,10 +542,45 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
                 <div className={styles.messageContainer}>
                   {messages.map((message, index) => (
                     <div
+                    
                       key={index}
                       className={`${styles.message} ${message.sender === userEmail ? styles.myMessage : styles.otherMessage}`}
+                      
                     >
-                      <p>{message.text}</p>
+
+                      {message.type === "invite" ? (
+  <div>
+    
+    <p>{message.text}</p>
+    {message.type === "invite" && message.status === "pending" && message.sender !== userEmail && (
+  <div className="flex gap-2 mt-2">
+    <button
+  onClick={() => handleAcceptInvite(message.id, chatId, message.projectId)}
+  className="bg-green-500 text-white px-3 py-1 rounded"
+    >
+      Accept
+    </button>
+    <button
+      onClick={() => handleDeclineInvite(message.id, chatId, message.projectId)}
+      className="bg-red-500 text-white px-3 py-1 rounded"
+    >
+      Decline
+    </button>
+  </div>
+)}
+    {message.status === "accepted" && (
+      <p className="text-green-600 mt-1">Accepted ✅</p>
+    )}
+    {message.status === "declined" && (
+      <p className="text-red-600 mt-1">Declined ❌</p>
+    )}
+  </div>
+) : (
+
+  <p>{message.text}</p>
+ 
+)}
+
                       <span className={styles.timeStamp}>
                         {message.timestamp ? new Date(message.timestamp.seconds * 1000).toLocaleString() : "Just now"}
                       </span>
