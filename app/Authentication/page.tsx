@@ -187,7 +187,11 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
             required
           />
         </div>
-        {status && <p className={`${styles.statusText}`}>{status}</p>}
+        {status && (
+          <p className={`${styles.statusText} ${status === "Login successful!" ? styles.success : ""}`}>
+            {status}
+          </p>
+        )}
 
         <div className={`${styles.formGroup}`}>
           <button
