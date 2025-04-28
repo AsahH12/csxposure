@@ -18,7 +18,6 @@
   background: white;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 1rem;
-  padding: 1.5rem;
   width: 100%;
   max-width: 1300px;
   font-family: 'Lateef', cursive;
@@ -29,7 +28,7 @@
   width: 70%;
   background-color: #e5e7eb;
   padding: 1rem;
-  border-radius: 0.5rem;
+  border-radius: 0.5rem 0 0 0.5rem;
   flex: 3;
 }
 
@@ -42,44 +41,45 @@
 /* Project Grid */
 .projectGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 0.5rem;
 }
 
-.projectCard {
-  background: #d1d5db;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  text-align: center;
-  width: 200px;
-  height: 200px;
+.projectImageWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 .projectThumbnail {
-  width: 170px;
-  height: 170px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   border-radius: 0.5rem;
 }
 
-.projectTitle {
-  margin-top: 1rem;
-  font-size: 1.5rem;
+/* Title Overlay Box */
+.projectTitleOverlay {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.6); /* Black with transparency */
+  color: white;
+  text-align: center;
+  padding: 0.5rem;
+  font-size: 1.2rem;
   font-weight: bold;
-  color: black;
+  border-bottom-left-radius: 0.5rem; /* Optional: match your card rounding */
+  border-bottom-right-radius: 0.5rem; /* Optional: match your card rounding */
 }
+
 
 .projectLink {
   text-decoration: none;
-  background: #6b7280;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 4rem;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  font-weight: bold;
+  display: block; /* block-level link */
+  width: 100%;
+  height: 100%;
+  color: inherit; /* inherit text color */
   cursor: pointer;
 }
 
@@ -93,7 +93,10 @@
   border-radius: 0.5rem;
 }
 
-/* Profile Section */
+/* ///////////////////////////////////////////////////////////////////////////////////// */
+/* ////////// Profile Section //////////*/
+/* ///////////////////////////////////////////////////////////////////////////////////// */
+
 .profilePicture {
   width: 150px;
   height: 150px;

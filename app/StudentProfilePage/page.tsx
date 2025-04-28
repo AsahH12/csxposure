@@ -161,20 +161,25 @@ const StudentProfilePage: React.FC = () => {
               {projects.map((project) => (
                 <Link key={project.id} className={styles.projectLink} href={`/StudentProjectPage?id=${project.id}`}>
                   <div className={styles.projectCard}>
-                    {getFirstImage(project.images) ? (
-                      <img
-                        src={getFirstImage(project.images) as string}
-                        className={styles.projectThumbnail}
-                        alt={project.projectName}
-                      />
-                    ) : (
-                      <div className={styles.noThumbnail}>No Image</div>
-                    )}
-                    <p className={styles.projectTitle}>{project.projectName || "Unnamed Project"}</p>
+                    <div className={styles.projectImageWrapper}>
+                      {getFirstImage(project.images) ? (
+                        <img
+                          src={getFirstImage(project.images) as string}
+                          className={styles.projectThumbnail}
+                          alt={project.projectName}
+                        />
+                      ) : (
+                        <div className={styles.noThumbnail}>No Image</div>
+                      )}
+                      <div className={styles.projectTitleOverlay}>
+                        {project.projectName || "Unnamed Project"}
+                      </div>
+                    </div>
                   </div>
                 </Link>
               ))}
             </div>
+
           </div>
   
           <div className={styles.profileForm}>
