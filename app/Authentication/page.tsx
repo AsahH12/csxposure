@@ -28,6 +28,7 @@ const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusin
       setLoading(true);
       setError("");
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const uid = userCredential.user.uid;
 
       // Save user email and userType ('student' or 'business') in Firestore
       const userType = isBusiness ? "business" : "student";
@@ -37,7 +38,17 @@ const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusin
         createdAt: new Date(),
       });
 
-      router.push("/Dashboard");
+      // Create empty profileData with null fields
+      await setDoc(doc(db, "users", uid, "details", "profileData"), {
+        fullName: null,
+        bio: null,
+        school: null,
+        status: null,
+        links: null,
+        profileImage: null,
+      });
+
+      router.push("/Home");
     } catch (err) {
       setError("Error signing up. Please try again.");
     } finally {
@@ -187,7 +198,11 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
             required
           />
         </div>
-        {status && <p className={`${styles.statusText}`}>{status}</p>}
+        {status && (
+          <p className={`${styles.statusText} ${status === "Login successful!" ? styles.success : ""}`}>
+            {status}
+          </p>
+        )}
 
         <div className={`${styles.formGroup}`}>
           <button

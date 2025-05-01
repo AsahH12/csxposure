@@ -263,6 +263,9 @@
   transform: translate(-50%, -50%); 
   width: 100%; 
 }
+.statusText.success {
+  color: green;
+}
 
 .formGroup {
   margin-bottom: 1rem;
@@ -301,6 +304,7 @@
   margin-bottom: 1rem;
 }
 
+
 .toggleText {
   cursor: pointer;
   text-decoration: underline;
@@ -313,10 +317,12 @@
 }
 
 .input {
-  width: 100%;
+  width: 250px;
   padding: 0.5rem;
   border:none;
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.1);
+  align-items: center;
+  text-align: center;
 }
 .input:focus {
   outline: none;

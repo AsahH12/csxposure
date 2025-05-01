@@ -7,6 +7,7 @@ import { db, auth } from "../../firebaseconfig";
 import Link from 'next/link'
 import ChatOverlay from "../Components/ChatOverlay";
 import styles from './studentProfile.module.css';
+import Footer from "../Components/footer";
 
 const getFirstImage = (images?: string[] | string): string | null => {
   if (!images) return null;
@@ -161,24 +162,29 @@ const StudentProfilePage: React.FC = () => {
               {projects.map((project) => (
                 <Link key={project.id} className={styles.projectLink} href={`/StudentProjectPage?id=${project.id}`}>
                   <div className={styles.projectCard}>
-                    {getFirstImage(project.images) ? (
-                      <img
-                        src={getFirstImage(project.images) as string}
-                        className={styles.projectThumbnail}
-                        alt={project.projectName}
-                      />
-                    ) : (
-                      <div className={styles.noThumbnail}>No Image</div>
-                    )}
-                    <p className={styles.projectTitle}>{project.projectName || "Unnamed Project"}</p>
+                    <div className={styles.projectImageWrapper}>
+                      {getFirstImage(project.images) ? (
+                        <img
+                          src={getFirstImage(project.images) as string}
+                          className={styles.projectThumbnail}
+                          alt={project.projectName}
+                        />
+                      ) : (
+                        <div className={styles.noThumbnail}>No Image</div>
+                      )}
+                      <div className={styles.projectTitleOverlay}>
+                        {project.projectName || "Unnamed Project"}
+                      </div>
+                    </div>
                   </div>
                 </Link>
               ))}
             </div>
+
           </div>
   
           <div className={styles.profileForm}>
-            <div className={styles.chatButtonContainer} style={{ position: 'relative', top: '10px', right: '10px' }}>
+            <div className={styles.chatButtonContainer}>
               <button className={styles.chatButton} onClick={handleOpenChat}>Chat</button>
             </div>
   
@@ -193,21 +199,21 @@ const StudentProfilePage: React.FC = () => {
             <div className={styles.fullName}>{`${firstName} ${lastName}`}</div>
   
             <div className={styles.formGroup}>
-              <label>Status:</label>
+              <label className={styles.label}>Status:</label>
               <div className={styles.inputField}>{status}</div>
             </div>
   
             <div className={styles.formGroup}>
-              <label>School:</label>
+              <label className={styles.label}>School:</label>
               <div className={styles.inputField}>{school}</div>
             </div>
-  
-            <div className={styles.formGroup}>
-              <label>Bio:</label>
-              <h1 className={styles.bioField}>{bio}</h1>
-            </div>
-  
-            <div className={styles.formGroup}>
+
+            <h1 className={styles.bioField}>
+              <strong>Bio:</strong>
+              <span style={{ marginLeft: '1rem' }}>{bio}</span>
+            </h1>
+
+            <div className={styles.linkGroup}>
               <h2 className={styles.sectionTitle}>Links</h2>
               {links.map((link, index) => (
                 <a key={index} href={link.url} className={styles[link.type.toLowerCase()]}>{link.type}</a>
@@ -216,6 +222,7 @@ const StudentProfilePage: React.FC = () => {
           </div>
         </div>
       </div>
+      <Footer />
       {isChatOpen && <ChatOverlay onClose={() => setChatOverlayOpen(false)} />}
     </div>
   );
