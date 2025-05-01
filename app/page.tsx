@@ -22,7 +22,7 @@ const Page1 = () => {
   }, []);
 
   const navigateToPageSignUPTemp = () => {
-    router.push("/Home");
+    router.push('/CodeEditor');
   };
 
   return (

@@ -6,6 +6,8 @@
     "start": "next start"
   },
   "dependencies": {
+    "@lottiefiles/dotlottie-react": "^0.13.2",
+    "@monaco-editor/react": "^4.7.0",
     "@protobufjs/aspromise": "^1.1.2",
     "@protobufjs/base64": "^1.1.2",
     "@protobufjs/codegen": "^2.0.4",
@@ -16,9 +18,12 @@
     "@protobufjs/path": "^1.1.2",
     "@protobufjs/pool": "^1.1.0",
     "@protobufjs/utf8": "^1.1.0",
+    "axios": "^1.8.4",
     "bootstrap": "^5.3.3",
     "firebase": "^11.2.0",
     "lucide-react": "^0.474.0",
+    "monaco-editor": "^0.52.2",
+    "monaco-editor-webpack-plugin": "^7.1.0",
     "next": "latest",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

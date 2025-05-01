@@ -1,10 +1,12 @@
-"use client"; 
+"use client";
 import React, { useState } from "react";
 import { auth, db } from "../../firebaseconfig";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import Footer from '../Components/footer';
+
+import styles from './signup.module.css';
 
 // SignUp Component
 const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusiness: React.Dispatch<React.SetStateAction<boolean>> }) => {
@@ -26,6 +28,7 @@ const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusin
       setLoading(true);
       setError("");
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const uid = userCredential.user.uid;
 
       // Save user email and userType ('student' or 'business') in Firestore
       const userType = isBusiness ? "business" : "student";
@@ -35,7 +38,17 @@ const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusin
         createdAt: new Date(),
       });
 
-      router.push("/Dashboard");
+      // Create empty profileData with null fields
+      await setDoc(doc(db, "users", uid, "details", "profileData"), {
+        fullName: null,
+        bio: null,
+        school: null,
+        status: null,
+        links: null,
+        profileImage: null,
+      });
+
+      router.push("/Home");
     } catch (err) {
       setError("Error signing up. Please try again.");
     } finally {
@@ -45,82 +58,60 @@ const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusin
 
   return (
     <div
-      className="card p-4 shadow-lg"
-      style={{
-        width: "100%",
-        maxWidth: "400px",
-        backgroundColor: isBusiness ? "#1e3a8a" : "white", // Dark blue for business
-        color: isBusiness ? "white" : "black", // Text color
-      }}
+      className={`${styles.card} ${styles.signUpMargin} ${isBusiness ? styles.cardBusiness : styles.cardStudent}`}
     >
-      <h2 className="card-title text-center">Sign Up</h2>
-      {error && <p className="text-danger text-center mb-3">{error}</p>}
+      <h1 className={`${styles.userTypeTitle} ${isBusiness ? styles.businessText : styles.studentText}`}>
+            {isBusiness ? "Business" : "Student"}
+          </h1>
+
+      <h2 className={`${styles.cardTitle} ${styles.signUpTitle}`}>Sign Up</h2>
 
       <form onSubmit={handleSignUp}>
-        <div className="mb-3">
-          <label htmlFor="email" className="form-label">
-            Email
-          </label>
+        <div className={styles.formGroup}>
           <input
             type="email"
             id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="form-control"
+            className={`${styles.input} ${error && !email ? styles.error : ""}`}  // Add error class here
             placeholder="Enter your email"
             required
           />
         </div>
 
-        <div className="mb-3">
-          <label htmlFor="password" className="form-label">
-            Password
-          </label>
+        <div className={styles.formGroup}>
           <input
             type="password"
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="form-control"
+            className={`${styles.input} ${error && password !== confirmPassword ? styles.error : ""}`}  // Add error class if passwords don't match
             placeholder="Enter your password"
             required
           />
         </div>
 
-        <div className="mb-3">
-          <label htmlFor="confirmPassword" className="form-label">
-            Confirm Password
-          </label>
+        <div className={styles.formGroup}>
           <input
             type="password"
             id="confirmPassword"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="form-control"
+            className={`${styles.input} ${error && password !== confirmPassword ? styles.error : ""}`}  // Add error class if passwords don't match
             placeholder="Confirm your password"
             required
           />
         </div>
+        {error && <p className={styles.errorText}>{error}</p>}
 
-        <div className="mb-3">
+        <div className={styles.formGroup}>
           <button
             type="submit"
-            className={`btn btn-primary w-100 ${loading ? "disabled" : ""}`}
+            className={styles.button}
             disabled={loading}
           >
             {loading ? "Signing Up..." : "Sign Up"}
           </button>
-        </div>
-
-        {/* Clickable question to toggle between Business and Student */}
-        <div className="d-flex justify-content-center mt-3">
-          <span
-            className="me-2"
-            style={{ cursor: "pointer", textDecoration: "underline" }}
-            onClick={() => setIsBusiness(!isBusiness)}
-          >
-            {isBusiness ? "Are you a student?" : "Are you a business?"}
-          </span>
         </div>
       </form>
     </div>
@@ -145,7 +136,7 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
 
       // Sign in the user with email and password
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      
+
       // Fetch user type from Firestore to verify if it's a business or student
       const userDoc = doc(db, "users", userCredential.user.uid);
       const userSnapshot = await getDoc(userDoc);
@@ -162,7 +153,7 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
         }
 
         setStatus("Login successful!");
-        router.push("/Dashboard");
+        router.push("/Home");
       } else {
         setStatus("User not found.");
       }
@@ -179,22 +170,12 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
 
   return (
     <div
-      className="card p-4 shadow-lg"
-      style={{
-        width: "100%",
-        maxWidth: "400px",
-        backgroundColor: isBusiness ? "#1e3a8a" : "white", // Dark blue for business
-        color: isBusiness ? "white" : "black", // Text color
-      }}
+      className={`${styles.card}  ${styles.loginMargin} ${isBusiness ? styles.cardBusiness : styles.cardStudent}`}
     >
-      <h2 className="card-title text-center">Login</h2>
-      {status && <p className="text-danger text-center mb-3">{status}</p>}
+      <h2 className={`${styles.cardTitle} ${styles.loginTitle}`}>Login</h2>
 
       <form onSubmit={handleLogin}>
-        <div className="mb-3">
-          <label htmlFor="email" className="form-label">
-            Email
-          </label>
+        <div className={`${styles.formGroup}`}>
           <input
             type="email"
             id="email"
@@ -206,10 +187,7 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
           />
         </div>
 
-        <div className="mb-3">
-          <label htmlFor="password" className="form-label">
-            Password
-          </label>
+        <div className={`${styles.formGroup}`}>
           <input
             type="password"
             id="password"
@@ -220,8 +198,13 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
             required
           />
         </div>
+        {status && (
+          <p className={`${styles.statusText} ${status === "Login successful!" ? styles.success : ""}`}>
+            {status}
+          </p>
+        )}
 
-        <div className="mb-3">
+        <div className={`${styles.formGroup}`}>
           <button
             type="submit"
             className={`btn btn-primary w-100 ${loading ? "disabled" : ""}`}
@@ -232,10 +215,9 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
         </div>
 
         {/* Forgot Password link */}
-        <div className="d-flex justify-content-center mt-3">
+        <div className={`${styles.forgotPasswordLinkContainer}`}>
           <span
-            className="me-2"
-            style={{ cursor: "pointer", textDecoration: "underline" }}
+            className={`${styles.forgotPasswordLink}`}
             onClick={handlePasswordReset}
           >
             Forgot username or password?
@@ -244,45 +226,114 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
 
         {/* Display message if reset email was sent */}
         {emailSent && (
-          <div className="mt-3 text-center">
-            <p style={{ color: "green" }}>Password reset email sent!</p>
+          <div className={`${styles.resetEmailMessage}`}>
+            <p>Password reset email sent!</p>
           </div>
         )}
-
-        {/* Clickable question to toggle between Business and Student */}
-        <div className="d-flex justify-content-center mt-3">
-          <span
-            className="me-2"
-            style={{ cursor: "pointer", textDecoration: "underline" }}
-            onClick={() => setIsBusiness(!isBusiness)}
-          >
-            {isBusiness ? "Are you a student?" : "Are you a business?"}
-          </span>
-        </div>
       </form>
     </div>
   );
+
 };
 
 // AuthPage Component
 const AuthPage = () => {
   const [isBusiness, setIsBusiness] = useState(false);
+  const [rightPanelActive, setRightPanelActive] = useState(false);
 
   return (
     <div>
-    <div
-      className="d-flex justify-content-center align-items-center min-vh-100"
-      style={{
-        backgroundColor: isBusiness ? "#2d2d2d" : "#f7fafc", // Dark grey background for business
-        transition: "background-color 0.3s ease",
-      }}
-    >
-      <div className="d-flex flex-column flex-md-row gap-4">
-        <SignUp isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
-        <Login isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
+      {/*Background */}
+      <div
+        className={`${styles.container} ${
+          isBusiness ? styles.businessBackground : styles.studentBackground
+        }`}
+      >
+        {/* Login/Sign Up */}
+        <div
+          className={`${styles.contentWrapper} ${
+            rightPanelActive ? styles.containerRightPanelActive : ""
+          }`}
+        >
+          <div className={styles.mainContainer}>
+            {/* Right Side - Student Login/SignUp */}
+            <div className={`${styles.formContainer} ${styles.studentContainer}`}>
+              <div className={styles.main}>
+                {/* Hidden toggle checkbox for sliding */}
+                <input
+                  type="checkbox"
+                  id="chk"
+                  className={styles.chkToggle}
+                  aria-hidden="true"
+                />
+
+                {/* Login Form */}
+                <div className={styles.login}>
+                  <SignUp isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
+                </div>
+
+                {/* Sign Up Form */}
+                <label htmlFor="chk" className={`${styles.signup} ${isBusiness ? styles.loginBusiness : styles.loginStudent}`} onClick={(e) => e.stopPropagation()}>
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <Login isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            {/* Left Side - Business Login/SignUp */}
+            <div className={`${styles.formContainer} ${styles.businessContainer}`}>
+              <div className={styles.main}>
+                {/* Hidden toggle checkbox for sliding */}
+                <input
+                  type="checkbox"
+                  id="chk"
+                  className={styles.chkToggle}
+                  aria-hidden="true"
+                />
+
+                {/* Login Form */}
+                <div className={styles.login}>
+                  <SignUp isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
+                </div>
+
+                {/* Sign Up Form */}
+                <label htmlFor="chk" className={`${styles.signup} ${isBusiness ? styles.loginBusiness : styles.loginStudent
+                  }`} onClick={(e) => e.stopPropagation()}>
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <Login isBusiness={isBusiness} setIsBusiness={setIsBusiness} />
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            {/* Overlay for Business and Student Login */}
+            <div className={styles.overlayContainer}>
+              <div className={styles.overlay}>
+                <div className={`${styles.overlayPanel} ${styles.overlayLeft}`}>
+                  <h1 className={styles.overlayText}>Are you showcasing projects?</h1>
+                  <button
+                    className={`${styles.ghost} ${styles.studentSideButton}`}
+                    onClick={() => {setRightPanelActive(false); setTimeout(() => setIsBusiness(false), 325);}} 
+                  >
+                    Student Login
+                  </button>
+                </div>
+                <div className={`${styles.overlayPanel} ${styles.overlayRight}`}>
+                  <h1 className={styles.overlayText}>Are you a Business or Employer?</h1>
+                  <button
+                    className={`${styles.ghost} ${styles.businessSideButton}`}
+                    onClick={() => {setRightPanelActive(true); setTimeout(() => setIsBusiness(true), 325);}}
+                  >
+                    Business Login
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-    <Footer />
+      <Footer />
     </div>
   );
 };

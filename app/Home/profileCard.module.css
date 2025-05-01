@@ -1,64 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=Platypi&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Platypi&family=Trocchi&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lateef&display=swap');
+
 .card {
   width: 18rem;
-  margin: 10px;
-  border: none; 
-  border-radius: 10px; 
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-  transition: box-shadow 0.3s ease; 
+  background-color: #fff;
+  margin: 5px;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
   padding: 10px;
 }
 
 .card:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); 
+  box-shadow: 0 8px 16px #25b396;
+  transform: scale(1.10); /* Slight grow effect */
+  transition: transform 0.3s ease-in-out;
+  text-decoration: none;
 }
-  
-  .profileImageContainer {
-    width: 150px; 
-    height: 150px; 
-    background-color: #6c757d; 
-    border-radius: 10%; /* Rounded Corners */
-    margin: 0 auto 10px; 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-  }
-  
-  .profileImage {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .initials {
-    color: #fff;
-    font-size: 20px;
-  }
-  
-  .nameContainer {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-  
-  .cardTitle {
-    margin: 0;
-    text-align: center;
-    color: black;
-  }
 
-  .cardSubtitle {
-    margin-bottom: 0.5rem;
-    color: #6c757d;
-    text-align: center;
-  }
-  
-  .cardText {
-    margin: 0;
-    text-align: center;
-    color: black;
-  }
+.highlightedCard {
+}
 
-  .cardLink {
-    text-decoration: none;
-  }
+.highlightedCard:hover {
+  box-shadow: 0 8px 16px #f1a104;
+  background-color: #f8f8e6;
+  background-image: url('/gif_FallingStars.gif');
+  background-size: cover; /* Ensure the gif covers the card */
+  background-position: center; /* Center the gif */
+  background-repeat: no-repeat; /* Prevent repeating the gif */
+}
+
+.categoryBar {
+  background-color: #f1a104; /* Yellow */
+  color: white;
+  padding: 5px;
+  text-align: center;
+  font-weight: bold;
+  border-radius: 5px 5px 0 0;
+  margin-bottom: 5px;
+}
+
+.profileImageContainer {
+  width: 150px;
+  height: 150px;
+  background-color: #6c757d;
+  border-radius: 10%;
+  margin: 0 auto 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.profileImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.initials {
+  color: #fff;
+  font-size: 20px;
+}
+
+.nameContainer {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.cardTitle {
+  margin: 0;
+  text-align: center;
+  color: black;
+  font-family: 'trocchi', serif;
+  font-weight: bold;
+  font-size: 25px;
+}
+
+.cardSubtitle {
+  margin-bottom: 0.5rem;
+  color: #6c757d;
+  text-align: center;
+  font-family: 'platypi', sans-serif;
+}
+
+.cardText {
+  margin: 0;
+  text-align: center;
+  color: black;
+  word-wrap: break-word;
+  font-family: 'lateef', cursive;
+  font-size: 20px;
+}
+
+.cardLink, .cardLink:hover {
+  text-decoration: none;
+}

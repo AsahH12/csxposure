@@ -18,6 +18,12 @@ CSXposure is a platform designed to connect students, showcase their projects, a
 - **Backend:** Firebase Firestore for database
 - **Authentication:** Firebase Auth
 
+# Data Sources
+CSXposure uses the following external API to enhance search functionality:  
+
+- **University API**: Provides a list of universities, which is used for the school name autocomplete feature.  
+  - **Endpoint:** [University API](https://www.postman.com/api-evangelist/universities/example/35240-f8b16d47-c94c-40fa-b70c-5500ec828b17)  
+
 # Installation
 1. Clone the repository:
       ```bash

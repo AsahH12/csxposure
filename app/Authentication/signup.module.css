@@ -1,91 +1,457 @@
-/* Global Styling */
-body {
-  font-family: 'Arial', sans-serif;
-  background-color: #f7f7f7;
+@import url('https://fonts.googleapis.com/css2?family=Platypi&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Platypi&family=Trocchi&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lateef&display=swap');
+
+.container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  margin: 0;
-}
-.log-in-container{
-  background: white;
-  border-radius: 8px;
-  padding: 40px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
+  min-height: 86.55vh;
+  background-repeat: repeat;
+  background-size: 100px 100px;
+  background-position: top left;
+  transition: background 1.2s ease, background-image 1.5s ease;
 }
 
-/* Sign-In Container */
-.sign-in-container {
-  background: white;
-  border-radius: 8px;
-  padding: 40px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
-}
-
-.form-container {
+.contentWrapper {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  align-items: center;
+  width: 100%;
+  max-width: 900px; /* Adjust based on your design needs */
 }
 
-.form-container h2 {
+.mainContainer {
+	background-color: #fff;
+	border-radius: 10px;
+  	box-shadow: 0 14px 28px rgba(0,0,0,0.25), 
+			0 10px 10px rgba(0,0,0,0.22);
+	position: relative;
+	overflow: hidden;
+	width: 768px;
+	max-width: 100%;
+	min-height: 480px;
+  display: flex;
+  flex-direction: row; /* ensures side-by-side */
+  position: relative;
+  overflow: hidden;
+}
+
+/* ///////////////////////////////////////////////////////////////////////////////////// */
+/* ////////// Right and Left Panels //////////*/
+/* ///////////////////////////////////////////////////////////////////////////////////// */
+
+.formContainer {
+  width: 50% !important;
+	top: 0;
+	height: 100%;
+	transition: all 0.6s ease-in-out;
+}
+
+.studentContainer {
+	left: 0;
+	width: 50%;
+	z-index: 2;
+}
+
+.businessContainer {
+	left: 0;
+	width: 50%;
+	opacity: 0;
+	z-index: 1;
+}
+
+.rightPanelActive .studentContainer {
+	transform: translateX(100%);
+}
+
+@keyframes show {
+  0%, 49.99% {
+    opacity: 0;
+    z-index: 1;
+  }
+
+  50%, 100% {
+    opacity: 1;
+    z-index: 5;
+  }
+}
+
+/* Container with active panel */
+.containerRightPanelActive .studentContainer {
+  transform: translateX(100%);
+  opacity: 1;
+  z-index: 5;
+}
+
+
+.overlayContainer {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  transition: transform 0.6s ease-in-out;
+  z-index: 100;
+}
+
+.containerRightPanelActive .overlayContainer {
+  transform: translateX(-100%);
+}
+
+.overlay {
+  background: #FF416C;
+  background: linear-gradient(to right, #63A2A5, #1E3A8A);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 0 0;
+  color: #FFFFFF;
+  position: relative;
+  left: -100%;
+  height: 100%;
+  width: 200%;
+  transform: translateX(0);
+  transition: transform 0.6s ease-in-out;
+}
+
+.containerRightPanelActive .overlay {
+  transform: translateX(50%);
+}
+
+.overlayPanel {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 40px;
   text-align: center;
-  font-size: 24px;
+  top: 0;
+  height: 100%;
+  width: 50%;
+  transform: translateX(0);
+  transition: transform 0.6s ease-in-out;
+}
+
+.overlayLeft {
+  transform: translateX(-20%);
+}
+
+.containerRightPanelActive .overlayLeft {
+  transform: translateX(0);
+}
+
+.overlayRight {
+  right: 0;
+  transform: translateX(0);
+}
+
+.containerRightPanelActive .overlayRight {
+  transform: translateX(20%);
+}
+
+.overlayText {
+  font-size: 2.5rem;
+  color: white;
+  text-align: center;
+  margin-top: 1rem;
+  font-family: trocchi, sans-serif;
+}
+
+.studentSideButton {
+  background-color: #63A2A5;
+  color: white;
+  padding: 10px 40px;
+  border: none;
+  border-radius: 90px;
+  cursor: pointer;
+  font-size: 30px;
+  margin-top: 10px;
+  font-family: lateef, cursive;
+}
+.studentSideButton:hover {
+  box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.5);
+  transform: scale(1.05);
+  transition: all .2s ease-in-out;
+}
+
+.businessSideButton {
+  background-color: #1e3a8a;
+  color: white;
+  padding: 10px 40px;
+  border: none;
+  border-radius: 90px;
+  cursor: pointer;
+  font-size: 30px;
+  margin-top: 10px;
+  font-family: lateef, cursive;
+}
+.businessSideButton:hover {
+  box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.5);
+  transform: scale(1.05);
+  transition: all 0.2s ease-in-out;
+}
+
+/* ///////////////////////////////////////////////////////////////////////////////////// */
+/* ////////// Card Component CSS //////////*/
+/* ///////////////////////////////////////////////////////////////////////////////////// */
+
+.card {
+  padding: 1rem;
+  width: 100%;
+  max-width: 400px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: background 1.0s ease, color 1.0s ease;
+}
+
+.loginMargin {
+  margin-left: 5px;
+  margin-top: -120px;
+}
+
+.signUpMargin{
+  padding-bottom: 40px;
+}
+
+.userTypeTitle {
+  text-align: center;
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  color: #333;
+  font-family: trocchi, sans-serif;
+  font-weight: bold;
+  margin-top: -65px;
+}
+
+.businessText {
+  color: #1e3a8a;
+}
+
+.studentText {
+  color: #63A2A5;
+}
+
+.cardTitle {
+  text-align: center;
+  font-size: 2rem;
+  font-family: trocchi, sans-serif;
+}
+
+.signUpTitle {
+  margin-top: -15px;
   margin-bottom: 20px;
 }
 
-.input {
-  width: 100%;
-  padding: 10px;
-  margin: 8px 0;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  font-size: 16px;
+.loginTitle {
+  
+  margin-bottom: 40px;
 }
 
-.input:focus {
-  border-color: #007bff;
-  outline: none;
-}
-
-.submit-btn {
-  padding: 12px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.submit-btn:hover {
-  background-color: #0056b3;
-}
-
-.status-message {
-  color: red;
+.statusText {
+  color: rgb(216, 11, 11);
   text-align: center;
-  font-size: 14px;
+  margin-bottom: 1rem;
+  position: absolute; 
+  top: 60%; 
+  left: 50%;
+  transform: translate(-50%, -50%); 
+  width: 100%; 
+}
+.statusText.success {
+  color: green;
 }
 
-.toggle-link {
-  text-align: center;
-  font-size: 14px;
+.formGroup {
+  margin-bottom: 1rem;
 }
 
-.link-btn {
-  color: #007bff;
-  background: none;
-  border: none;
+.forgotPasswordLinkContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.forgotPasswordLink {
   cursor: pointer;
-  font-size: 14px;
-}
-
-.link-btn:hover {
   text-decoration: underline;
 }
+
+.forgotPasswordLink:hover {
+  color: #0056b3; /* Optional hover effect */
+}
+
+.resetEmailMessage {
+  margin-top: 1rem;
+  text-align: center;
+  color: green;
+}
+
+.toggleBusinessStudent {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.errorText {
+  color: red;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+
+.toggleText {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.input {
+  width: 250px;
+  padding: 0.5rem;
+  border:none;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.1);
+  align-items: center;
+  text-align: center;
+}
+.input:focus {
+  outline: none;
+  box-shadow: 0 2px 0 rgba(38, 114, 135, 0.3);
+}
+.input.error {
+  box-shadow: 0 2px 0px rgba(255, 0, 0, 0.6); /* Red shadow */
+  border: 1px solid red; /* Red border on error */
+}
+
+.button {
+  width: 100%;
+  padding: 0.5rem;
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ///////////////////////////////////////////////////////////////////////////////////// */
+/* ////////// Login and Sign Up Switch //////////*/
+/* ///////////////////////////////////////////////////////////////////////////////////// */
+
+.formWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .formWrapper {
+    flex-direction: row;
+  }
+}
+
+.main {
+  position: relative;
+  width: 400px;
+  height: 550px;
+  background: white;
+  overflow: hidden;
+}
+
+/* Toggle control - hidden */
+.chkToggle {
+  display: none;
+}
+
+/* SignUp and Login wrapper styling */
+.signup, .login {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  transition: all 0.8s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* signup initially off-screen */
+.signup {
+  transform: translateX(-10px) translateY(85%);
+  z-index: 1;
+  border-radius: 60% / 10%;
+  transition: all 0.8s ease-in-out, border-radius 0.6s ease-in-out;
+  width: 410px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.loginStudent{
+  background-color: #63A2A5;
+  color: white;
+}
+.loginBusiness{
+  background-color: #1e3a8a;
+  color: white;
+}
+
+/* When checkbox is checked, slide Login in */
+.chkToggle:checked ~ .signup {
+  transform:translateX(-10px) translateY(30%);
+  z-index: 2;
+  border-radius: 60px;
+}
+
+/* Shrink login when signup slides in */
+.chkToggle:checked ~ .login {
+  transform: none;
+  opacity: 1;
+  z-index: 1;
+}
+
+/* Toggle link inside forms */
+.toggleLink {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  text-decoration: underline;
+  color: #555;
+  cursor: pointer;
+}
+/* ///////////////////////////////////////////////////////////////////////////////////// */
+
+/* Business version - Gradient Background Color */
+.businessBackground {
+  background-color: #2d2d2d;
+  background-image: url('/logo_VerticalWhite.png'); /* Separate image */
+}
+
+.studentBackground {
+  background-color: #e3e6e8;
+  background-image: url('/logo_VerticalDarkGrey.png'); /* Separate image */
+}
+
+
+
+
+
+
+
+
