@@ -29,12 +29,24 @@
   padding: 16px 24px;
   border-radius: 8px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  animation: slideIn 0.3s ease, fadeOut 0.5s ease 2.5s forwards;
   z-index: 1000;
   max-width: 400px;
+  animation: slideIn 0.3s ease;
+}
+
+/* Only auto-hide non-confirmation notifications */
+.notification-success,
+.notification-error,
+.notification-warning {
+  animation: slideIn 0.3s ease, fadeOut 0.5s ease 2.5s forwards;
+}
+
+/* Don't auto-hide confirmation notifications */
+.notification-confirm {
+  animation: slideIn 0.3s ease;
 }
 
 .notification-success {
@@ -49,9 +61,47 @@
   color: #c42b20;
 }
 
+.notification-warning {
+  background-color: #fff8e6;
+  border-left: 4px solid #f39c12;
+  color: #9a6400;
+}
+
+.notification-confirm {
+  background-color: #f0f6ff;
+  border-left: 4px solid #2563eb;
+  color: #1e429f;
+}
+
 .notification-icon {
   font-size: 20px;
   font-weight: bold;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-success .notification-icon {
+  background-color: #34c759;
+  color: white;
+}
+
+.notification-error .notification-icon {
+  background-color: #ff3b30;
+  color: white;
+}
+
+.notification-warning .notification-icon {
+  background-color: #f39c12;
+  color: white;
+}
+
+.notification-confirm .notification-icon {
+  background-color: #2563eb;
+  color: white;
 }
 
 .notification-content {
@@ -65,6 +115,7 @@
 
 .notification-message {
   font-size: 14px;
+  margin-bottom: 10px;
 }
 
 @keyframes slideIn {
@@ -90,31 +141,36 @@
 
 .notification-actions {
   display: flex;
-  gap: 8px;
-  margin-left: auto;
+  gap: 10px;
+  margin-top: 12px;
 }
 
-.action-button {
-  background-color: #e74c3c;
-  color: white;
-  border: none;
-  padding: 4px 8px;
-  border-radius: 4px;
+.notification-btn {
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 14px;
   cursor: pointer;
-}
-
-.cancel-button {
-  background-color: #95a5a6;
-  color: white;
+  transition: background-color 0.2s;
   border: none;
-  padding: 4px 8px;
-  border-radius: 4px;
-  cursor: pointer;
+  font-weight: 500;
 }
 
-.notification-warning {
-  background-color: #f39c12;
+.confirm-btn {
+  background-color: #dc3545;
   color: white;
+}
+
+.confirm-btn:hover {
+  background-color: #c82333;
+}
+
+.cancel-btn {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+.cancel-btn:hover {
+  background-color: #dee2e6;
 }
 
 .right-section {

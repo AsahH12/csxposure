@@ -6,33 +6,61 @@ import { doc, setDoc, collection, getDoc, addDoc, deleteDoc, getDocs } from "fir
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../firebaseconfig";
 import { query, where, } from "firebase/firestore";
-
 import "./projectEdit.css";
 
+
+
 interface NotificationProps {
-  type: 'success' | 'error';
+  type: 'success' | 'error' | 'warning' | 'confirm';
   title: string;
   message: string;
   onClose: () => void;
+  onConfirm?: () => void;
+  onCancel?: () => void;
+  confirmText?: string;
+  cancelText?: string;
 }
 
-const Notification: React.FC<NotificationProps> = ({ type, title, message, onClose }) => {
+const Notification: React.FC<NotificationProps> = ({ 
+  type, 
+  title, 
+  message, 
+  onClose, 
+  onConfirm,
+  onCancel,
+  confirmText = "Confirm",
+  cancelText = "Cancel"
+}) => {
   useEffect(() => {
-    const timer = setTimeout(() => {
-      onClose();
-    }, 3000); // Notification will disappear after 3 seconds
+    // Only set auto-close timer for non-confirmation notifications
+    if (type !== 'confirm') {
+      const timer = setTimeout(() => {
+        onClose();
+      }, 3000); // Notification will disappear after 3 seconds
 
-    return () => clearTimeout(timer);
-  }, [onClose]);
+      return () => clearTimeout(timer);
+    }
+  }, [onClose, type]);
 
   return (
     <div className={`notification notification-${type}`}>
       <div className="notification-icon">
-        {type === 'success' ? '✓' : '✕'}
+        {type === 'success' ? '✓' : type === 'warning' ? '⚠' : type === 'confirm' ? '?' : '✕'}
       </div>
       <div className="notification-content">
         <div className="notification-title">{title}</div>
         <div className="notification-message">{message}</div>
+        
+        {type === 'confirm' && (
+          <div className="notification-actions">
+            <button className="notification-btn confirm-btn" onClick={onConfirm}>
+              {confirmText}
+            </button>
+            <button className="notification-btn cancel-btn" onClick={onCancel}>
+              {cancelText}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -64,9 +92,11 @@ const ProjectEditPage: React.FC = () => {
   // Notification state
   const [notification, setNotification] = useState<{
     show: boolean;
-    type: 'success' | 'error';
+    type: 'success' | 'error' | 'warning' | 'confirm';
     title: string;
     message: string;
+    onConfirm?: () => void;
+    onCancel?: () => void;
   }>({
     show: false,
     type: 'success',
@@ -224,12 +254,14 @@ const ProjectEditPage: React.FC = () => {
   
   
   // Show notification
-  const showNotification = (type: 'success' | 'error', title: string, message: string) => {
+  const showNotification = (type: 'success' | 'error' | 'warning' | 'confirm', title: string, message: string, onConfirm?: () => void, onCancel?: () => void) => {
     setNotification({
       show: true,
       type,
       title, 
-      message
+      message,
+      onConfirm,
+      onCancel
     });
   };
 
@@ -358,27 +390,47 @@ const ProjectEditPage: React.FC = () => {
     }
   };
 
-  const deleteProjectFromFirebase = async () => {
+  const confirmDeleteProject = () => {
     if (!projectId) return;
-
-    const confirmDelete = window.confirm("Are you sure you want to delete this project?");
-    if (!confirmDelete) return;
-
-    try {
-      await deleteDoc(doc(db, "Projects", projectId));
-      if (userId) {
-        await deleteDoc(doc(db, "users", userId, "Projects", projectId));
+    
+    // Show confirmation notification instead of window.confirm
+    showNotification(
+      'confirm',
+      'Confirm Delete',
+      'Are you sure you want to delete this project? This action cannot be undone.',
+      // onConfirm callback
+      async () => {
+        try {
+          await deleteDoc(doc(db, "Projects", projectId));
+          if (userId) {
+            await deleteDoc(doc(db, "users", userId, "Projects", projectId));
+          }
+          
+          // Hide the confirmation notification
+          hideNotification();
+          
+          // Show success notification
+          showNotification('success', 'Success', 'Project deleted successfully!');
+          
+          // Give a little time for notification to be seen before redirecting
+          setTimeout(() => {
+            router.push("/ProfileEditPage");
+          }, 1500);
+        } catch (error) {
+          console.error("Error deleting project:", error);
+          
+          // Hide the confirmation notification
+          hideNotification();
+          
+          // Show error notification
+          showNotification('error', 'Delete Failed', 'Failed to delete project. Please try again.');
+        }
+      },
+      // onCancel callback
+      () => {
+        hideNotification();
       }
-      showNotification('success', 'Success', 'Project deleted successfully!');
-      
-      // Give a little time for notification to be seen before redirecting
-      setTimeout(() => {
-        router.push("/ProfileEditPage");
-      }, 1500);
-    } catch (error) {
-      console.error("Error deleting project:", error);
-      showNotification('error', 'Delete Failed', 'Failed to delete project. Please try again.');
-    }
+    );
   };
 
   if (loading) return <div>Loading...</div>;
@@ -392,6 +444,10 @@ const ProjectEditPage: React.FC = () => {
           title={notification.title}
           message={notification.message}
           onClose={hideNotification}
+          onConfirm={notification.onConfirm}
+          onCancel={notification.onCancel}
+          confirmText="Delete"
+          cancelText="Cancel"
         />
       )}
       
@@ -536,7 +592,7 @@ const ProjectEditPage: React.FC = () => {
           <button className="save-button" onClick={saveProjectToFirebase}>Save Changes</button>
 
           {projectId && (
-            <button className="delete-button" onClick={deleteProjectFromFirebase}>
+            <button className="delete-button" onClick={confirmDeleteProject}>
               Delete Project
             </button>
           )}

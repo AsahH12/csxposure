@@ -3,7 +3,8 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebaseconfig";
-import "./studentProject.css";
+import "./studentProject.module.css";
+import styles from "./studentProject.module.css";
 
 const StudentProjectPage: React.FC = () => {
   const searchParams = useSearchParams();
@@ -103,19 +104,19 @@ const StudentProjectPage: React.FC = () => {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="project-container">
-      <div className="project-content">
-        <h1 className="project-title">{projectName}</h1>
-        <p className="project-description">{description}</p>
+    <div className={styles.projectContainer}>
+      <div className={styles.projectContent}>
+        <h1 className={styles.projectTitle}>{projectName}</h1>
+        <p className={styles.projectDescription}>{description}</p>
 
-        <div className="project-links">
+        <div className={styles.projectLinks}>
           {websiteLink && websiteLink !== "#" && (
-            <a href={websiteLink} target="_blank" rel="noopener noreferrer" className="project-link">
+            <a href={websiteLink} target="_blank" rel="noopener noreferrer" className={styles.projectLink}>
               Website Link
             </a>
           )}
           {githubLink && githubLink !== "#" && (
-            <a href={githubLink} target="_blank" rel="noopener noreferrer" className="project-link">
+            <a href={githubLink} target="_blank" rel="noopener noreferrer" className={styles.projectLink}>
               GitHub Link
             </a>
           )}
@@ -127,9 +128,9 @@ const StudentProjectPage: React.FC = () => {
         </div>
 
         {youtubeEmbedId && (
-          <div className="youtube-embed-container">
+          <div className={styles.youtubeEmbedContainer}>
             <h2>Project Video</h2>
-            <div className="youtube-embed">
+            <div className={styles.youtubeEmbed}>
               <iframe
                 src={`https://www.youtube.com/embed/${youtubeEmbedId}`}
                 title="YouTube video player"
@@ -140,18 +141,18 @@ const StudentProjectPage: React.FC = () => {
             </div>
           </div>
         )}
-
+        
         <h2>Project Media</h2>
-        <div className="project-media">
+        <div className={styles.projectMedia}>
         
           {images.length > 0 && images.map((img, index) => (
-            <img key={index} src={img} alt={`Project Media ${index + 1}`} className="media-item project-box" />
+            <img key={index} src={img} alt={`Project Media ${index + 1}`} className={styles.mediaItem} />
           ))}
         </div>
 
-        <div className="collaborators">
+        <div className={styles.collaborators}>
           <h2>Collaborators</h2>
-          <div className="collaborator-list">
+          <div className={styles.collaboratorList}>
             {collaborators.length > 0 ? (
               collaborators.map((name, index) => <span key={index}>{name}</span>)
             ) : (

@@ -3,11 +3,14 @@ import React, { useEffect, useState, useContext } from 'react';
 import { auth, db } from "../../firebaseconfig";
 import { setDoc, doc, updateDoc, getDoc, getDocs, collection } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
-import './profileEdit.css';
+import './profileEdit.module.css';
+import styles from './profileEdit.module.css';
 import Link from 'next/link'
 import Footer from '../Components/footer';
 import { fetchUniversities } from "../Utility/fetchUniversities"; // Import the utility function
 import { UserContext } from '../Utility/UserContext';
+
+
 
 // Define the structure of a Project
 interface Project {
@@ -36,12 +39,12 @@ const Notification: React.FC<NotificationProps> = ({ type, title, message, onClo
 
   return (
     <div className={`notification notification-${type}`}>
-      <div className="notification-icon">
+      <div className={styles.notificationIcon}>
         {type === 'success' ? '✓' : '✕'}
       </div>
-      <div className="notification-content">
-        <div className="notification-title">{title}</div>
-        <div className="notification-message">{message}</div>
+      <div className={styles.notificationContent}>
+        <div className={styles.notificationTitle}>{title}</div>
+        <div className={styles.notificationMessage}>{message}</div>
       </div>
     </div>
   );
@@ -294,36 +297,36 @@ const ProfileEditPage: React.FC = () => {
         />
       )}
 
-      <div className="profile-edit-container">
-        <div className="profile-edit-card">
-          <div className="project-section">
+      <div className={styles.profileEditContainer}>
+        <div className={styles.profileEditCard}>
+          <div className={styles.projectSection}>
             <h2>Your Projects</h2>
-            <div className="project-grid">
+            <div className={styles.projectGrid}>
               {projects.map((project) => (
-                <Link key={project.id} className="link" href={`/ProjectEditPage?id=${project.id}`}>
-                  <div className="project-card">
+                <Link key={project.id} className={styles.link} href={`/ProjectEditPage?id=${project.id}`}>
+                  <div className={styles.projectCard}>
                   
                     {getFirstImage(project.images) ? (
-                      <img src={getFirstImage(project.images) as string} className="project-thumbnail" alt={project.projectName || "Project"} />
+                      <img src={getFirstImage(project.images) as string} className={styles.projectThumbnail} alt={project.projectName || "Project"} />
                     ) : (
-                      <div className="no-thumbnail">No Image</div>
+                      <div className={styles.noThumbnail}>No Image</div>
                     )}
-                    <p className="project-title">{project.projectName || "Unnamed Project"}</p>
+                    <p className={styles.projectTitle}>{project.projectName || "Unnamed Project"}</p>
                   </div>
                 </Link>
               ))}
-              <Link className="link" href="/ProjectEditPage">
-                <button className="add-project">+ Add Project</button>
+              <Link className={styles.link} href="/ProjectEditPage">
+                <button className={styles.addProject}>+ Add Project</button>
               </Link>
             </div>
           </div>
 
-          <div className="profile-form">
-            <label className="profile-picture" htmlFor="imageUpload">
+          <div className={styles.profileForm}>
+            <label className={styles.profilePicture} htmlFor="imageUpload">
               {localProfileImage && typeof localProfileImage === "string" ? (
-                <img src={localProfileImage} alt="Profile" className="profile-img" />
+                <img src={localProfileImage} alt="Profile" className={styles.profileImage} />
               ) : (
-                <span className="text">Click to upload</span>
+                <span className={styles.text}>Click to upload</span>
               )}
             </label>
             <input
@@ -334,26 +337,26 @@ const ProfileEditPage: React.FC = () => {
               onChange={handleImageUpload}
             />
 
-            <div className="input-group">
+            <div className={styles.inputGroup}>
               <input
                 type="text"
                 placeholder="First Name"
-                className="input-field"
+                className={styles.inputField}
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
               />
               <input
                 type="text"
                 placeholder="Last Name"
-                className="input-field"
+                className={styles.inputField}
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
               />
             </div>
 
-            <div className="form-group">
+            <div className={styles.formGroup}>
               <label>Status:</label>
-              <select className="input-field" value={status} onChange={(e) => setStatus(e.target.value)}>
+              <select className={styles.inputField} value={status} onChange={(e) => setStatus(e.target.value)}>
                 <option value="">Education Status</option>
                 <option value="Student">Student</option>
                 <option value="Graduate">Graduate</option>
@@ -362,17 +365,17 @@ const ProfileEditPage: React.FC = () => {
             </div>
 
             {/* School Input Section */}
-            <div className="form-group">
+            <div className={styles.formGroup}>
               <label>School:</label>
               <input
                 type="text"
                 placeholder="Search for your university..."
-                className="input-field"
+                className={styles.inputField}
                 value={school}
                 onChange={handleSchoolInputChange}
               />
               {schoolSuggestions.length > 0 && (
-                <ul className="suggestions-list">
+                <ul className={styles.suggestionList}>
                   {schoolSuggestions.map((suggestion, index) => (
                     <li key={index} onClick={() => handleSelectSchool(suggestion)}>
                       {suggestion}
@@ -383,9 +386,8 @@ const ProfileEditPage: React.FC = () => {
             </div>
 
             {/* CheckBox Volunteer Filter */}
-            <div className="form-check">
+            <div className={styles.formCheck}>
               <input
-                className="form-check-input"
                 type="checkbox"
                 id="filterVolunteer"
                 checked={volunteerAgreement}
@@ -397,22 +399,22 @@ const ProfileEditPage: React.FC = () => {
             </div>
 
             {/* Bio Input Section */}
-            <div className="form-group">
+            <div className={styles.formGorup}>
               <label>Bio:</label>
               <textarea
-                className="input-field bio-field"
+                className={styles.inputField}
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
               />
             </div>
 
             {/* Link Input Section */}
-            <div className="form-group">
-              <h2 className="section-title">Links</h2>
+            <div className={styles.formGroup}>
+              <h2 className={styles.sectionTitle}>Links</h2>
               {links.map((link, index) => (
-                <div key={index} className="link-group">
+                <div key={index} className={styles.linkGroup}>
                   <select
-                    className="input-field"
+                    className={styles.inputField}
                     value={link.type}
                     onChange={(e) => {
                       const newLinks = [...links];
@@ -459,7 +461,7 @@ const ProfileEditPage: React.FC = () => {
                   <input
                     type="text"
                     placeholder="URL Link"
-                    className="input-field"
+                    className={styles.inputField}
                     value={link.url}
                     onChange={(e) => {
                       const newLinks = [...links];
@@ -468,7 +470,7 @@ const ProfileEditPage: React.FC = () => {
                     }}
                   />
                   <button
-                    className="remove-link"
+                    className={styles.removeLink}
                     onClick={() => {
                       const newLinks = links.filter((_, i) => i !== index);
                       setLinks(newLinks);
@@ -476,11 +478,11 @@ const ProfileEditPage: React.FC = () => {
                   > Remove </button>
                 </div>
               ))}
-              <button onClick={addLink} className="add-link">+ Add Link</button>
+              <button onClick={addLink} className={styles.addLink}>+ Add Link</button>
             </div>
 
-            <div className="save-button-container">
-              <button className="save-button" onClick={saveProfile}>Save</button>
+            <div className={styles.saveButtonContainer}>
+              <button className={styles.saveButton} onClick={saveProfile}>Save</button>
             </div>
           </div>
         </div>
