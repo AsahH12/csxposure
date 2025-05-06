@@ -354,6 +354,11 @@ const ProjectEditPage: React.FC = () => {
       return;
     }
 
+    if (projectName.length > 111) {
+      showNotification('error', 'Title Too Long', 'The project name exceeds the maximum length of 110 characters!');
+      return;
+    }
+
     if (!userId) {
       showNotification('error', 'Authentication Error', 'You must be logged in to save a project.');
       return;
