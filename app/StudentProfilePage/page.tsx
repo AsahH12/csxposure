@@ -7,6 +7,7 @@ import { db, auth } from "../../firebaseconfig";
 import Link from 'next/link'
 import ChatOverlay from "../Components/ChatOverlay";
 import styles from './studentProfile.module.css';
+import socialButtons from './socialButtons.module.css';
 import Footer from "../Components/footer";
 
 const getFirstImage = (images?: string[] | string): string | null => {
@@ -36,6 +37,57 @@ const StudentProfilePage: React.FC = () => {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [isChatOpen, setChatOverlayOpen] = useState(false);
   const currentUser = auth.currentUser; 
+
+  const socialButtonClasses: { [key: string]: string } = {
+    github: socialButtons.github,
+    gitlab: socialButtons.gitlab,
+    bitbucket: socialButtons.bitbucket,
+    codepen: socialButtons.codepen,
+    replit: socialButtons.replit,
+    linkedin: socialButtons.linkedin,
+    discord: socialButtons.discord,
+    telegram: socialButtons.telegram,
+    email: socialButtons.email,
+    medium: socialButtons.medium,
+    "dev.to": socialButtons.devto,
+    hashnode: socialButtons.hashnode,
+    leetcode: socialButtons.leetcode,
+    hackerrank: socialButtons.hackerrank,
+    codewars: socialButtons.codewars,
+    kaggle: socialButtons.kaggle,
+    "personal website": socialButtons.personalWebsite,
+    notion: socialButtons.notion,
+    behance: socialButtons.behance,
+    instagram: socialButtons.instagram,
+    twitter: socialButtons.twitter,
+    reddit: socialButtons.reddit,
+  };
+  
+  const socialIcons: { [key: string]: string } = {
+    github: "fa-brands fa-github",
+    gitlab: "fa-brands fa-gitlab",
+    bitbucket: "fa-brands fa-bitbucket",
+    codepen: "fa-brands fa-codepen",
+    replit: "fa-solid fa-terminal",
+    linkedin: "fa-brands fa-linkedin",
+    discord: "fa-brands fa-discord",
+    telegram: "fa-brands fa-telegram",
+    email: "fa-solid fa-envelope",
+    medium: "fa-brands fa-medium",
+    "dev.to": "fa-brands fa-dev",
+    hashnode: "fa-solid fa-hashtag",
+    leetcode: "fa-solid fa-code",
+    hackerrank: "fa-solid fa-terminal",
+    codewars: "fa-solid fa-code",
+    kaggle: "fa-solid fa-chart-line",
+    "personal website": "fa-solid fa-globe",
+    notion: "fa-brands fa-notion",
+    behance: "fa-brands fa-behance",
+    instagram: "fa-brands fa-instagram",
+    twitter: "fa-brands fa-twitter",
+    reddit: "fa-brands fa-reddit",
+  };
+  
 
   useEffect(() => {
     if (!userId) {
@@ -202,7 +254,7 @@ const StudentProfilePage: React.FC = () => {
               <label className={styles.label}>Status:</label>
               <div className={styles.inputField}>{status}</div>
             </div>
-  
+
             <div className={styles.formGroup}>
               <label className={styles.label}>School:</label>
               <div className={styles.inputField}>{school}</div>
@@ -215,10 +267,38 @@ const StudentProfilePage: React.FC = () => {
 
             <div className={styles.linkGroup}>
               <h2 className={styles.sectionTitle}>Links</h2>
-              {links.map((link, index) => (
-                <a key={index} href={link.url} className={styles[link.type.toLowerCase()]}>{link.type}</a>
-              ))}
+
+              <div className={styles.linkButtonContainer}>
+                {links.map((link, index) => {
+                  const typeKey = link.type.toLowerCase();
+                  const className = socialButtonClasses[typeKey];
+                  const iconClass = socialIcons[typeKey];
+
+                  if (!className || !iconClass) {
+                    // Fallback for unknown types
+                    return (
+                      <a key={index} href={link.url} target="_blank" rel="noopener noreferrer">
+                        {link.type}
+                      </a>
+                    );
+                  }
+
+                  return (
+                    <a
+                      key={index}
+                      className={`${className} ${socialButtons.socialButton}`}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <i className={iconClass} style={{ marginRight: '0.5rem' }}></i>
+                      <span>{link.type}</span>
+                    </a>
+                  );
+                })}
+              </div>
             </div>
+
           </div>
         </div>
       </div>
