@@ -1,57 +1,33 @@
 'use client'; // Ensure it's treated as a client component
 
-import { useState, useEffect } from "react";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import ChatOverlay from "../Components/ChatOverlay";
+import Footer from "../Components/footer"; 
+import styles from './termsConditions.module.css'; 
 
-interface Chat {
-  id: string;
-  name: string;
-}
 
 const Dashboard: React.FC = () => {
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-
-  // Fetch user info from Firebase authentication
-  useEffect(() => {
-    const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserEmail(user.email); // Get the email of the signed-in user
-      } else {
-        setUserEmail(null); // If not signed in, set email to null
-      }
-    });
-
-    return () => unsubscribe(); // Clean up the subscription on unmount
-  }, []);
-
-  const openChat = (chat: Chat) => {
-    setSelectedChat(chat);
-    setIsChatOpen(true);
-  };
-
-  const closeChat = () => {
-    setIsChatOpen(false);
-  };
 
   return (
-    <div className="relative min-h-screen p-4">
-      <h1 className="text-2xl">Dashboard</h1>
-
-      {/* Display the signed-in user email */}
-      {userEmail ? (
-        <p className="text-lg mt-2">
-          You are signed in as <span className="font-bold">{userEmail}</span>
-        </p>
-      ) : (
-        <p className="text-lg mt-2 text-red-500">You are not signed in</p>
-      )}
-
-      {/* Render the chat overlay */}
-      {isChatOpen && selectedChat && <ChatOverlay onClose={closeChat} />}
+    <div >
+        <div className={styles.background}>
+            <h1 className={styles.title}>Terms and Conditions</h1>
+            <p className={styles.text}>
+                Welcome to csXposure! By using our platform, you agree to comply with the following terms and conditions. Please read them carefully.
+            </p>
+            <h2 className={styles.subtitle}>1. Acceptance of Terms</h2>
+            <p className={styles.text}>
+                By accessing or using csXposure, you agree to be bound by these terms and conditions. If you do not agree, please refrain from using our services.
+            </p>
+            <h2 className={styles.subtitle}>2. User Responsibilities</h2>
+            <p className={styles.text}>
+                Users are responsible for maintaining the confidentiality of their account information and for all activities that occur under their account.
+            </p>
+            <h2 className={styles.subtitle}>3. Content Ownership</h2>
+            <p className={styles.text}>
+                All content shared on csXposure remains the property of the original creator. By sharing content, you grant us a non-exclusive license to use it for promotional purposes.
+            </p>
+            <h2 className={styles.subtitle}>4. Prohibited Activities</h2>
+            </div>
+        <Footer/>
     </div>
   );
 };
