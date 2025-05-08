@@ -5,7 +5,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebaseconfig";
 import "./studentProject.module.css";
 import styles from "./studentProject.module.css";
-import { DotLottieReact } from '@lottiefiles/dotlottie-react'; 
+import Footer from "../Components/footer";
 
 const StudentProjectPage: React.FC = () => {
   const searchParams = useSearchParams();
@@ -115,6 +115,7 @@ const StudentProjectPage: React.FC = () => {
   }
 
   return (
+    <div>
     <div className={styles.projectContainer}>
       <div className={styles.projectContent}>
         <h1 className={styles.projectTitle}>{projectName}</h1>
@@ -153,7 +154,7 @@ const StudentProjectPage: React.FC = () => {
           </div>
         )}
         
-        <h2>Project Media</h2>
+        <h2 className={styles.subtitle}>Project Media</h2>
         <div className={styles.projectMedia}>
         
           {images.length > 0 && images.map((img, index) => (
@@ -162,7 +163,7 @@ const StudentProjectPage: React.FC = () => {
         </div>
 
         <div className={styles.collaborators}>
-          <h2>Collaborators</h2>
+          <h2 className={styles.collabTitle}>Collaborators</h2>
           <div className={styles.collaboratorList}>
             {collaborators.length > 0 ? (
               collaborators.map((name, index) => <span key={index}>{name}</span>)
@@ -172,6 +173,9 @@ const StudentProjectPage: React.FC = () => {
           </div>
         </div>
       </div>
+      
+    </div>
+    <Footer />
     </div>
   );
 };

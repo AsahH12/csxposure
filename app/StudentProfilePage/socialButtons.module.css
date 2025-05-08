@@ -1,0 +1,165 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,300');
+
+.socialPlatforms {
+  position: relative;
+  top: 25vh;
+  font-size: 1rem;
+  text-align: center;
+  height: auto;
+}
+
+/* Generic Button Base Styles */
+.socialButton {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.9em;
+  color: white;
+  font-family: 'Roboto', sans-serif;
+  border-radius: 5px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.35);
+  margin: 4px;
+  transition: all 0.5s;
+  text-decoration: none;
+  overflow: hidden;
+  padding: 0;
+  min-height: 42px;
+}
+
+.socialButton:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.45);
+}
+
+.socialButton:focus {
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+}
+
+.socialButton > span,
+.socialButton > i {
+  float: left;
+  padding: 13px;
+  line-height: 1em;
+  transition: all 0.5s;
+  color: #fff;
+}
+
+.socialButton > span {
+  display: flex;
+  align-items: center;
+  padding: 0 20px 0 14px;
+  height: 100%;
+  white-space: nowrap;
+  color: white;
+}
+
+.socialButton:focus > span {
+  background: #9a9a9a;
+}
+
+.socialButton > i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: #212121;
+  color: #fff;
+  font-size: 1.2em;
+  border-radius: 5px 0 0 5px;
+  position: relative;
+}
+
+.socialButton > i::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -8px;
+  transform: translateY(-50%);
+  border: 6px solid transparent;
+  border-left-color: #222;
+}
+
+.iconRight {
+  border-radius: 0 5px 5px 0;
+}
+
+/* Social Platform-Specific Styles */
+.facebook { background: #3b5998; }
+.twitter { background: #55acee; }
+.linkedin { background: #007bb6; }
+.reddit { background: #ff4500; }
+.discord { background: #7289da; }
+.telegram { background: #0088cc; }
+.medium { background: #00ab6c; }
+.devto { background: #0a0a0a; }
+.github { background: #333; }
+.gitlab { background: #fca121; }
+.bitbucket { background: #205081; }
+.codepen { background: #000; }
+.replit { background: #667eea; }
+.leetcode { background: #ffa116; }
+.hackerrank { background: #2ec866; }
+.codewars { background: #ad2c27; }
+.kaggle { background: #20beff; }
+.notion { background: #000; }
+.behance { background: #1769ff; }
+.hashnode { background: #2962ff; }
+
+/* Hover Icon Colors */
+.facebook:hover > i,
+.facebook:focus > i { color: #3b5998; }
+
+.twitter:hover > i,
+.twitter:focus > i { color: #55acee; }
+
+.linkedin:hover > i,
+.linkedin:focus > i { color: #007bb6; }
+
+.reddit:hover > i,
+.reddit:focus > i { color: #ff4500; }
+
+.discord:hover > i,
+.discord:focus > i { color: #7289da; }
+
+.telegram:hover > i,
+.telegram:focus > i { color: #0088cc; }
+
+.medium:hover > i,
+.medium:focus > i { color: #00ab6c; }
+
+.devto:hover > i,
+.devto:focus > i { color: #0a0a0a; }
+
+.github:hover > i,
+.github:focus > i { color: #333; }
+
+.gitlab:hover > i,
+.gitlab:focus > i { color: #fca121; }
+
+.bitbucket:hover > i,
+.bitbucket:focus > i { color: #205081; }
+
+.codepen:hover > i,
+.codepen:focus > i { color: #000; }
+
+.replit:hover > i,
+.replit:focus > i { color: #667eea; }
+
+.leetcode:hover > i,
+.leetcode:focus > i { color: #ffa116; }
+
+.hackerrank:hover > i,
+.hackerrank:focus > i { color: #2ec866; }
+
+.codewars:hover > i,
+.codewars:focus > i { color: #ad2c27; }
+
+.kaggle:hover > i,
+.kaggle:focus > i { color: #20beff; }
+
+.notion:hover > i,
+.notion:focus > i { color: #000; }
+
+.behance:hover > i,
+.behance:focus > i { color: #1769ff; }
+
+.hashnode:hover > i,
+.hashnode:focus > i { color: #2962ff; }

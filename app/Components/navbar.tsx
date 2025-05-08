@@ -201,7 +201,7 @@ const Navbar: React.FC = () => {
             <button onClick={toggleChat} className="btn p-0 border-0 bg-transparent me-5 mx-2">
               <img
                 key={hasUnreadMessages ? "unread" : "read"} // Force re-render
-                src={hasUnreadMessages ? "Notification_White_True.png" : "Notification_White_False.png"}
+                src={hasUnreadMessages ? "/Notification_White_True.png" : "/Notification_White_False.png"}
                 alt="Notifications"
                 width={50}
                 height={50}
