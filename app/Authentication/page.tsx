@@ -33,7 +33,7 @@ const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusin
       // Save user email and userType ('student' or 'business') in Firestore
       const userType = isBusiness ? "business" : "student";
       await setDoc(doc(db, "users", userCredential.user.uid), {
-        email,
+        email: email.toLocaleLowerCase(),
         userType,
         createdAt: new Date(),
       });
