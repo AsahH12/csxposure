@@ -59,9 +59,7 @@ const TermsConditions: React.FC = () => {
 
                     <h2 className={styles.subtitle}>5. User Content</h2>
                     <p className={styles.text}>
-                        You retain ownership of the content you upload, including project descriptions, images, videos, and profile details. By uploading content to CSXposure, you grant us a non-exclusive, royalty-free license to display and distribute that content on the platform.
-                    </p>
-                    <p className={styles.text}>
+                        You retain ownership of the content you upload, including project descriptions, images, videos, and profile details. By uploading content to CSXposure, you grant us a non-exclusive, royalty-free license to display and distribute that content on the platform. <br />
                         You are solely responsible for your content and ensure it complies with applicable laws.
                     </p>
 
@@ -82,9 +80,7 @@ const TermsConditions: React.FC = () => {
 
                     <h2 className={styles.subtitle}>9. Termination</h2>
                     <p className={styles.text}>
-                        We may suspend or terminate your account at our discretion, with or without notice, if you violate these Terms or act in a manner that harms the community.
-                    </p>
-                    <p className={styles.text}>
+                        We may suspend or terminate your account at our discretion, with or without notice, if you violate these Terms or act in a manner that harms the community. <br />
                         You may delete your account at any time by contacting support or through your user settings.
                     </p>
 
@@ -105,9 +101,7 @@ const TermsConditions: React.FC = () => {
 
                     <h2 className={styles.subtitle}>13.  Contact</h2>
                     <p className={styles.text}>
-                        For questions or concerns about these Terms, please contact us at:
-                    </p>
-                    <p className={styles.text}>
+                        For questions or concerns about these Terms, please contact us at: <br />
                         Email: CSXposure@gmail.com
                     </p>
                 </div>
