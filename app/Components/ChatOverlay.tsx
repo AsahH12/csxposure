@@ -145,7 +145,7 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
             console.log("Profile name:", firstName, lastName);
   
             return {
-              email: otherUserEmail,
+              email: otherUserEmail.toLowerCase(),
               chatId: chatDoc.id,
               hasMessages: true,
               profileImageUrl,
