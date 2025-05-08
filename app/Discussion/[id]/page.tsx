@@ -7,6 +7,7 @@ import styles from './Discussion.module.css';
 import Sidebar from '../../Components/sidebar';
 import Footer from '../../Components/footer';
 import { addDoc } from 'firebase/firestore';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 interface DiscussionPostProps {
     title?: string;
@@ -178,9 +179,15 @@ const DiscussionPost: React.FC<{ params: Promise<DiscussionParams> }> = ({ param
                 <div className="col">
                 <div className={styles.scrollableContainer}>
                         <div style={{ flexGrow: 1 }}>
-                            {loading ? (
-                                <p className={styles.loadingText}>Loading...</p>
-                            ) : (
+                        {loading ? (
+                             <div className={styles.loadingContainer}>
+                                  <DotLottieReact
+                                   src="./loading_BlueComputer.json"
+                                   loop
+                                     autoplay
+                                              />
+                                  </div>
+                                ) : (
                                 <>
                                     <div style={{ textAlign: 'center', marginBottom: '20px' }}>
                                         <h1>{postData?.title || 'Discussion Title'}</h1>

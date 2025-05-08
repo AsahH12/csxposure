@@ -1,4 +1,4 @@
-.project-content {
+.projectContent {
   background: white;
   padding: 30px;
   border-radius: 12px;
@@ -14,7 +14,7 @@
   margin: auto;
 }
 
-.left-section {
+.leftSection {
   width: 50%;
   display: flex;
   flex-direction: column;
@@ -38,42 +38,42 @@
 }
 
 /* Only auto-hide non-confirmation notifications */
-.notification-success,
-.notification-error,
-.notification-warning {
+.notificationSuccess,
+.notificationError,
+.notificationWarning {
   animation: slideIn 0.3s ease, fadeOut 0.5s ease 2.5s forwards;
 }
 
 /* Don't auto-hide confirmation notifications */
-.notification-confirm {
+.notificationConfirm {
   animation: slideIn 0.3s ease;
 }
 
-.notification-success {
+.notificationSuccess {
   background-color: #ecf9f0;
   border-left: 4px solid #34c759;
   color: #1d7a3a;
 }
 
-.notification-error {
+.notificationError {
   background-color: #feecec;
   border-left: 4px solid #ff3b30;
   color: #c42b20;
 }
 
-.notification-warning {
+.notificationWarning {
   background-color: #fff8e6;
   border-left: 4px solid #f39c12;
   color: #9a6400;
 }
 
-.notification-confirm {
+.notificationConfirm {
   background-color: #f0f6ff;
   border-left: 4px solid #2563eb;
   color: #1e429f;
 }
 
-.notification-icon {
+.notificationIcon {
   font-size: 20px;
   font-weight: bold;
   width: 24px;
@@ -84,36 +84,36 @@
   justify-content: center;
 }
 
-.notification-success .notification-icon {
+.notificationSuccess .notificationIcon {
   background-color: #34c759;
   color: white;
 }
 
-.notification-error .notification-icon {
+.notificationError .notificationIcon {
   background-color: #ff3b30;
   color: white;
 }
 
-.notification-warning .notification-icon {
+.notificationWarning .notificationIcon {
   background-color: #f39c12;
   color: white;
 }
 
-.notification-confirm .notification-icon {
+.notificationConfirm .notificationIcon {
   background-color: #2563eb;
   color: white;
 }
 
-.notification-content {
+.notificationContent {
   flex: 1;
 }
 
-.notification-title {
+.notificationTitle {
   font-weight: 600;
   margin-bottom: 2px;
 }
 
-.notification-message {
+.notificationMessage {
   font-size: 14px;
   margin-bottom: 10px;
 }
@@ -139,13 +139,13 @@
   }
 }
 
-.notification-actions {
+.notificationActions {
   display: flex;
   gap: 10px;
   margin-top: 12px;
 }
 
-.notification-btn {
+.notificationBtn {
   padding: 8px 14px;
   border-radius: 6px;
   font-size: 14px;
@@ -155,49 +155,49 @@
   font-weight: 500;
 }
 
-.confirm-btn {
+.confirmBtn {
   background-color: #dc3545;
   color: white;
 }
 
-.confirm-btn:hover {
+.confirmBtn:hover {
   background-color: #c82333;
 }
 
-.cancel-btn {
+.cancelBtn {
   background-color: #e9ecef;
   color: #495057;
 }
 
-.cancel-btn:hover {
+.cancelBtn:hover {
   background-color: #dee2e6;
 }
 
-.right-section {
+.rightSection {
   width: 50%;
   margin-top: 50px;
 }
 
-.project-title {
+.projectTitle {
   text-align: center;
   font-size: 24px;
   margin-bottom: 15px;
 }
 
-.input-group {
+.inputGroup {
   margin-bottom: 40px;
   padding: 0px;
 }
 
-.input-group label {
+.inputGroup label {
   font-weight: bold;
   display: block;
   align-items: center;
   margin: center;
 }
 
-.input-group input,
-.input-group textarea {
+.inputGroup input,
+.inputGroup textarea {
   width: 100%;
   padding: 1px;
   border: 1px solid #ccc;
@@ -210,18 +210,18 @@
   height: 30px;
 }
 
-.input-group textarea {
+.inputGroup textarea {
   resize: vertical;
   min-height: 80px;
 }
 
-.media-upload-grid {
+.mediaUploadGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 15px;
 }
 
-.media-upload{
+.mediaUpload{
   margin: center;
   align-items: center;
   justify-content: center;
@@ -229,7 +229,7 @@
   
 }
 
-.upload-box {
+.uploadBox {
   width: 100%;
   height: 220px;
   background: #e9ecef;
@@ -244,18 +244,18 @@
   transition: 0.3s;
 }
 
-.upload-box:hover {
+.uploadBox:hover {
   background: #dee2e6;
 }
 
-.uploaded-media {
+.uploadedMedia {
   width: 100%;
   height: 100%;
   object-fit: cover;
   border-radius: 8px;
 }
 
-.add-collab {
+.addCollab {
   width: 100%;
   padding: 12px;
   background-color: #007bff;
@@ -271,15 +271,15 @@
   transition: background-color 0.3s ease;
 }
 
-.add-collab:hover {
+.addCollab:hover {
   background-color: #0056b3;
 }
 
-.collaborator-title {
+.collaboratorTitle {
   margin-bottom: 10px;
 }
 
-.save-button {
+.saveButton {
   width: 100%;
   padding: 12px;
   margin-top: 20px;
@@ -291,11 +291,11 @@
   font-size: 16px;
 }
 
-.save-button:hover {
+.saveButton:hover {
   background-color: #218838;
 }
 
-.delete-button {
+.deleteButton {
   width: 100%;
   padding: 12px;
   margin-top: 10px;
@@ -307,19 +307,19 @@
   font-size: 16px;
 }
 
-.delete-button:hover {
+.deleteButton:hover {
   background-color: #c82333;
 }
 
 
-.category-checkboxes {
+.categoryCheckboxes {
   display: flex;
   flex-wrap: nowrap; 
   gap: 10px; 
   justify-content: flex-start; 
 }
 
-.checkbox-label {
+.checkboxLabel {
   display: flex;
   align-items: center; 
   gap: 5px; 

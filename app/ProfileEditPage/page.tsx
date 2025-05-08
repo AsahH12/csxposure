@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { auth, db } from "../../firebaseconfig";
 import { setDoc, doc, updateDoc, getDoc, getDocs, collection } from "firebase/firestore";
+import { DotLottieReact } from '@lottiefiles/dotlottie-react'; 
 import { onAuthStateChanged } from "firebase/auth";
 import './profileEdit.module.css';
 import styles from './profileEdit.module.css';
@@ -283,7 +284,15 @@ const ProfileEditPage: React.FC = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return(
+      <div className={styles.loadingContainer || 'text-center py-5'}>
+        <DotLottieReact
+          src="./loading_BlueComputer.json"
+          loop
+          autoplay
+        />
+      </div>
+    );
   }
   return (
     <div>
@@ -303,7 +312,7 @@ const ProfileEditPage: React.FC = () => {
             <h2>Your Projects</h2>
             <div className={styles.projectGrid}>
               {projects.map((project) => (
-                <Link key={project.id} className={styles.link} href={`/ProjectEditPage?id=${project.id}`}>
+                <Link key={project.id} className={styles.projectLink} href={`/ProjectEditPage?id=${project.id}`}>
                   <div className={styles.projectCard}>
                   
                     {getFirstImage(project.images) ? (
