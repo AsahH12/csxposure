@@ -152,11 +152,12 @@ const HomePage: React.FC = () => {
           if (mostApp) topList.push({ userId: mostApp.userId, highlightCategory: "App" });
           if (mostWebsite) topList.push({ userId: mostWebsite.userId, highlightCategory: "Website" });
 
+          ////////////////////////////////////////This needs to be moved not on client side
           // Write lean version to Firestore
-          await setDoc(featuredRef, {
-            lastUpdated: new Date(),
-            users: topList,
-          });
+          // await setDoc(featuredRef, {
+          //   lastUpdated: new Date(),
+          //   users: topList,
+          // });
 
           // Fetch full profiles for new top users
           const topUserPromises = topList.map(async (u) => {
