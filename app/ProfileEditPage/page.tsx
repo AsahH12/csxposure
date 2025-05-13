@@ -231,7 +231,8 @@ const ProfileEditPage: React.FC = () => {
   };
 
   const addLink = () => {
-    if (links.length >= 4) {
+    const LinkLimit = 4; // Set the limit to 4 links
+    if (links.length >= LinkLimit) {
       showNotification('error', 'Link Limit', 'You can only add up to 4 links.');
       return;
     }

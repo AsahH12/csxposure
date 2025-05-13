@@ -203,6 +203,8 @@
   font-family: lateef, serif;
   font-size: 25px;
   margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column; 
 }
 
 .formGroup label {
