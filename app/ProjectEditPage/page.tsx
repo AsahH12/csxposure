@@ -6,7 +6,9 @@ import { doc, setDoc, collection, getDoc, addDoc, deleteDoc, getDocs } from "fir
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../firebaseconfig";
 import { query, where, } from "firebase/firestore";
-import "./projectEdit.css";
+import styles from './projectEdit.module.css';
+import "./projectEdit.module.css";
+import { DotLottieReact } from '@lottiefiles/dotlottie-react'; 
 
 
 
@@ -44,19 +46,19 @@ const Notification: React.FC<NotificationProps> = ({
 
   return (
     <div className={`notification notification-${type}`}>
-      <div className="notification-icon">
+      <div className={styles.notificationIcon}>
         {type === 'success' ? '✓' : type === 'warning' ? '⚠' : type === 'confirm' ? '?' : '✕'}
       </div>
-      <div className="notification-content">
-        <div className="notification-title">{title}</div>
-        <div className="notification-message">{message}</div>
+      <div className={styles.notificationContent}>
+        <div className={styles.notificationTitle}>{title}</div>
+        <div className={styles.notificationMessage}>{message}</div>
         
         {type === 'confirm' && (
-          <div className="notification-actions">
-            <button className="notification-btn confirm-btn" onClick={onConfirm}>
+          <div className={styles.notificationActions}>
+            <button className="notificationBtn confirm-btn" onClick={onConfirm}>
               {confirmText}
             </button>
-            <button className="notification-btn cancel-btn" onClick={onCancel}>
+            <button className="notificationBtn cancel-btn" onClick={onCancel}>
               {cancelText}
             </button>
           </div>
@@ -438,7 +440,17 @@ const ProjectEditPage: React.FC = () => {
     );
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return(
+      <div className={styles.loadingContainer || 'text-center py-5'}>
+        <DotLottieReact
+          src="./loading_BlueComputer.json"
+          loop
+          autoplay
+        />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -456,11 +468,11 @@ const ProjectEditPage: React.FC = () => {
         />
       )}
       
-      <div className="project-content">
-        <div className="left-section">
-          <h1 className="project-title">{projectId ? "Edit Project" : "New Project"}</h1>
+      <div className={styles.projectContent}>
+        <div className={styles.leftSection}>
+          <h1 className={styles.projectTitle}>{projectId ? "Edit Project" : "New Project"}</h1>
 
-          <div className="input-group">
+          <div className={styles.inputGroup}>
             <label>Project Name</label>
             <input
               type="text"
@@ -470,8 +482,8 @@ const ProjectEditPage: React.FC = () => {
             />
           </div>
 
-          <div className="input-group">
-            <label className="description">Description</label>
+          <div className={styles.inputGroup}>
+            <label className={styles.description}>Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -479,11 +491,11 @@ const ProjectEditPage: React.FC = () => {
             />
           </div>
 
-          <div className="input-group category-checkboxes">
+          <div className="inputGroup category-checkboxes">
             <label>Project Category:</label>
-            <div className="checkbox-container category-checkboxes">
+            <div className="checkboxContainer category-checkboxes">
               {['Game', 'App', 'Website', 'Other'].map((category) => (
-                <label key={category} className="checkbox-label">
+                <label key={category} className={styles.checkboxLabel}>
                   <input
                     type="checkbox"
                     checked={categories.includes(category)}
@@ -495,7 +507,7 @@ const ProjectEditPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="input-group">
+          <div className={styles.inputGroup}>
             <label>Website Link</label>
             <input
               type="text"
@@ -505,7 +517,7 @@ const ProjectEditPage: React.FC = () => {
             />
           </div>
 
-          <div className="input-group">
+          <div className={styles.inputGroup}>
             <label>GitHub Link</label>
             <input
               type="text"
@@ -515,7 +527,7 @@ const ProjectEditPage: React.FC = () => {
             />
           </div>
 
-          <div className="input-group">
+          <div className={styles.inputGroup}>
             <label>Video Link</label>
             <input
               type="text"
@@ -574,13 +586,13 @@ const ProjectEditPage: React.FC = () => {
       </div>
       </div>
 
-        <div className="right-section">
-          <h2 className="media-upload">Upload Media</h2>
-          <div className="media-upload-grid">
+        <div className={styles.rightSection}>
+          <h2 className={styles.mediaUpload}>Upload Media</h2>
+          <div className={styles.mediaUploadGrid}>
             {images.map((media, index) => (
-              <label key={index} className="upload-box">
+              <label key={index} className={styles.uploadBox}>
                 {media ? (
-                  <img src={media} alt="Uploaded media" className="uploaded-media" />
+                  <img src={media} alt="Uploaded media" className={styles.uploadedMedia} />
                 ) : (
                   "Upload Image/Video"
                 )}
@@ -594,10 +606,10 @@ const ProjectEditPage: React.FC = () => {
             ))}
           </div>
 
-          <button className="save-button" onClick={saveProjectToFirebase}>Save Changes</button>
+          <button className={styles.saveButton} onClick={saveProjectToFirebase}>Save Changes</button>
 
           {projectId && (
-            <button className="delete-button" onClick={confirmDeleteProject}>
+            <button className={styles.deleteButton} onClick={confirmDeleteProject}>
               Delete Project
             </button>
           )}

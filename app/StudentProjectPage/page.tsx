@@ -102,7 +102,17 @@ const StudentProjectPage: React.FC = () => {
     fetchProjectData();
   }, [projectId]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return(
+      <div className={styles.loadingContainer || 'text-center py-5'}>
+        <DotLottieReact
+          src="./loading_BlueComputer.json"
+          loop
+          autoplay
+        />
+      </div>
+    );
+  }
 
   return (
     <div>

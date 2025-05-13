@@ -1,0 +1,96 @@
+
+  
+  .hero {
+    background: #000;
+    color: #00cba9;
+    padding: 2rem;
+    text-align: left;
+  }
+  
+  .tagLine {
+    color: white;
+    margin-top: 1rem;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  
+  .mission {
+    background: white;
+    padding: 2rem;
+    color: #f1a104;
+  }
+  
+  .mission h2 {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+
+  .mission p {
+    color: black;
+  }
+  
+  .why {
+    background: white;
+    padding: 2rem;
+    color: #00743f;
+  }
+  
+  .why h2 {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+  
+  .why ul {
+    list-style: disc;
+    padding-left: 2rem;
+    color: #222;
+  }
+  
+  .audience {
+    padding: 2rem;
+    color: #25b396;
+  }
+  
+  .audience h2 {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+  
+  .audience p {
+    color: #222;
+    margin-bottom: 1rem;
+  }
+  
+  .features {
+    background: white;
+    padding: 2rem;
+    color: #00cba9;
+  }
+  
+  .features h2 {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+  
+  .features ul {
+    list-style: disc;
+    padding-left: 2rem;
+    color: #222;
+  }
+  
+  .built {
+    background: #e6f7f4;
+    padding: 2rem;
+    color: #1e65a7;
+  }
+  
+  .built h2 {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+  
+  .built p {
+    color: #222;
+    margin-top: 1rem;
+  }
+  
