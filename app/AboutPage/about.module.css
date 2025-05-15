@@ -1,96 +1,132 @@
+@import url('https://fonts.googleapis.com/css2?family=Platypi&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Platypi&family=Trocchi&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lateef&display=swap');
 
-  
-  .hero {
-    background: #000;
-    color: #00cba9;
-    padding: 2rem;
-    text-align: left;
-  }
-  
-  .tagLine {
-    color: white;
-    margin-top: 1rem;
-    font-size: 1rem;
-    line-height: 1.6;
-  }
-  
-  .mission {
-    background: white;
-    padding: 2rem;
-    color: #f1a104;
-  }
-  
-  .mission h2 {
-    font-size: 2rem;
-    font-weight: bold;
-  }
 
-  .mission p {
-    color: black;
-  }
+/* Global Section Styles */
+
+.section {
+  padding: 3rem 1.5rem;
+  line-height: 1.8;
+}
+
+.heading {
+  font-size: 2.35rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  font-family: trocchi, serif;
+}
+
+/* Hero Section */
+.heroContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap; 
+}
+
+.heroLogo {
+  height: 400px;
+  width: auto;
+  margin-right: 5rem;
+  align-self: flex-start; 
+}
+
+.hero {
+  background-color: #000;
+  color: #00cba9;
+  padding: 1rem 1rem;
+  padding-left: 100px;
+  padding-right: 2rem;
+  text-align: left;
+}
+
+.tagLine {
+  color: #fff;
+  margin-top: 1.5rem;
+  font-size: 1.625rem;
+  line-height: 1.8;
+  max-width: 900px;
+  font-family: lateef, serif;
+}
+
+/* Mission Section */
+.mission {
+  background-color: #fff;
+  color: #f1a104;
+  padding: 3rem 2rem;
   
-  .why {
-    background: white;
-    padding: 2rem;
-    color: #00743f;
-  }
+}
+
+.mission p {
+  color: #333;
+  font-family: lateef, serif;
+  font-size: 1.625rem;
+}
+
+/* Why Section */
+.why {
+  background-color: #f9f9f9;
+  color: #00743f;
+  padding: 3rem 2rem;
   
-  .why h2 {
-    font-size: 2rem;
-    font-weight: bold;
-  }
-  
-  .why ul {
-    list-style: disc;
-    padding-left: 2rem;
-    color: #222;
-  }
-  
-  .audience {
-    padding: 2rem;
-    color: #25b396;
-  }
-  
-  .audience h2 {
-    font-size: 2rem;
-    font-weight: bold;
-  }
-  
-  .audience p {
-    color: #222;
-    margin-bottom: 1rem;
-  }
-  
-  .features {
-    background: white;
-    padding: 2rem;
-    color: #00cba9;
-  }
-  
-  .features h2 {
-    font-size: 2rem;
-    font-weight: bold;
-  }
-  
-  .features ul {
-    list-style: disc;
-    padding-left: 2rem;
-    color: #222;
-  }
-  
-  .built {
-    background: #e6f7f4;
-    padding: 2rem;
-    color: #1e65a7;
-  }
-  
-  .built h2 {
-    font-size: 2rem;
-    font-weight: bold;
-  }
-  
-  .built p {
-    color: #222;
-    margin-top: 1rem;
-  }
-  
+}
+
+.why ul {
+  list-style: disc inside;
+  padding-left: 1rem;
+  color: #333;
+  font-family: lateef, serif;
+  font-size: 1.625rem;
+}
+
+.why li {
+  margin-bottom: 1rem;
+}
+
+/* Audience Section */
+.audience {
+  background-color: #fff;
+  color: #25b396;
+  padding: 3rem 2rem;
+}
+
+.audience p {
+  color: #222;
+  margin-bottom: 1rem;
+  font-family: lateef, serif;
+  font-size: 1.625rem;
+}
+
+/* Features Section */
+.features {
+  background-color: #f9f9f9;
+  color: #00cba9;
+  padding: 3rem 2rem;
+}
+
+.features ul {
+  list-style: disc inside;
+  color: #222;
+  padding-left: 1rem;
+  font-family: lateef, serif;
+  font-size: 1.625rem;
+}
+
+.features li {
+  margin-bottom: 1rem;
+}
+
+/* Built By Students Section */
+.built {
+  background-color: #e6f7f4;
+  color: #1e65a7;
+  padding: 3rem 2rem;
+}
+
+.built p {
+  color: #222;
+  margin-top: 1rem;
+  font-family: lateef, serif;
+  font-size: 1.625rem;
+}
