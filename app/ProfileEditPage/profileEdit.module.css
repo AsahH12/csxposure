@@ -20,23 +20,35 @@
   border-radius: 1rem;
   width: 100%;
   max-width: 1500px;
-  height: auto;
+  height: 100%;
   min-height: 650px; /* Add minimum height to ensure proper extension */
 }
 
+html, body, #__next {
+  height: 100%;
+}
 /* ///////////////////////////////////////////////////////////////////////////////////// */
 /* ////////// Project Section //////////*/
 /* ///////////////////////////////////////////////////////////////////////////////////// */
 
 .projectSection {
+  flex: 3;
   width: 70%;
-  background-color: #e5e7eb;
   padding: 1rem;
   border-radius: 0.5rem 0 0 0.5rem;
   flex: 3;
-  height: 100%; /* Make it take full height of parent */
-  min-height: 650px; /* Match the card's min-height */
+  height: 100%;
+  min-height: 650px;
   overflow-y: auto;
+}
+
+.projectSectionTitle {
+  font-size: 45px;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  margin-top: .5rem;
+  margin-left: 1rem;
+  font-family: lateef, serif;
 }
 
 .projectSection::-webkit-scrollbar {
@@ -79,7 +91,7 @@
 }
 
 /* Title Overlay Box */
-.projectTitle {
+.projectTitleOverlay {
   position: absolute;
   bottom: 0;
   width: 100%;
@@ -133,6 +145,7 @@
 /* ///////////////////////////////////////////////////////////////////////////////////// */
 
 .profileForm {
+  position: relative;
   width: 30%;
   padding: 0rem;
   flex: 1;
@@ -224,6 +237,7 @@
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
   flex: 1;
+  text-align: center;
 }
 
 .bioField {
@@ -274,39 +288,13 @@
 
 /* Save Button */
 .saveButtonContainer {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 1px;
-}
-
-.saveButton {
-  background: #f1a104;
-  border: none;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  font-family: platypi, serif;
-  box-shadow: #eb5f08 3px 2px 4px;
-  transition: background 0.3s ease, box-shadow 0.3s ease;
-}
-
-.saveButton:hover {
-  background: #fa7b36;
-  box-shadow: #622702 3px 2px 4px;
-  transform: translateY(-2px);
-}
-
-.saveButtonContainer {
   position: absolute;
-  right: 0;
-  top: 0;
+  right: 10;
+  top: 10;
 }
 
 .saveButton {
-  background: #f1a104;
+  background: #1ea112;
   border: none;
   color: white;
   padding: 0.5rem 1rem;
@@ -315,14 +303,14 @@
   font-weight: bold;
   cursor: pointer;
   font-family: platypi, serif;
-  box-shadow: #eb5f08 3px 2px 4px;
+  box-shadow: #0e5a07 3px 2px 4px;
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .saveButton:hover {
-  background: #fa7b36;
-  box-shadow: #622702 3px 2px 4px;
-  transform: translateY(-2px);
+  background: #215f1b;
+  box-shadow: #0a2708 3px 2px 4px;
+  transform: translateY(-2px) translateX(2px);
 }
 .formCheck {
   display: flex;
