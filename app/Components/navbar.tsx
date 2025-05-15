@@ -148,6 +148,13 @@ const Navbar: React.FC = () => {
           <img src="/logo.png" alt="Logo" width={210} height={50} />
         </Link>
       </div>
+        <div className="text-center">
+    <Link href="/CodeEditor">
+      <button className="btn btn-light fw-bold px-4 py-2">
+        Workspace
+      </button>
+    </Link>
+  </div>
       <ul className="navbar-end d-flex align-items-center">
 
         {/* Profile Dropdown */}
