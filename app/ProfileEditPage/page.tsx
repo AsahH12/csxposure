@@ -11,8 +11,6 @@ import Footer from '../Components/footer';
 import { fetchUniversities } from "../Utility/fetchUniversities"; // Import the utility function
 import { UserContext } from '../Utility/UserContext';
 
-
-
 // Define the structure of a Project
 interface Project {
   id: string;
@@ -58,6 +56,7 @@ const ProfileEditPage: React.FC = () => {
   const [school, setSchool] = useState('');
   const [bio, setBio] = useState('');
   const [links, setLinks] = useState([{ type: '', url: '' }]);
+  const [linkErrors, setLinkErrors] = useState<{[key: number]: string}>({});
   const { setProfileImage } = useContext(UserContext); // Use only setter to update after save
   const [localProfileImage, setLocalProfileImage] = useState<string | null>(null); // Store selected image locally
   const [loading, setLoading] = useState(true);
@@ -100,6 +99,79 @@ const ProfileEditPage: React.FC = () => {
   // Hide notification
   const hideNotification = () => {
     setNotification(prev => ({ ...prev, show: false }));
+  };
+
+  // Link validation function
+  const isValidLink = (type: string, url: string): boolean => {
+    if (!type || !url) return false;
+    
+    // Convert URL to lowercase for case-insensitive matching
+    const lowerUrl = url.toLowerCase();
+    
+    // Define expected domains for each platform type
+    const platformDomains: {[key: string]: string | string[] | null} = {
+      'GitHub': 'github.com',
+      'GitLab': 'gitlab.com',
+      'Bitbucket': 'bitbucket.org',
+      'CodePen': 'codepen.io',
+      'Replit': 'replit.com',
+      'LinkedIn': 'linkedin.com',
+      'Discord': ['discord.com', 'discord.gg'],
+      'Telegram': ['t.me', 'telegram.me'],
+      'Email': '@',
+      'Medium': 'medium.com',
+      'Dev.to': 'dev.to',
+      'Hashnode': 'hashnode.com',
+      'LeetCode': 'leetcode.com',
+      'HackerRank': 'hackerrank.com',
+      'CodeWars': 'codewars.com',
+      'Kaggle': 'kaggle.com',
+      'Personal Website': null, // No specific domain required
+      'Notion': 'notion.so',
+      'Behance': 'behance.net',
+      'Instagram': 'instagram.com',
+      'Twitter': ['twitter.com', 'x.com'],
+      'Reddit': 'reddit.com'
+    };
+    
+    // Get the expected domain for the selected type
+    const expectedDomain = platformDomains[type];
+    
+    // If there's no expected domain (like for Personal Website), consider it valid
+    if (!expectedDomain) return true;
+    
+    // Special case for email
+    if (type === 'Email') {
+      // Simple email validation: contains @ and at least one . after @
+      return lowerUrl.includes('@') && lowerUrl.split('@')[1].includes('.');
+    }
+    
+    // Handle multiple possible domains (array)
+    if (Array.isArray(expectedDomain)) {
+      return expectedDomain.some(domain => lowerUrl.includes(domain));
+    }
+    
+    // Standard case: URL should include the expected domain
+    return lowerUrl.includes(expectedDomain);
+  };
+
+  // Validate all links before saving
+  const validateAllLinks = () => {
+    const errors: {[key: number]: string} = {};
+    let hasErrors = false;
+    
+    links.forEach((link, index) => {
+      // Skip empty links
+      if (!link.type || !link.url) return;
+      
+      if (!isValidLink(link.type, link.url)) {
+        errors[index] = `This doesn't appear to be a valid ${link.type} URL`;
+        hasErrors = true;
+      }
+    });
+    
+    setLinkErrors(errors);
+    return !hasErrors;
   };
 
   //Fetch profile data
@@ -152,8 +224,8 @@ const ProfileEditPage: React.FC = () => {
           };
           userProjects.forEach((project) => {
             project.categories?.forEach((category: string) => {
-              if (categoryCounter[category] !== undefined) {
-                categoryCounter[category] += 1;
+              if (categoryCounter[category as keyof typeof categoryCounter] !== undefined) {
+                categoryCounter[category as keyof typeof categoryCounter] += 1;
               } else {
                 categoryCounter['Other'] += 1; 
               }
@@ -246,6 +318,12 @@ const ProfileEditPage: React.FC = () => {
       return;
     }
 
+    // Validate links
+    if (!validateAllLinks()) {
+      showNotification('error', 'Invalid Links', 'Please correct the highlighted links before saving.');
+      return;
+    }
+
     const validLinks = links.filter((link) => link.type.trim() !== "" || link.url.trim() !== "");
     setLinks(validLinks);
 
@@ -282,6 +360,31 @@ const ProfileEditPage: React.FC = () => {
     if (typeof images === 'string') return images;
     
     return images.length > 0 ? images[0] : null;
+  };
+
+  // Handle link changes with validation
+  const handleLinkChange = (index: number, field: 'type' | 'url', value: string) => {
+    const newLinks = [...links];
+    newLinks[index][field] = value;
+    
+    // Clear any previous error for this link if the field changes
+    if (linkErrors[index]) {
+      const newLinkErrors = {...linkErrors};
+      delete newLinkErrors[index];
+      setLinkErrors(newLinkErrors);
+    }
+    
+    setLinks(newLinks);
+    
+    // Validate on-the-fly if both type and URL are present
+    if (newLinks[index].type && newLinks[index].url && field === 'url') {
+      if (!isValidLink(newLinks[index].type, value)) {
+        setLinkErrors(prev => ({
+          ...prev,
+          [index]: `This doesn't appear to be a valid ${newLinks[index].type} URL`
+        }));
+      }
+    }
   };
 
   if (loading) {
@@ -432,13 +535,9 @@ const ProfileEditPage: React.FC = () => {
                   <select
                     className={styles.inputField}
                     value={link.type}
-                    onChange={(e) => {
-                      const newLinks = [...links];
-                      newLinks[index].type = e.target.value;
-                      setLinks(newLinks);
-                    }}
+                    onChange={(e) => handleLinkChange(index, 'type', e.target.value)}
                   >  {/* Link Type Selection */}
-                    <option value="">--Select Link Type--</option>
+                    <option value="">Select Link</option>
                     <optgroup label="Coding & Project Showcases">
                       <option value="GitHub">GitHub</option>
                       <option value="GitLab">GitLab</option>
@@ -474,22 +573,28 @@ const ProfileEditPage: React.FC = () => {
                       <option value="Reddit">Reddit</option>
                     </optgroup>
                   </select>
-                  <input
-                    type="text"
-                    placeholder="URL Link"
-                    className={styles.inputField}
-                    value={link.url}
-                    onChange={(e) => {
-                      const newLinks = [...links];
-                      newLinks[index].url = e.target.value;
-                      setLinks(newLinks);
-                    }}
-                  />
+                  <div className={styles.urlInputContainer}>
+                    <input
+                      type="text"
+                      placeholder="URL Link"
+                      className={`${styles.inputField} ${linkErrors[index] ? styles.inputError : ''}`}
+                      value={link.url}
+                      onChange={(e) => handleLinkChange(index, 'url', e.target.value)}
+                    />
+                    {linkErrors[index] && <div className={styles.errorMessage}>{linkErrors[index]}</div>}
+                  </div>
                   <button
                     className={styles.removeLink}
                     onClick={() => {
                       const newLinks = links.filter((_, i) => i !== index);
                       setLinks(newLinks);
+                      
+                      // Clear any errors for this link
+                      if (linkErrors[index]) {
+                        const newErrors = {...linkErrors};
+                        delete newErrors[index];
+                        setLinkErrors(newErrors);
+                      }
                     }}
                   > Remove </button>
                 </div>

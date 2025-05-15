@@ -185,7 +185,7 @@ const DiscussionPost: React.FC<{ params: Promise<DiscussionParams> }> = ({ param
                                    src="./loading_BlueComputer.json"
                                    loop
                                      autoplay
-                                              />
+                                              />Loading
                                   </div>
                                 ) : (
                                 <>
