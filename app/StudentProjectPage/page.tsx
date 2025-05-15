@@ -6,7 +6,7 @@ import { db } from "../../firebaseconfig";
 import "./studentProject.module.css";
 import styles from "./studentProject.module.css";
 import Footer from "../Components/footer";
-import {DotLottieReact } from "@lottiefiles/dotlottie-react";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const StudentProjectPage: React.FC = () => {
   const searchParams = useSearchParams();

@@ -7,21 +7,29 @@ const AboutPage: React.FC = () => {
   return (
     <div>
     
-    
-        <section className={styles.hero}>
-          <h1>About CSXposure</h1>
-          <p className={styles.tagLine}>
-            <strong>Welcome to CSXposure — A Platform Built for Student Innovation.</strong><br />
-            CSXposure is a dynamic online hub designed to empower computer science students by giving them the tools to<br />
-            showcase their technical talents, collaborate with peers, and connect with real-world project opportunities.
-            <br />
-            Whether you're a student eager to display your portfolio or a business seeking fresh tech perspectives,<br />
-            CSXposure bridges the gap between potential and opportunity.
-          </p>
-        </section>
 
-        <section className={styles.mission}>
-          <h2>Our Mission</h2>
+      <section className={styles.hero}>
+        <div className={styles.heroContent}>
+          <div>
+            <h1 className={styles.heading}>About CSXposure</h1>
+            <p className={styles.tagLine}>
+              <strong>Welcome to CSXposure — A Platform Built for Student Innovation.</strong><br />
+              CSXposure is a dynamic online hub designed to empower computer science students by giving them the tools to
+              showcase their technical talents, collaborate with peers, and connect with real-world project opportunities.
+              Whether you're a student eager to display your portfolio or a business seeking fresh tech perspectives,
+              CSXposure bridges the gap between potential and opportunity.
+            </p>
+          </div>
+          <img
+            src="/logo_VerticalWhite.png"
+            alt="CSXposure Logo"
+            className={styles.heroLogo}
+          />
+        </div>
+      </section>
+
+      <section className={styles.mission}>
+        <h2 className={styles.heading}>Our Mission</h2>
           <p>
             We believe every student project deserves a spotlight. At CSXposure, our mission is to create a space where
             students can turn classroom projects into career opportunities by building a digital presence, engaging in
@@ -30,7 +38,7 @@ const AboutPage: React.FC = () => {
         </section>
 
         <section className={styles.why}>
-          <h2>Why CSXposure?</h2>
+          <h2 className={styles.heading}>Why CSXposure?</h2>
           <ul>
             <li><strong>Giving Students a Voice:</strong> A dedicated profile to showcase project work, technical skills, bios, and social links.</li>
             <li><strong>Encouraging Collaboration:</strong> Tools like the Request Board and discussion forums help users find collaborators and grow ideas together.</li>
@@ -40,7 +48,7 @@ const AboutPage: React.FC = () => {
         </section>
 
         <section className={styles.audience}>
-          <h2>Who It's For</h2>
+          <h2 className={styles.heading}>Who It's For</h2>
           <p>
             <strong>Students:</strong> Primarily built for computer science students at Full Sail University but open to students across all universities. Whether you're
             looking to network, contribute, or just showcase your passion projects, CSXposure is for you.
@@ -52,7 +60,7 @@ const AboutPage: React.FC = () => {
         </section>
 
         <section className={styles.features}>
-          <h2>What You Can Do</h2>
+          <h2 className={styles.heading}>What You Can Do</h2>
           <ul>
             <li><strong>Create and Customize Profiles:</strong> Upload profile pictures, write bios, and link your social media accounts.</li>
             <li><strong>Upload and Share Projects:</strong> Add images, videos, links, and descriptions to projects, and tag your collaborators.</li>
@@ -63,7 +71,7 @@ const AboutPage: React.FC = () => {
         </section>
 
         <section className={styles.built}>
-          <h2>Built By Students, For Students</h2>
+          <h2 className={styles.heading}>Built By Students, For Students</h2>
           <p>
             The CSXposure platform is being developed by students using cutting-edge tools like Next.js, Firebase, Figma, and Visual Studio Code.
             We now host the platform using Firebase Hosting, providing a fast, secure, and scalable environment to support the growing needs of our

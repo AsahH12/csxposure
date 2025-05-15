@@ -289,7 +289,7 @@ const ProfileEditPage: React.FC = () => {
   };
 
   ////////////////////////////////////////////////////////////////////////////////////
-
+  
   //Convert image to URL
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -303,7 +303,8 @@ const ProfileEditPage: React.FC = () => {
   };
 
   const addLink = () => {
-    if (links.length >= 4) {
+    const LinkLimit = 4; // Set the limit to 4 links
+    if (links.length >= LinkLimit) {
       showNotification('error', 'Link Limit', 'You can only add up to 4 links.');
       return;
     }
@@ -397,6 +398,7 @@ const ProfileEditPage: React.FC = () => {
       </div>
     );
   }
+
   return (
     <div>
       {/* Render notification if it's visible */}
@@ -412,7 +414,7 @@ const ProfileEditPage: React.FC = () => {
       <div className={styles.profileEditContainer}>
         <div className={styles.profileEditCard}>
           <div className={styles.projectSection}>
-            <h2>Your Projects</h2>
+            <h2 className={styles.projectSectionTitle}>Your Projects</h2>
             <div className={styles.projectGrid}>
               {projects.map((project) => (
                 <Link key={project.id} className={styles.projectLink} href={`/ProjectEditPage?id=${project.id}`}>
@@ -423,7 +425,9 @@ const ProfileEditPage: React.FC = () => {
                     ) : (
                       <div className={styles.noThumbnail}>No Image</div>
                     )}
-                    <p className={styles.projectTitle}>{project.projectName || "Unnamed Project"}</p>
+                    <div className={styles.projectTitleOverlay}>
+                        {project.projectName || "Unnamed Project"}
+                      </div>
                   </div>
                 </Link>
               ))}
@@ -434,6 +438,9 @@ const ProfileEditPage: React.FC = () => {
           </div>
 
           <div className={styles.profileForm}>
+          <div className={styles.saveButtonContainer}>
+              <button className={styles.saveButton} onClick={saveProfile}>Save</button>
+            </div>
             <label className={styles.profilePicture} htmlFor="imageUpload">
               {localProfileImage && typeof localProfileImage === "string" ? (
                 <img src={localProfileImage} alt="Profile" className={styles.profileImage} />
@@ -593,10 +600,6 @@ const ProfileEditPage: React.FC = () => {
                 </div>
               ))}
               <button onClick={addLink} className={styles.addLink}>+ Add Link</button>
-            </div>
-
-            <div className={styles.saveButtonContainer}>
-              <button className={styles.saveButton} onClick={saveProfile}>Save</button>
             </div>
           </div>
         </div>
