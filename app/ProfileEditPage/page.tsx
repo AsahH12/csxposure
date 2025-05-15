@@ -217,7 +217,7 @@ const ProfileEditPage: React.FC = () => {
   };
 
   ////////////////////////////////////////////////////////////////////////////////////
-
+  
   //Convert image to URL
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -295,6 +295,7 @@ const ProfileEditPage: React.FC = () => {
       </div>
     );
   }
+
   return (
     <div>
       {/* Render notification if it's visible */}

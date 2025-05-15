@@ -102,6 +102,9 @@
 .notion { background: #000; }
 .behance { background: #1769ff; }
 .hashnode { background: #2962ff; }
+.personalWebsite { background: #4caf50; } 
+.email { background: #43639c; }
+.instagram { background: #E1306C; }
 
 /* Hover Icon Colors */
 .facebook:hover > i,
@@ -163,3 +166,12 @@
 
 .hashnode:hover > i,
 .hashnode:focus > i { color: #2962ff; }
+
+.personalWebsite:hover > i,
+.personalWebsite:focus > i { color: #4caf50; }
+
+.email:hover > i,
+.email:focus > i { color: #43639c; }
+
+.instagram:hover > i,
+.instagram:focus > i { color: #E1306C; }
