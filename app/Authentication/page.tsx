@@ -33,7 +33,7 @@ const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusin
       // Save user email and userType ('student' or 'business') in Firestore
       const userType = isBusiness ? "business" : "student";
       await setDoc(doc(db, "users", userCredential.user.uid), {
-        email,
+        email: email.toLowerCase(),
         userType,
         createdAt: new Date(),
       });
@@ -135,7 +135,7 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
       setLoading(true);
 
       // Sign in the user with email and password
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email.toLowerCase(), password);
 
       // Fetch user type from Firestore to verify if it's a business or student
       const userDoc = doc(db, "users", userCredential.user.uid);

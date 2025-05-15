@@ -6,7 +6,9 @@ import { doc, setDoc, collection, getDoc, addDoc, deleteDoc, getDocs } from "fir
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../firebaseconfig";
 import { query, where, } from "firebase/firestore";
-import "./projectEdit.css";
+import styles from './projectEdit.module.css';
+import "./projectEdit.module.css";
+import { DotLottieReact } from '@lottiefiles/dotlottie-react'; 
 
 
 
@@ -44,19 +46,19 @@ const Notification: React.FC<NotificationProps> = ({
 
   return (
     <div className={`notification notification-${type}`}>
-      <div className="notification-icon">
+      <div className={styles.notificationIcon}>
         {type === 'success' ? '✓' : type === 'warning' ? '⚠' : type === 'confirm' ? '?' : '✕'}
       </div>
-      <div className="notification-content">
-        <div className="notification-title">{title}</div>
-        <div className="notification-message">{message}</div>
+      <div className={styles.notificationContent}>
+        <div className={styles.notificationTitle}>{title}</div>
+        <div className={styles.notificationMessage}>{message}</div>
         
         {type === 'confirm' && (
-          <div className="notification-actions">
-            <button className="notification-btn confirm-btn" onClick={onConfirm}>
+          <div className={styles.notificationActions}>
+            <button className="notificationBtn confirm-btn" onClick={onConfirm}>
               {confirmText}
             </button>
-            <button className="notification-btn cancel-btn" onClick={onCancel}>
+            <button className="notificationBtn cancel-btn" onClick={onCancel}>
               {cancelText}
             </button>
           </div>
@@ -354,6 +356,11 @@ const ProjectEditPage: React.FC = () => {
       return;
     }
 
+    if (projectName.length > 111) {
+      showNotification('error', 'Title Too Long', 'The project name exceeds the maximum length of 110 characters!');
+      return;
+    }
+
     if (!userId) {
       showNotification('error', 'Authentication Error', 'You must be logged in to save a project.');
       return;
@@ -433,173 +440,196 @@ const ProjectEditPage: React.FC = () => {
     );
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return(
+      <div className={styles.loadingContainer || 'text-center py-5'}>
+        <DotLottieReact
+          src="./loading_BlueComputer.json"
+          loop
+          autoplay
+        />
+      </div>
+    );
+  }
 
   return (
-    <>
-      {/* Render notification if it's visible */}
-      {notification.show && (
-        <Notification
-          type={notification.type}
-          title={notification.title}
-          message={notification.message}
-          onClose={hideNotification}
-          onConfirm={notification.onConfirm}
-          onCancel={notification.onCancel}
-          confirmText="Delete"
-          cancelText="Cancel"
-        />
-      )}
-      
-      <div className="project-content">
-        <div className="left-section">
-          <h1 className="project-title">{projectId ? "Edit Project" : "New Project"}</h1>
+  <>
+    {notification.show && (
+      <Notification
+        type={notification.type}
+        title={notification.title}
+        message={notification.message}
+        onClose={hideNotification}
+        onConfirm={notification.onConfirm}
+        onCancel={notification.onCancel}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
+    )}
 
-          <div className="input-group">
-            <label>Project Name</label>
-            <input
-              type="text"
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
-              placeholder="Enter project name"
-            />
-          </div>
+    <div className={styles.projectContent}>
+      <div className={styles.leftSection}>
+        <h1 className={styles.projectTitle}>
+          {projectId ? "Edit Project" : "New Project"}
+        </h1>
 
-          <div className="input-group">
-            <label className="description">Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Enter project description"
-            />
-          </div>
+        <div className={styles.inputGroup}>
+          <label htmlFor="projectName">Project Name</label>
+          <input
+            id="projectName"
+            type="text"
+            value={projectName}
+            onChange={(e) => setProjectName(e.target.value)}
+            placeholder="Enter project name"
+          />
+        </div>
 
-          <div className="input-group category-checkboxes">
-            <label>Project Category:</label>
-            <div className="checkbox-container category-checkboxes">
-              {['Game', 'App', 'Website', 'Other'].map((category) => (
-                <label key={category} className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={categories.includes(category)}
-                    onChange={() => handleCategoryChange(category)}
-                  />
-                  {category}
-                </label>
-              ))}
-            </div>
-          </div>
+        <div className={styles.inputGroup}>
+          <label htmlFor="description">Description</label>
+          <textarea
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Enter project description"
+          />
+        </div>
 
-          <div className="input-group">
-            <label>Website Link</label>
-            <input
-              type="text"
-              value={websiteLink}
-              onChange={(e) => setWebsiteLink(e.target.value)}
-              placeholder="Enter Website link"
-            />
-          </div>
-
-          <div className="input-group">
-            <label>GitHub Link</label>
-            <input
-              type="text"
-              value={githubLink}
-              onChange={(e) => setGithubLink(e.target.value)}
-              placeholder="Enter GitHub link"
-            />
-          </div>
-
-          <div className="input-group">
-            <label>Video Link</label>
-            <input
-              type="text"
-              value={youtubeLink}
-              onChange={(e) => setYoutubeLink(e.target.value)}
-              placeholder="Enter Video link"
-            />
-          </div>
-
-          <div>
-        <label className="block mb-1 font-medium">Invite Collaborator</label>
-        <input
-          type="text"
-          value={searchInput}
-          onChange={handleSearchChange}
-          placeholder="Search users by name or email"
-          className="w-full border rounded px-3 py-2"
-        />
-        {searchResults.length > 0 && (
-          <div className="border mt-1 rounded shadow bg-white">
-            {searchResults.map((user) => (
-              <div
-                key={user.id}
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                onMouseDown={() => setSelectedUser(user)}
-                >
-                {user.name} ({user.email})
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-      <div className="mt-3">
-        <button
-          onClick={() => selectedUser && sendInvite(selectedUser) && console.log("button clicked", selectedUser.email)
-          }
-          disabled={!selectedUser || sendingInvite}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Send Invite
-        </button>
-      </div>
-      {selectedUser && (
-  <div className="mt-2 text-sm text-gray-700">
-    Selected: {selectedUser.name} ({selectedUser.email})
-  </div>
-)}
-  
-      <div>
-        <label className="block mb-1 font-medium">Collaborators</label>
-        <ul className="list-disc pl-5">
-          {collaborators.map((collab, index) => (
-            <li key={index}>{collab}</li>
-          ))}
-        </ul>
-      </div>
-      </div>
-
-        <div className="right-section">
-          <h2 className="media-upload">Upload Media</h2>
-          <div className="media-upload-grid">
-            {images.map((media, index) => (
-              <label key={index} className="upload-box">
-                {media ? (
-                  <img src={media} alt="Uploaded media" className="uploaded-media" />
-                ) : (
-                  "Upload Image/Video"
-                )}
+        <div className={styles.inputGroup}>
+          <label>Project Category:</label>
+          <div className={styles.categoryCheckboxes}>
+            {['Game', 'App', 'Website', 'Other'].map((category) => (
+              <label key={category} className={styles.checkboxLabel}>
                 <input
-                  type="file"
-                  accept="image/*,video/*"
-                  style={{ display: "none" }}
-                  onChange={(event) => handleMediaUpload(index, event)}
+                  type="checkbox"
+                  checked={categories.includes(category)}
+                  onChange={() => handleCategoryChange(category)}
                 />
+                {category}
               </label>
             ))}
           </div>
+        </div>
 
-          <button className="save-button" onClick={saveProjectToFirebase}>Save Changes</button>
+        <div className={styles.inputGroup}>
+          <label htmlFor="websiteLink">Website Link</label>
+          <input
+            id="websiteLink"
+            type="text"
+            value={websiteLink}
+            onChange={(e) => setWebsiteLink(e.target.value)}
+            placeholder="Enter Website link"
+          />
+        </div>
 
-          {projectId && (
-            <button className="delete-button" onClick={confirmDeleteProject}>
-              Delete Project
-            </button>
+        <div className={styles.inputGroup}>
+          <label htmlFor="githubLink">GitHub Link</label>
+          <input
+            id="githubLink"
+            type="text"
+            value={githubLink}
+            onChange={(e) => setGithubLink(e.target.value)}
+            placeholder="Enter GitHub link"
+          />
+        </div>
+
+        <div className={styles.inputGroup}>
+          <label htmlFor="youtubeLink">Video Link</label>
+          <input
+            id="youtubeLink"
+            type="text"
+            value={youtubeLink}
+            onChange={(e) => setYoutubeLink(e.target.value)}
+            placeholder="Enter Video link"
+          />
+        </div>
+
+        <div className={styles.inputGroup}>
+          <label>Invite Collaborator</label>
+          <input
+            type="text"
+            value={searchInput}
+            onChange={handleSearchChange}
+            placeholder="Search users by name or email"
+            className="w-full border rounded px-3 py-2"
+          />
+          {searchResults.length > 0 && (
+            <div className="border mt-1 rounded shadow bg-white">
+              {searchResults.map((user) => (
+                <div
+                  key={user.id}
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  onMouseDown={() => setSelectedUser(user)}
+                >
+                  {user.name} ({user.email})
+                </div>
+              ))}
+            </div>
           )}
         </div>
+
+        <div className="mt-3">
+          <button
+            onClick={() => selectedUser && sendInvite(selectedUser)}
+            disabled={!selectedUser || sendingInvite}
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+          >
+            Send Invite
+          </button>
+        </div>
+
+        {selectedUser && (
+          <div className="mt-2 text-sm text-gray-700">
+            Selected: {selectedUser.name} ({selectedUser.email})
+          </div>
+        )}
+
+        <div className={styles.inputGroup}>
+          <label>Collaborators</label>
+          <ul className="list-disc pl-5">
+            {collaborators.map((collab, index) => (
+              <li key={index}>{collab}</li>
+            ))}
+          </ul>
+        </div>
       </div>
-    </>
-  );
+
+      <div className={styles.rightSection}>
+        <h2 className={styles.mediaUpload}>Upload Media</h2>
+        <div className={styles.mediaUploadGrid}>
+          {images.map((media, index) => (
+            <label key={index} className={styles.uploadBox}>
+              {media ? (
+                <img
+                  src={media}
+                  alt="Uploaded media"
+                  className={styles.uploadedMedia}
+                />
+              ) : (
+                "Upload Image/Video"
+              )}
+              <input
+                type="file"
+                accept="image/*,video/*"
+                style={{ display: "none" }}
+                onChange={(event) => handleMediaUpload(index, event)}
+              />
+            </label>
+          ))}
+        </div>
+
+        <button className={styles.saveButton} onClick={saveProjectToFirebase}>
+          Save Changes
+        </button>
+
+        {projectId && (
+          <button className={styles.deleteButton} onClick={confirmDeleteProject}>
+            Delete Project
+          </button>
+        )}
+      </div>
+    </div>
+  </>
+);
 };
 
 export default ProjectEditPage;

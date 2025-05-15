@@ -148,6 +148,13 @@ const Navbar: React.FC = () => {
           <img src="/logo.png" alt="Logo" width={210} height={50} />
         </Link>
       </div>
+        <div className="text-center">
+    <Link href="/CodeEditor">
+      <button className="btn btn-light fw-bold px-4 py-2">
+        Workspace
+      </button>
+    </Link>
+  </div>
       <ul className="navbar-end d-flex align-items-center">
 
         {/* Profile Dropdown */}
@@ -201,7 +208,7 @@ const Navbar: React.FC = () => {
             <button onClick={toggleChat} className="btn p-0 border-0 bg-transparent me-5 mx-2">
               <img
                 key={hasUnreadMessages ? "unread" : "read"} // Force re-render
-                src={hasUnreadMessages ? "Notification_White_True.png" : "Notification_White_False.png"}
+                src={hasUnreadMessages ? "/Notification_White_True.png" : "/Notification_White_False.png"}
                 alt="Notifications"
                 width={50}
                 height={50}

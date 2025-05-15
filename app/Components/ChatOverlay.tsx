@@ -60,7 +60,7 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   const [firstName, setFirstName] = useState<string>(""); // Current user's first name
   const [lastName, setLastName] = useState<string>(""); // Current user's last name
   const [profileImage, setProfileImage] = useState<string | null>(null); // Current user's profile image
-  const selectedUserObject = users.find((user) => user.email === selectedUser); // Object of the selected user
+  const selectedUserObject = users.find((user) => user.email.toLowerCase() === selectedUser?.toLowerCase()); // Object of the selected user
   const [otherfirstName, setOtherFirstName] = useState<string>(""); // Other user's first name
   const [otherlastName, setOtherLastName] = useState<string>(""); // Other user's last name
   const [userType, setUserType] =  useState<string | null>(null);
@@ -73,7 +73,8 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        setUserEmail(user.email); // Set user's email
+        const lowerEmail = user.email?.toLowerCase();
+        setUserEmail(lowerEmail);
 
         // Fetch userType
         const userDocRef = doc(db, "users", user.uid);
@@ -117,7 +118,7 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   
             const userQuery = query(
               collection(db, "users"),
-              where("email", "==", otherUserEmail)
+              where("email", "==", otherUserEmail.toLowerCase())
             );
             const userSnap = await getDocs(userQuery);
             console.log("Querying for email:", otherUserEmail);
@@ -145,7 +146,7 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
             console.log("Profile name:", firstName, lastName);
   
             return {
-              email: otherUserEmail,
+              email: otherUserEmail.toLowerCase(),
               chatId: chatDoc.id,
               hasMessages: true,
               profileImageUrl,
@@ -185,7 +186,7 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
         setUnreadCount(existingChat.data().unreadMessages?.[userEmail] || 0); // Set unread count
       } else {
         const newChatRef = await addDoc(chatRef, {
-          participants: [userEmail, selectedUser],
+          participants: [userEmail.toLowerCase(), selectedUser.toLowerCase()],
           unreadMessages: { [selectedUser]: 0, [userEmail]: 0 }, // Initialize unread messages
           lastMessage: "",
         });

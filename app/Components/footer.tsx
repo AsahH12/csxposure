@@ -8,9 +8,9 @@ const Footer: React.FC = () => {
   return (
     <nav className={styles.footer}>
       <div className={styles.footerLinks}>
-        <Link href="/" className={styles.footerLink}>About</Link>
-        <Link href="/" className={styles.footerLink}>Terms & Conditions</Link>
-        <Link href="/" className={styles.footerLink}>Contact</Link>
+      <Link href="/AboutPage" className={styles.footerLink}>About</Link>
+        <Link href="/TermsAndConditionsPage" className={styles.footerLink}>Terms & Conditions</Link>
+        <Link href="/ContactPage" className={styles.footerLink}>Contact</Link>
         <Link href="/Home" className={styles.footerLink}>Home Page</Link>
       </div>
     </nav>
