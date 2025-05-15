@@ -103,6 +103,35 @@ const StudentProjectPage: React.FC = () => {
     fetchProjectData();
   }, [projectId]);
 
+  // Function to render media items with placeholders
+  const renderMediaItems = () => {
+    const items = [];
+    
+    // Add actual images first
+    for (let i = 0; i < images.length; i++) {
+      items.push(
+        <img 
+          key={`image-${i}`} 
+          src={images[i]} 
+          alt={`Project Media ${i + 1}`} 
+          className={styles.mediaItem} 
+        />
+      );
+    }
+    
+    // Add placeholder images if less than 4 images
+    for (let i = images.length; i < 4; i++) {
+      items.push(
+        <div key={`placeholder-${i}`} className={`${styles.mediaItem} ${styles.placeholder}`}>
+          <div className={styles.placeholderContent}>
+          </div>
+        </div>
+      );
+    }
+    
+    return items;
+  };
+
   if (loading) {
     return(
       <div className={styles.loadingContainer || 'text-center py-5'}>
@@ -133,16 +162,11 @@ const StudentProjectPage: React.FC = () => {
               GitHub Link
             </a>
           )}
-          {/* {youtubeLink && youtubeLink !== "#" && (
-            <a href={youtubeLink} target="_blank" rel="noopener noreferrer" className="project-link">
-              YouTube Link
-            </a>
-          )} */}
         </div>
 
         {youtubeEmbedId && (
           <div className={styles.youtubeEmbedContainer}>
-            <h2>Project Video</h2>
+            <h2 className={styles.subtitle}>Project Video</h2>
             <div className={styles.youtubeEmbed}>
               <iframe
                 src={`https://www.youtube.com/embed/${youtubeEmbedId}`}
@@ -157,10 +181,7 @@ const StudentProjectPage: React.FC = () => {
         
         <h2 className={styles.subtitle}>Project Media</h2>
         <div className={styles.projectMedia}>
-        
-          {images.length > 0 && images.map((img, index) => (
-            <img key={index} src={img} alt={`Project Media ${index + 1}`} className={styles.mediaItem} />
-          ))}
+          {renderMediaItems()}
         </div>
 
         <div className={styles.collaborators}>
