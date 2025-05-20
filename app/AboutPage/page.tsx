@@ -14,20 +14,20 @@ const AboutPage: React.FC = () => {
             <h1 className={styles.heading}>About CSXposure</h1>
             <p className={styles.tagLine}>
               <strong>Welcome to CSXposure — A Platform Built for Student Innovation.</strong><br />
-              CSXposure is a dynamic online hub designed to empower computer science students by giving them the tools to
-              showcase their technical talents, collaborate with peers, and connect with real-world project opportunities.
+              CSXposure is a dynamic online hub designed to empower computer science students by giving them the tools
+              to showcase their technical talents, collaborate with peers, and connect with real-world project opportunities.
               Whether you're a student eager to display your portfolio or a business seeking fresh tech perspectives,
               CSXposure bridges the gap between potential and opportunity.
             </p>
           </div>
           <img
-            src="/logo_VerticalWhite.png"
+            src="/logo_AboutExtra.PNG"
             alt="CSXposure Logo"
             className={styles.heroLogo}
           />
         </div>
       </section>
-
+      <div className={styles.animatedGradient} />
       <section className={styles.mission}>
         <h2 className={styles.heading}>Our Mission</h2>
           <p>
@@ -79,7 +79,7 @@ const AboutPage: React.FC = () => {
             adaptability that drives our team.
           </p>
         </section>
-      
+        <div className={styles.animatedGradient}/>
       <Footer />
     </div>
   );
