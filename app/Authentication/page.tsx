@@ -49,8 +49,17 @@ const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusin
       });
 
       router.push("/Home");
-    } catch (err) {
-      setError("Error signing up. Please try again.");
+    } catch (err: any) {
+      // Check for specific Firebase error codes
+      if (err.code === "auth/email-already-in-use") {
+        setError("This email address is already registered.");
+      } else if (err.code === "auth/weak-password") {
+        setError("Password is too weak. Please choose a stronger password.");
+      } else if (err.code === "auth/invalid-email") {
+        setError("Please enter a valid email address.");
+      } else {
+        setError("Error signing up. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
