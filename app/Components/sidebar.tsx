@@ -6,6 +6,7 @@ import { collection, getDocs } from "firebase/firestore";
 import styles from "./sidebar.module.css";
 import { fetchUniversities } from "../Utility/fetchUniversities"; // Import the utility function
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import ChatOverlay from "./ChatOverlay";
 
 // Handle search
 interface SidebarProps {
@@ -31,6 +32,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [activeFilters, setActiveFilters] = useState<string[]>([]); // Active filter for discussions
   const [sortType, setSortType] = useState("newest");
   const [currentUserEmail, setCurrentUserEmail] = useState<string>(""); // Current user's email
+  const [user, setUser] = useState<any>(null); // Current user
+  const [isChatOpen, setIsChatOpen] = useState(false); // For chat overlay
 
   const [nameSearch, setNameInput] = useState("");  // Name search input
   const [allSchools, setAllSchools] = useState<string[]>([]); // All schools from API
@@ -58,18 +61,21 @@ const Sidebar: React.FC<SidebarProps> = ({
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) { 
-        setCurrentUserEmail(user.email || ""); 
+      if (user) {
+        setUser(user);
+        setCurrentUserEmail(user.email || "");
 
         // Fetch joined discussion IDs
         const joinedRef = collection(db, "users", user.uid, "joinedDiscussions");
         const joinedSnap = await getDocs(joinedRef);
         const ids = joinedSnap.docs.map(doc => doc.id); // Just the discussion IDs
         setJoinedDiscussionIds(ids);
+      } else {
+        setUser(null);
       }
     });
     return () => unsubscribe();
-    }, []);
+  }, []);
 
   // Populate discussion posts
   useEffect(() => {
@@ -108,9 +114,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   useEffect(() => {
     if (!currentUserEmail && activeFilters.includes("Created")) return;
-  
+
     let filtered = [...discussionPosts];
-  
+
     if (discussionSearch.trim()) {
       filtered = filtered.filter(
         (post) =>
@@ -118,35 +124,35 @@ const Sidebar: React.FC<SidebarProps> = ({
           post.description.toLowerCase().includes(discussionSearch.toLowerCase())
       );
     }
-  
+
     if (activeFilters.includes("Created")) {
       filtered = filtered.filter((post) => post.createdBy === currentUserEmail);
     }
-  
+
     if (activeFilters.includes("Joined")) {
       filtered = filtered.filter((post) =>
         joinedDiscussionIds.includes(post.id)
       );
     }
-  
+
     if (activeFilters.includes("Business")) {
       filtered = filtered.filter((post) => post.createdUserType === "business");
     }
-  
+
     // Sorting
     filtered.sort((a, b) => {
       if (!a.createdAt || !b.createdAt) return 0;
-  
+
       if (sortType === "newest") return b.createdAt - a.createdAt;
       if (sortType === "oldest") return a.createdAt - b.createdAt;
       if (sortType === "most_comments") return b.commentCount - a.commentCount;
       if (sortType === "least_comments") return a.commentCount - b.commentCount;
       return 0;
     });
-  
+
     setFilteredDiscussions(filtered);
   }, [discussionPosts, activeFilters, discussionSearch, sortType, currentUserEmail]);
-  
+
   const handleDiscussionSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value.toLowerCase();
     setDiscussionSearch(query);
@@ -165,24 +171,24 @@ const Sidebar: React.FC<SidebarProps> = ({
     const updatedFilters = activeFilters.includes(filterType)
       ? activeFilters.filter((filter) => filter !== filterType)
       : [...activeFilters, filterType];
-  
+
     setActiveFilters(updatedFilters);
-  
+
     // Apply the updated filters to discussion posts
     let filtered = discussionPosts;
-  
+
     if (updatedFilters.includes("Created")) {
-      filtered = filtered.filter((post) => post.createdBy === currentUserEmail); 
+      filtered = filtered.filter((post) => post.createdBy === currentUserEmail);
     }
-  
+
     if (updatedFilters.includes("Joined")) {
       filtered = filtered.filter((post) => post.joinedBy);
     }
-  
+
     if (updatedFilters.includes("Business")) {
       filtered = filtered.filter((post) => post.createdUserType === "business");
     }
-  
+
     // Optionally re-apply search query as well
     if (discussionSearch.trim() !== "") {
       filtered = filtered.filter(
@@ -191,10 +197,10 @@ const Sidebar: React.FC<SidebarProps> = ({
           post.description.toLowerCase().includes(discussionSearch.toLowerCase())
       );
     }
-  
+
     setFilteredDiscussions(filtered);
   };
-  
+
   const handleSort = (sort: string) => {
     setSortType(sort);
   };
@@ -308,6 +314,13 @@ const Sidebar: React.FC<SidebarProps> = ({
     onNameSearchChange(query); // Pass search query to HomePage
   };
 
+  const toggleChat = async () => {
+    if (user) {
+      setIsChatOpen((prev) => !prev);
+    }
+  };
+
+
   return (
     <div className={styles.sidebar}>
       <div className={styles.searchNameContainer}>
@@ -367,15 +380,15 @@ const Sidebar: React.FC<SidebarProps> = ({
 
           <div className={styles.rightColumn}>
             <div className="form-check">
-              <input className={`form-check-input ${styles.checkbox}`} type="checkbox" id="filterWebsites" checked={websites} onChange={handleWebsitesChange}/>
+              <input className={`form-check-input ${styles.checkbox}`} type="checkbox" id="filterWebsites" checked={websites} onChange={handleWebsitesChange} />
               <label className={`form-check-label ${styles.checkboxLabels}`} htmlFor="filterWebsites">Websites</label>
             </div>
             <div className="form-check">
-              <input className={`form-check-input ${styles.checkbox}`} type="checkbox" id="filterApps" checked={apps} onChange={handleAppsChange}/>
+              <input className={`form-check-input ${styles.checkbox}`} type="checkbox" id="filterApps" checked={apps} onChange={handleAppsChange} />
               <label className={`form-check-label ${styles.checkboxLabels}`} htmlFor="filterApps">Apps</label>
             </div>
             <div className="form-check">
-              <input className={`form-check-input ${styles.checkbox}`} type="checkbox" id="filterGames" checked={games} onChange={handleGamesChange}/>
+              <input className={`form-check-input ${styles.checkbox}`} type="checkbox" id="filterGames" checked={games} onChange={handleGamesChange} />
               <label className={`form-check-label ${styles.checkboxLabels}`} htmlFor="filterGames">Games</label>
             </div>
           </div>
@@ -452,6 +465,29 @@ const Sidebar: React.FC<SidebarProps> = ({
           <p>No matching discussions found.</p>
         )}
       </div>
+
+      {user ? (
+        <button
+          className={styles.fab}
+          onClick={toggleChat}
+          aria-label="Create Discussion Post"
+        >
+          +
+        </button>
+      ) : (
+        <Link href="/Authentication" passHref>
+          <button
+            className={styles.fab}
+            aria-label="Sign In to Create Discussion Post"
+          >
+            +
+          </button>
+        </Link>
+      )}
+      {isChatOpen && <ChatOverlay
+        onClose={toggleChat}
+        startWithDiscussionForm={true} // ← Open directly to "Create Discussion"
+      />}
 
     </div>
   );

@@ -419,15 +419,16 @@ const ProfileEditPage: React.FC = () => {
               {projects.map((project) => (
                 <Link key={project.id} className={styles.projectLink} href={`/ProjectEditPage?id=${project.id}`}>
                   <div className={styles.projectCard}>
-                  
-                    {getFirstImage(project.images) ? (
-                      <img src={getFirstImage(project.images) as string} className={styles.projectThumbnail} alt={project.projectName || "Project"} />
-                    ) : (
-                      <div className={styles.noThumbnail}>No Image</div>
-                    )}
-                    <div className={styles.projectTitleOverlay}>
+                    <div className={styles.projectImageWrapper}>
+                      {getFirstImage(project.images) ? (
+                        <img src={getFirstImage(project.images)!} className={styles.projectThumbnail} alt={project.projectName || "Project"} />
+                      ) : (
+                        <div className={styles.noThumbnail}>No Image</div>
+                      )}
+                      <div className={styles.projectTitleOverlay}>
                         {project.projectName || "Unnamed Project"}
                       </div>
+                    </div>
                   </div>
                 </Link>
               ))}
@@ -437,8 +438,9 @@ const ProfileEditPage: React.FC = () => {
             </div>
           </div>
 
+
           <div className={styles.profileForm}>
-          <div className={styles.saveButtonContainer}>
+            <div className={styles.saveButtonContainer}>
               <button className={styles.saveButton} onClick={saveProfile}>Save</button>
             </div>
             <label className={styles.profilePicture} htmlFor="imageUpload">
@@ -521,10 +523,20 @@ const ProfileEditPage: React.FC = () => {
             <div className={styles.formGorup}>
               <label>Bio:</label>
               <textarea
-                className={styles.inputField}
+                className={`${styles.inputField} ${styles.bioTextarea}`}
                 value={bio}
-                onChange={(e) => setBio(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value.length <= 600) setBio(value); // character limit
+                }}
+                rows={4}
+                maxLength={600}
+                placeholder="Tell us about yourself..."
               />
+              <div className={styles.charCounter}>
+                {bio.length}/600 characters
+              </div>
+
             </div>
 
             {/* Link Input Section */}

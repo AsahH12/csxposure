@@ -28,27 +28,16 @@ const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusin
       setLoading(true);
       setError("");
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const uid = userCredential.user.uid;
 
       // Save user email and userType ('student' or 'business') in Firestore
       const userType = isBusiness ? "business" : "student";
       await setDoc(doc(db, "users", userCredential.user.uid), {
-        email: email.toLowerCase(),
+        email,
         userType,
         createdAt: new Date(),
       });
 
-      // Create empty profileData with null fields
-      await setDoc(doc(db, "users", uid, "details", "profileData"), {
-        fullName: null,
-        bio: null,
-        school: null,
-        status: null,
-        links: null,
-        profileImage: null,
-      });
-
-      router.push("/Home");
+      router.push("/Dashboard");
     } catch (err) {
       setError("Error signing up. Please try again.");
     } finally {
@@ -71,7 +60,7 @@ const SignUp = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusin
           <input
             type="email"
             id="email"
-            value={email}
+            value={email.toLowerCase()}
             onChange={(e) => setEmail(e.target.value)}
             className={`${styles.input} ${error && !email ? styles.error : ""}`}  // Add error class here
             placeholder="Enter your email"
@@ -135,7 +124,7 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
       setLoading(true);
 
       // Sign in the user with email and password
-      const userCredential = await signInWithEmailAndPassword(auth, email.toLowerCase(), password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
 
       // Fetch user type from Firestore to verify if it's a business or student
       const userDoc = doc(db, "users", userCredential.user.uid);
@@ -153,7 +142,7 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
         }
 
         setStatus("Login successful!");
-        router.push("/Home");
+        router.push("/Dashboard");
       } else {
         setStatus("User not found.");
       }
@@ -198,11 +187,7 @@ const Login = ({ isBusiness, setIsBusiness }: { isBusiness: boolean; setIsBusine
             required
           />
         </div>
-        {status && (
-          <p className={`${styles.statusText} ${status === "Login successful!" ? styles.success : ""}`}>
-            {status}
-          </p>
-        )}
+        {status && <p className={`${styles.statusText}`}>{status}</p>}
 
         <div className={`${styles.formGroup}`}>
           <button

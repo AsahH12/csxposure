@@ -19,7 +19,8 @@ const Navbar: React.FC = () => {
   const [firstName, setFirstName] = useState<string | null>(null);
   const [lastName, setLastName] = useState<string | null>(null);
   const [userType, setUserType] = useState<string | null>(null);
-  const { profileImage } = useContext(UserContext);  const [hasUnreadMessages, setHasUnreadMessages] = useState(false); // Set default to false
+  const { profileImage } = useContext(UserContext)!;  
+  const [hasUnreadMessages, setHasUnreadMessages] = useState(false); // Set default to false
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -29,7 +30,7 @@ const Navbar: React.FC = () => {
       if (currentUser) {
         setUser(currentUser);
         await fetchUserData(currentUser.uid);
-        await checkUnreadMessages(currentUser.email, setHasUnreadMessages); 
+        await checkUnreadMessages(currentUser.email!, setHasUnreadMessages); 
       } else {
         setUser(null);
         resetUserData();
@@ -148,13 +149,7 @@ const Navbar: React.FC = () => {
           <img src="/logo.png" alt="Logo" width={210} height={50} />
         </Link>
       </div>
-        <div className="text-center">
-    <Link href="/CodeEditor">
-      <button className="btn btn-light fw-bold px-4 py-2">
-        Workspace
-      </button>
-    </Link>
-  </div>
+      
       <ul className="navbar-end d-flex align-items-center">
 
         {/* Profile Dropdown */}
@@ -205,7 +200,7 @@ const Navbar: React.FC = () => {
         {/* Notification Icon */}
         <div className="nav-item">
           {user ? (
-            <button onClick={toggleChat} className="btn p-0 border-0 bg-transparent me-5 mx-2">
+            <button onClick={toggleChat} className="btn p-0 border-0 bg-transparent me-2">
               <img
                 key={hasUnreadMessages ? "unread" : "read"} // Force re-render
                 src={hasUnreadMessages ? "/Notification_White_True.png" : "/Notification_White_False.png"}
@@ -219,6 +214,18 @@ const Navbar: React.FC = () => {
               <img src="Notification_White_False.png" alt="Notifications" width={50} height={50} />
             </Link>
           )}
+        </div>
+
+        {/* Workspace Icon */}
+        <div className="nav-item">
+            <Link href="/CodeEditor" className="btn p-0 border-0 bg-transparent me-5 mx-2">
+              <img
+                src={"/icon_WorkSpace.png"}
+                alt="Notifications"
+                width={60}
+                height={60}
+              />
+            </Link>
         </div>
       </ul>
 

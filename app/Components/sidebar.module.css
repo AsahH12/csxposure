@@ -3,7 +3,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Lateef&display=swap');
 
 .sidebar {
-    height: 785px;
+    height: 88vh;
     width: 400px;
     background-color: #70D0C2;
     padding: 20px;
@@ -11,29 +11,33 @@
 
 /*|||||||||||||||||||||||| Search Name ||||||||||||||||||||||||*/
 .searchNameContainer {
-    display: flex; 
-}
-.searchbarName {
-    height: 40px;
-    width: 100%;
-    color: #646464;
-    font-size: 18px;
-    padding: 10px 10px 10px 40px; /* Added left padding to make space for icon */
-    border: none;
-    border-radius: 90px;
-    font-family: 'Platypi', serif;
-    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.2); /* Inner shadow */
-    outline: none;
-}
-.searchIcon {
-    position: absolute;
-    left: 31px;
-    top: 14.5%;
-    width: 25px; /* Adjust based on your icon size */
-    height: 25px;
-    pointer-events: none; /* Ensures the icon does not interfere with input clicks */
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
+.searchbarName {
+  height: 40px;
+  width: 100%;
+  color: #646464;
+  font-size: 18px;
+  padding: 10px 10px 10px 40px; /* Space for icon */
+  border: none;
+  border-radius: 90px;
+  font-family: 'Platypi', serif;
+  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.2);
+  outline: none;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 10px;
+  top: 50%; 
+  transform: translateY(-50%); 
+  width: 25px;
+  height: 25px;
+  pointer-events: none;
+}
 /*|||||||||||||||||||||||| Filtering Section ||||||||||||||||||||||||*/
 .filterSection {
     margin-top: 20px; 
@@ -309,4 +313,25 @@
     display: flex;
     justify-content: center; /* Center content horizontally */
     width: 100%;
+}
+
+.fab {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 1000;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #007bff; /* Bootstrap primary */
+  color: white;
+  font-size: 28px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease;
+}
+
+.fab:hover {
+  background-color: #0056b3;
 }

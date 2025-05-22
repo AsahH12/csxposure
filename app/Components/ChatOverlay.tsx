@@ -35,10 +35,11 @@ interface ChatOverlayProps {
   onClose: () => void; // Function to call when closing the chat overlay
   selectedUser?: string; // Email of the selected user
   chatId?: string; // ID of the current chat
+  startWithDiscussionForm?: boolean;
 }
 
 // Main ChatOverlay component
-const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
+const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose, startWithDiscussionForm  }) => {
   const [messages, setMessages] = useState<any[]>([]); // Store chat messages
   const [newMessage, setNewMessage] = useState(""); // New message input
   const [chatId, setChatId] = useState<string | null>(null); // ID of the current chat
@@ -47,7 +48,7 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   const [unreadCount, setUnreadCount] = useState<number>(0); // Count of unread messages
   const [users, setUsers] = useState<any[]>([]); // Store users list
   const [resizeDirection, setResizeDirection] = useState<ResizeDirection | null>(null); // Direction for resizing
-  const [position, setPosition] = useState({ x: window.innerWidth / 2 - 250, y: window.innerHeight / 2 - 200 }); 
+  const [position, setPosition] = useState({ x: window.innerWidth / 2 - 250, y: window.innerHeight / 2 - 200 });
   const [size, setSize] = useState({ width: 500, height: 400 }); // Size of the chat overlay
   const chatRef = useRef<HTMLDivElement | null>(null); // Reference to the chat overlay div
   const dragOffset = useRef({ x: 0, y: 0 }); // Offset for dragging
@@ -63,9 +64,17 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
   const selectedUserObject = users.find((user) => user.email.toLowerCase() === selectedUser?.toLowerCase()); // Object of the selected user
   const [otherfirstName, setOtherFirstName] = useState<string>(""); // Other user's first name
   const [otherlastName, setOtherLastName] = useState<string>(""); // Other user's last name
-  const [userType, setUserType] =  useState<string | null>(null);
+  const [userType, setUserType] = useState<string | null>(null);
   const auth = getAuth();
   const currentUserId = auth.currentUser?.uid;
+
+    // Opens the discussion form if the user clicks on the button
+    useEffect(() => {
+      if (startWithDiscussionForm) {
+        setSelectedUser(null);
+        setShowDiscussionForm(true);
+      }
+    }, [startWithDiscussionForm]);
 
   //////////////////////////////////// Fetching or Saving Data ////////////////////////////////////
   // Get current user's email
@@ -73,8 +82,9 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const lowerEmail = user.email?.toLowerCase();
+        const lowerEmail = user.email?.toLowerCase() || "";
         setUserEmail(lowerEmail);
+
 
         // Fetch userType
         const userDocRef = doc(db, "users", user.uid);
@@ -96,37 +106,37 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
     const fetchUsers = async () => {
       console.log("user email", userEmail);
       if (!userEmail) return;
-  
+
       updateReadReceipts(userEmail); // Update read receipts
-  
+
       const chatQuery = query(
         collection(db, "chats"),
         where("participants", "array-contains", userEmail)
       );
       const chatSnapshot = await getDocs(chatQuery);
-  
+
       const usersList = await Promise.all(
         chatSnapshot.docs.map(async (chatDoc) => {
           const chatData = chatDoc.data();
           const messagesRef = collection(db, "chats", chatDoc.id, "messages");
           const messagesSnapshot = await getDocs(messagesRef);
-  
+
           if (!messagesSnapshot.empty) {
             const otherUserEmail = chatData.participants.find(
               (email) => email !== userEmail
             );
-  
+
             const userQuery = query(
               collection(db, "users"),
               where("email", "==", otherUserEmail.toLowerCase())
             );
             const userSnap = await getDocs(userQuery);
             console.log("Querying for email:", otherUserEmail);
-  
+
             if (userSnap.empty) return null;
-  
+
             const userId = userSnap.docs[0].id;
-  
+
             const profileRef = doc(
               db,
               "users",
@@ -135,16 +145,16 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
               "profileData"
             );
             const profileSnap = await getDoc(profileRef);
-  
+
             if (!profileSnap.exists()) return null;
-  
+
             const profileData = profileSnap.data();
             const profileImageUrl = profileData.profileImage || null;
             const firstName = profileData.firstName || "";
             const lastName = profileData.lastName || "";
-  
+
             console.log("Profile name:", firstName, lastName);
-  
+
             return {
               email: otherUserEmail.toLowerCase(),
               chatId: chatDoc.id,
@@ -155,19 +165,19 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
               userId,
             };
           }
-  
+
           return null;
         })
       );
-  
+
       const filtered = usersList.filter((user) => user !== null);
       console.log("User list", filtered);
       setUsers(filtered);
     };
-  
+
     if (userEmail) fetchUsers();
   }, [userEmail]);
-  
+
 
   // Find or create a chat when a user is selected
   useEffect(() => {
@@ -220,7 +230,6 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
     return () => unsubscribe(); // Cleanup subscription on unmount
   }, [chatId, userEmail]);  // Add userEmail as dependency to trigger updates when user changes
 
-
   //////////////////////////////////// Other Methods ////////////////////////////////////
   // Function to get initials from first and last name
   const getInitials = (firstName: string | null, lastName: string | null) =>
@@ -230,14 +239,14 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
 
   // When a user is selected from the list
   const handleUserClick = (user) => {
-    console.log("user Email: ",userEmail);
+    console.log("user Email: ", userEmail);
     setSelectedUser(user.email); // Set the selected user
     setChatId(user.chatId); // Set the chatId for the selected user
-      setOtherFirstName(user.firstName);
-  setOtherLastName(user.lastName);
-  console.log(user.email,user.chatId,user.firstName,user.lastName);
+    setOtherFirstName(user.firstName);
+    setOtherLastName(user.lastName);
+    console.log(user.email, user.chatId, user.firstName, user.lastName);
   };
-  
+
   //////////////////////////////////// Handeling Messages ////////////////////////////////////
   // Update read receipts for current user
   const updateReadReceipts = async (userEmail: string) => {
@@ -392,23 +401,35 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
       document.removeEventListener("mouseup", handleMouseUp); // Cleanup mouse up event listener
     };
   }, [isDragging, isResizing]); // Depend on dragging and resizing state
-  const handleAcceptInvite = async (messageId: string, chatId: string, projectId: string) => {
+  const handleAcceptInvite = async (
+    messageId: string | null,
+    chatId: string | null,
+    projectId: string | null
+  ) => {
+    if (!messageId || !chatId || !projectId || !currentUserId) {
+      console.error("Missing parameters for accepting invite");
+      return;
+    }
+
     try {
       const msgRef = doc(db, "chats", chatId, "messages", messageId);
       const collaboratorRef = doc(db, "Projects", projectId, "collaborators", currentUserId);
+
       await setDoc(collaboratorRef, {
         userId: currentUserId,
         addedAt: new Date(),
         status: "active"
       });
-  
+
       await updateDoc(msgRef, { status: "accepted" });
     } catch (err) {
       console.error("Error accepting invite:", err);
     }
   };
-  
-  const handleDeclineInvite = async (messageId: string, chatId: string,projectId: string) => {
+
+
+
+  const handleDeclineInvite = async (messageId: string, chatId: string, projectId: string) => {
     try {
       const msgRef = doc(db, "chats", chatId, "messages", messageId);
       await updateDoc(msgRef, { status: "declined" });
@@ -416,40 +437,40 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
       console.error("Error declining invite:", err);
     }
   };
-  
-  //////////////////////////////////// Chat HTML ////////////////////////////////////
-  
-  return (
-      <div
-        ref={chatRef} // Reference to chat div
-        className={styles.container}
-        style={{
-          top: `${position.y}px`, // Set top position
-          left: `${position.x}px`, // Set left position
-          width: `${size.width}px`, // Set width
-          height: "auto",
-        }}
-        onMouseDown={handleMouseDown} // Handle mouse down for dragging
-      >
 
-        <div className={styles.contentWrapper}>
-          {/* Left section: Create Post Button & User Selection (vertical scroll) */}
-          <div className={styles.leftSection}>
-            {/* Create Discussion Post Button */}
-            <button
-              onClick={() => {
-                setSelectedUser(null); // Ensure no chat is selected
-                setShowDiscussionForm(!showDiscussionForm); // Toggle discussion form
-              }}
-              className={styles.createPostButton}
-            >
+  //////////////////////////////////// Chat HTML ////////////////////////////////////
+
+  return (
+    <div
+      ref={chatRef} // Reference to chat div
+      className={styles.container}
+      style={{
+        top: `${position.y}px`, // Set top position
+        left: `${position.x}px`, // Set left position
+        width: `${size.width}px`, // Set width
+        height: "auto",
+      }}
+      onMouseDown={handleMouseDown} // Handle mouse down for dragging
+    >
+
+      <div className={styles.contentWrapper}>
+        {/* Left section: Create Post Button & User Selection (vertical scroll) */}
+        <div className={styles.leftSection}>
+          {/* Create Discussion Post Button */}
+          <button
+            onClick={() => {
+              setSelectedUser(null); // Ensure no chat is selected
+              setShowDiscussionForm(!showDiscussionForm); // Toggle discussion form
+            }}
+            className={styles.createPostButton}
+          >
             Create Discussion Post
-            </button>
-            
-            <hr className={styles.divider} />
-            
-            {/* User selection */}
-            <div className={styles.leftSectionScroll}>
+          </button>
+
+          <hr className={styles.divider} />
+
+          {/* User selection */}
+          <div className={styles.leftSectionScroll}>
             <div className="flex flex-col p-3">
               {users.length === 0 ? (
                 <p className="text-gray-500">No active chats</p> // No chats message
@@ -460,7 +481,7 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
                     <div
                       key={user.email}
                       onClick={() => handleUserClick(user)
-                        
+
                       } // Update selectedUser state
                     >
                       <div className={styles.userContainer}>
@@ -481,11 +502,11 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
                             />
                           ) : (
                             <div className={styles.userInitials}>
-  <span>
-      {(() => {
-        return getInitials(user.firstName, user.lastName);
-      })()}
-    </span>    </div>
+                              <span>
+                                {(() => {
+                                  return getInitials(user.firstName, user.lastName);
+                                })()}
+                              </span>    </div>
                           )}
                         </button>
                         <div className={styles.userInfo}>
@@ -495,128 +516,128 @@ const ChatOverlay: React.FC<ChatOverlayProps> = ({ onClose }) => {
                   ))
               )}
             </div>
-            </div>
-          </div>
-
-          {/* Right section: Chat & Discussion Form */}
-          <div className={styles.rightSection}>
-            {/* Chat header with user info */}
-            <div className={styles.header}>
-              {/* Back Button */}
-              {/* {selectedUser && (<button className={styles.backButton} onClick={() => setSelectedUser(null)}>← Back </button> )} */}
-
-              {/* Chat Header */}
-              <h3 className={styles.chatTitle}>
-                {selectedUser ? `${otherfirstName} ${otherlastName}` : "Chats"}
-              </h3>
-              {/* Close Button */}
-              <button className={styles.closeButton} onClick={onClose}>
-                X
-              </button>
-            </div>
-
-            {/* Discussion Post Form */}
-            {!selectedUser && showDiscussionForm && (
-              <div className={styles.discussionForm}>
-                <input
-                  type="text"
-                  placeholder="Enter the title of your discussion"
-                  value={discussionTitle}
-                  onChange={(e) => setDiscussionTitle(e.target.value)} // Update discussion title
-                  className={styles.inputFieldTitle}
-                  
-                />
-                <textarea
-                  placeholder="Enter the description of your discussion"
-                  value={discussionDescription}
-                  onChange={(e) => setDiscussionDescription(e.target.value)} // Update discussion description
-                  className={`${styles.inputFieldDescription} ${styles.textarea}`}
-                />
-                <button onClick={handleCreateDiscussionPost}>Create Discussion</button>
-              </div>
-            )}
-
-            {/* Chat messages */}
-            {selectedUser && (
-              <>
-                {/* Scrollable messages container */}
-                <div className={styles.messageContainer}>
-                  {messages.map((message, index) => (
-                    <div
-                    
-                      key={index}
-                      className={`${styles.message} ${message.sender === userEmail ? styles.myMessage : styles.otherMessage}`}
-                      
-                    >
-
-                      {message.type === "invite" ? (
-  <div>
-    
-    <p>{message.text}</p>
-    {message.type === "invite" && message.status === "pending" && message.sender !== userEmail && (
-  <div className="flex gap-2 mt-2">
-    <button
-  onClick={() => handleAcceptInvite(message.id, chatId, message.projectId)}
-  className="bg-green-500 text-white px-3 py-1 rounded"
-    >
-      Accept
-    </button>
-    <button
-      onClick={() => handleDeclineInvite(message.id, chatId, message.projectId)}
-      className="bg-red-500 text-white px-3 py-1 rounded"
-    >
-      Decline
-    </button>
-  </div>
-)}
-    {message.status === "accepted" && (
-      <p className="text-green-600 mt-1">Accepted ✅</p>
-    )}
-    {message.status === "declined" && (
-      <p className="text-red-600 mt-1">Declined ❌</p>
-    )}
-  </div>
-) : (
-
-  <p>{message.text}</p>
- 
-)}
-
-                      <span className={styles.timeStamp}>
-                        {message.timestamp ? new Date(message.timestamp.seconds * 1000).toLocaleString() : "Just now"}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Message input area */}
-                <div className={styles.inputArea}>
-                  <textarea
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)} // Update message input
-                    className={`${styles.textarea} ${styles.messageInput}`}
-                    placeholder="Type your message..." // Placeholder for message input
-                  />
-                  <button
-                    onClick={handleSendMessage}
-                    disabled={!newMessage.trim()} // Disable button if message is empty
-                    className={styles.sendButton}
-                  >
-                    <img src="/icon_Send.png" alt="Send Icon" className={styles.sendIcon} />
-                  </button> {/* Button to send message */}
-                </div>
-              </>
-            )}
           </div>
         </div>
 
-        {/* Resize handles */}
-        <div className="w-6 h-6 bg-gray-300 absolute top-0 left-0 cursor-nwse-resize" onMouseDown={(e) => handleResizeMouseDown(e, "top-left")} />
-        <div className="w-6 h-6 bg-gray-300 absolute top-0 right-0 cursor-nese-resize" onMouseDown={(e) => handleResizeMouseDown(e, "top-right")} />
-        <div className="w-6 h-6 bg-gray-300 absolute bottom-0 left-0 cursor-sws-resize" onMouseDown={(e) => handleResizeMouseDown(e, "bottom-left")} />
-        <div className="w-6 h-6 bg-gray-300 absolute bottom-0 right-0 cursor-se-resize" onMouseDown={(e) => handleResizeMouseDown(e, "bottom-right")} />
+        {/* Right section: Chat & Discussion Form */}
+        <div className={styles.rightSection}>
+          {/* Chat header with user info */}
+          <div className={styles.header}>
+            {/* Back Button */}
+            {/* {selectedUser && (<button className={styles.backButton} onClick={() => setSelectedUser(null)}>← Back </button> )} */}
+
+            {/* Chat Header */}
+            <h3 className={styles.chatTitle}>
+              {selectedUser ? `${otherfirstName} ${otherlastName}` : "Chats"}
+            </h3>
+            {/* Close Button */}
+            <button className={styles.closeButton} onClick={onClose}>
+              X
+            </button>
+          </div>
+
+          {/* Discussion Post Form */}
+          {!selectedUser && showDiscussionForm && (
+            <div className={styles.discussionForm}>
+              <input
+                type="text"
+                placeholder="Enter the title of your discussion"
+                value={discussionTitle}
+                onChange={(e) => setDiscussionTitle(e.target.value)} // Update discussion title
+                className={styles.inputFieldTitle}
+
+              />
+              <textarea
+                placeholder="Enter the description of your discussion"
+                value={discussionDescription}
+                onChange={(e) => setDiscussionDescription(e.target.value)} // Update discussion description
+                className={`${styles.inputFieldDescription} ${styles.textarea}`}
+              />
+              <button onClick={handleCreateDiscussionPost}>Create Discussion</button>
+            </div>
+          )}
+
+          {/* Chat messages */}
+          {selectedUser && (
+            <>
+              {/* Scrollable messages container */}
+              <div className={styles.messageContainer}>
+                {messages.map((message, index) => (
+                  <div
+
+                    key={index}
+                    className={`${styles.message} ${message.sender === userEmail ? styles.myMessage : styles.otherMessage}`}
+
+                  >
+
+                    {message.type === "invite" ? (
+                      <div>
+
+                        <p>{message.text}</p>
+                        {message.type === "invite" && message.status === "pending" && message.sender !== userEmail && (
+                          <div className="flex gap-2 mt-2">
+                            <button
+                              onClick={() => handleAcceptInvite(message.id, chatId, message.projectId)}
+                              className="bg-green-500 text-white px-3 py-1 rounded"
+                            >
+                              Accept
+                            </button>
+                            <button
+                              onClick={() => handleDeclineInvite(message.id, chatId!, message.projectId)}
+                              className="bg-red-500 text-white px-3 py-1 rounded"
+                            >
+                              Decline
+                            </button>
+                          </div>
+                        )}
+                        {message.status === "accepted" && (
+                          <p className="text-green-600 mt-1">Accepted ✅</p>
+                        )}
+                        {message.status === "declined" && (
+                          <p className="text-red-600 mt-1">Declined ❌</p>
+                        )}
+                      </div>
+                    ) : (
+
+                      <p>{message.text}</p>
+
+                    )}
+
+                    <span className={styles.timeStamp}>
+                      {message.timestamp ? new Date(message.timestamp.seconds * 1000).toLocaleString() : "Just now"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Message input area */}
+              <div className={styles.inputArea}>
+                <textarea
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)} // Update message input
+                  className={`${styles.textarea} ${styles.messageInput}`}
+                  placeholder="Type your message..." // Placeholder for message input
+                />
+                <button
+                  onClick={handleSendMessage}
+                  disabled={!newMessage.trim()} // Disable button if message is empty
+                  className={styles.sendButton}
+                >
+                  <img src="/icon_Send.png" alt="Send Icon" className={styles.sendIcon} />
+                </button> {/* Button to send message */}
+              </div>
+            </>
+          )}
+        </div>
       </div>
-    );
+
+      {/* Resize handles */}
+      <div className="w-6 h-6 bg-gray-300 absolute top-0 left-0 cursor-nwse-resize" onMouseDown={(e) => handleResizeMouseDown(e, "top-left")} />
+      <div className="w-6 h-6 bg-gray-300 absolute top-0 right-0 cursor-nese-resize" onMouseDown={(e) => handleResizeMouseDown(e, "top-right")} />
+      <div className="w-6 h-6 bg-gray-300 absolute bottom-0 left-0 cursor-sws-resize" onMouseDown={(e) => handleResizeMouseDown(e, "bottom-left")} />
+      <div className="w-6 h-6 bg-gray-300 absolute bottom-0 right-0 cursor-se-resize" onMouseDown={(e) => handleResizeMouseDown(e, "bottom-right")} />
+    </div>
+  );
 };
 
 export default ChatOverlay;
