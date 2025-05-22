@@ -57,7 +57,7 @@ const ProfileEditPage: React.FC = () => {
   const [bio, setBio] = useState('');
   const [links, setLinks] = useState([{ type: '', url: '' }]);
   const [linkErrors, setLinkErrors] = useState<{[key: number]: string}>({});
-  const { setProfileImage } = useContext(UserContext); // Use only setter to update after save
+  const { setProfileImage } = useContext(UserContext)!; // Use only setter to update after save
   const [localProfileImage, setLocalProfileImage] = useState<string | null>(null); // Store selected image locally
   const [loading, setLoading] = useState(true);
   const [schoolSuggestions, setSchoolSuggestions] = useState<string[]>([]); // Hold schools based on input
@@ -204,7 +204,7 @@ const ProfileEditPage: React.FC = () => {
             const projectDocRef = doc(db, "Projects", projectId);
             const projectDocSnap = await getDoc(projectDocRef);
             if (projectDocSnap.exists()) {
-              return { id: projectId, ...projectDocSnap.data() as Project };
+              return { projectId, ...projectDocSnap.data() as Project };
             }
             return null;
           });
