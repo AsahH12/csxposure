@@ -21,6 +21,7 @@
     "axios": "^1.8.4",
     "bootstrap": "^5.3.3",
     "firebase": "^11.2.0",
+    "gh-pages": "^6.3.0",
     "lucide-react": "^0.474.0",
     "monaco-editor": "^0.52.2",
     "monaco-editor-webpack-plugin": "^7.1.0",
