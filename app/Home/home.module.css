@@ -29,7 +29,7 @@
 }
 
 .cardContainer {
-  margin: 15px; 
+  margin: 16px; 
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 20px;
