@@ -45,7 +45,7 @@ const Notification: React.FC<NotificationProps> = ({
   }, [onClose, type]);
 
   return (
-    <div className={`notification notification-${type}`}>
+    <div className={`${styles.notification} ${styles[`notification${type.charAt(0).toUpperCase() + type.slice(1)}`]}`}>
       <div className={styles.notificationIcon}>
         {type === 'success' ? '✓' : type === 'warning' ? '⚠' : type === 'confirm' ? '?' : '✕'}
       </div>
@@ -55,10 +55,10 @@ const Notification: React.FC<NotificationProps> = ({
         
         {type === 'confirm' && (
           <div className={styles.notificationActions}>
-            <button className="notificationBtn confirm-btn" onClick={onConfirm}>
+            <button className={`${styles.notificationBtn} ${styles.confirmBtn}`} onClick={onConfirm}>
               {confirmText}
             </button>
-            <button className="notificationBtn cancel-btn" onClick={onCancel}>
+            <button className={`${styles.notificationBtn} ${styles.cancelBtn}`} onClick={onCancel}>
               {cancelText}
             </button>
           </div>

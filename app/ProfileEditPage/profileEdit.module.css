@@ -237,6 +237,16 @@ html, body, #__next {
   text-align: center;
 }
 
+.linkGroup select.inputField {
+  padding: 0.6rem;
+  height: auto;
+  font-size: 1.5rem;
+  color: #333;
+  min-width: 130px;
+  text-overflow: ellipsis; /* Add ellipsis for long text */
+  overflow: hidden;
+}
+
 .bioField {
   margin-top: 1.2rem;
   height: auto;

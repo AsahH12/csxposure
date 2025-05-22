@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect, useContext } from 'react';
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { db } from '../../firebaseconfig';
 import { doc, getDoc, collection, getDocs, onSnapshot, query, where } from "firebase/firestore";
 import Link from 'next/link';
@@ -36,7 +36,8 @@ const Navbar: React.FC = () => {
         resetUserData();
       }
     });
-    return () => unsubscribe();
+  
+  return () => unsubscribe();
   }, []);
   
 
@@ -59,12 +60,12 @@ const Navbar: React.FC = () => {
         const { firstName, lastName, profileImage } = profileSnap.data();
         setFirstName(firstName ?? "");
         setLastName(lastName ?? "");
-        //setProfileImage(profileImage ?? null);
+        setProfileImage(profileImage ?? null);
       } else {
         const [first, last] = user?.displayName?.split(" ") ?? ["", ""];
         setFirstName(first);
         setLastName(last);
-        //setProfileImage(null);
+        setProfileImage(null);
       }
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -75,7 +76,7 @@ const Navbar: React.FC = () => {
     setFirstName(null);
     setLastName(null);
     setUserType(null);
-    //setProfileImage(null);
+    setProfileImage(null); // Clear profile image from context
     setHasUnreadMessages(false); // Reset unread messages status
   };
 
@@ -127,6 +128,19 @@ const Navbar: React.FC = () => {
       if (!isChatOpen && currentChatId) {
         await setReadTimestamp(user.email, currentChatId); // Make sure currentChatId is available, which is the ID of the current chat
       }
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      const auth = getAuth();
+      await signOut(auth);
+      // Clear user data immediately
+      resetUserData();
+      // Redirect to home or login page
+      window.location.href = '/Authentication'; // or wherever you want to redirect after logout
+    } catch (error) {
+      console.error("Error signing out:", error);
     }
   };
 
@@ -189,9 +203,9 @@ const Navbar: React.FC = () => {
                   My Profile
                 </Link>
                 <div className="dropdown-divider"></div>
-                <Link href="/logout" className="dropdown-item">
+                <a href="#" onClick={(e) => { e.preventDefault(); handleLogout(); }} className="dropdown-item">
                   Logout
-                </Link>
+                </a>
               </>
             )}
           </div>
