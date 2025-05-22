@@ -3,11 +3,12 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import HomePage from "./Home/page";
 
 const Page1 = () => {
   const router = useRouter();
   const navigateToPageSignUPTemp = () => {
-    router.push('/CodeEditor');
+    router.push('/Home');
   };
 
   return (
@@ -22,4 +23,4 @@ const Page1 = () => {
     </div>
   );
 };
-export default Page1;
+export default HomePage;

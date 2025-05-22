@@ -237,14 +237,14 @@ const ProjectEditPage: React.FC = () => {
         senderId: currentUser.uid,
         sender: currentUser.email,
         type: "invite",
-        text: `You've been invited to collaborate on the project "${projectName}"`,
+        text: `An invite to collaborate on the project "${projectName}" was sent to ${selectedUser.name}`,
         projectId,
         timestamp: new Date(),
         status: "pending",
       });
   
       // 4. Mark collaborator as pending
-      setCollaborators((prev) => [...prev, `pending:${selectedUser.email}`]);
+      setCollaborators((prev) => [...prev, `${selectedUser.name}`]);
       setSearchInput("");
       setSearchResults([]);
     } catch (error) {
