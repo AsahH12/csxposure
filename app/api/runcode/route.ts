@@ -151,6 +151,10 @@ export async function GET(req: NextRequest) {
             addTopUser("Website", "Website");
 
             topUsers = featuredCards;
+            await setDoc(featuredRef, {
+                        lastUpdated: new Date(),
+                        users: topUsers,
+                      });
         }
 
         return NextResponse.json({ featuredUsers: topUsers });

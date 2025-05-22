@@ -49,20 +49,28 @@ export async function GET(req: NextRequest) {
             const profileDocRef = doc(db, "users", userId, "details", "profileData");
             const profileDocSnap = await getDoc(profileDocRef);
 
-            if (profileDocSnap.exists() && userType !== "business") {
-            const profile = profileDocSnap.data();
-            return {
-                userId,
-                userType,
-                firstName: profile.firstName || "N/A",
-                lastName: profile.lastName || "N/A",
-                school: profile.school || "Unknown School",
-                description: profile.bio || "No bio available",
-                profileImageUrl: profile.profileImage || "",
-                status: profile.status || "",
-                volunteer: profile.volunteerAgreement || false,
-                categoryCounts: profile.categoryCounts || { Game: 0, App: 0, Website: 0, Other: 0 },
-            };
+            if (profileDocSnap.exists()) {
+                const profile = profileDocSnap.data();
+                const firstName = profile.firstName || "N/A";
+                const lastName = profile.lastName || "N/A";
+
+                // Filter out users with missing or "N/A" names
+                if (!firstName || !lastName || firstName === "N/A" || lastName === "N/A") {
+                    return null;
+                }
+
+                return {
+                    userId,
+                    userType,
+                    firstName,
+                    lastName,
+                    school: profile.school || "Unknown School",
+                    description: profile.bio || "No bio available",
+                    profileImageUrl: profile.profileImage || "",
+                    status: profile.status || "",
+                    volunteer: profile.volunteerAgreement || false,
+                    categoryCounts: profile.categoryCounts || { Game: 0, App: 0, Website: 0, Other: 0 },
+                };
             }
             return null;
         })
