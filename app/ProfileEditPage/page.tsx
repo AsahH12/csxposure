@@ -417,7 +417,7 @@ const ProfileEditPage: React.FC = () => {
             <h2 className={styles.projectSectionTitle}>Your Projects</h2>
             <div className={styles.projectGrid}>
               {projects.map((project) => (
-                <Link key={project.id} className={styles.projectLink} href={`/ProjectEditPage?id=${project.id}`}>
+                <Link key={project.id} className={styles.projectLink} href={`/ProjectEditPage/${project.id}`}>
                   <div className={styles.projectCard}>
                   
                     {getFirstImage(project.images) ? (

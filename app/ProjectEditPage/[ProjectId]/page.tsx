@@ -1,10 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { doc, setDoc, collection, getDoc, addDoc, deleteDoc, getDocs } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { auth, db } from "../../firebaseconfig";
+import { auth, db } from "../../../firebaseconfig";
 import { query, where, } from "firebase/firestore";
 import styles from './projectEdit.module.css';
 import "./projectEdit.module.css";
@@ -70,8 +70,8 @@ const Notification: React.FC<NotificationProps> = ({
 
 const ProjectEditPage: React.FC = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const projectId = searchParams.get("id"); 
+  const params = useParams();
+  const projectId = params?.projectId as string; 
   const [projectName, setProjectName] = useState("");
   const [description, setDescription] = useState("");
   const [websiteLink, setWebsiteLink] = useState("");
@@ -387,7 +387,7 @@ const ProjectEditPage: React.FC = () => {
         const newProjectRef = await addDoc(collection(db, "Projects"), projectData);
         const newProjectId = newProjectRef.id;
         await setDoc(doc(db, "users", userId, "Projects", newProjectId), projectData);
-        router.push(`/ProjectEditPage?id=${newProjectId}`);
+        router.push(`/ProjectEditPage/${newProjectId}`);
       }
 
       showNotification('success', 'Success', 'Project saved successfully!');

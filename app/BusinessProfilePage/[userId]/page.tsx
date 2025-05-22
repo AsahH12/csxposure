@@ -1,14 +1,14 @@
 "use client";
-import { auth, db } from "../../firebaseconfig";
+import { auth, db } from "../../../firebaseconfig";
 import React, { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { doc, getDoc, collection } from "firebase/firestore";
 import "./businessProfile.css";
-import Footer from "../Components/footer";
+import Footer from "../../Components/footer";
 
 const BusinessProfilePage: React.FC = () => {
-  const searchParams = useSearchParams();
-  const userId = searchParams.get("userId");
+  const params = useParams();
+  const userId = params?.userId as string;
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");

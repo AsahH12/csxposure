@@ -101,11 +101,7 @@
     font-weight: bold;
     font-family: lateef;
   }
-  
-  html, body {
-    height: 100%;
-    margin: 0;
-  }
+
   
   .mainContent {
     display: flex;

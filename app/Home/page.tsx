@@ -431,8 +431,8 @@ const HomePage: React.FC = () => {
     const truncatedDescription = description.length > 60 ? description.slice(0, 60) + '...' : description;
 
     const profileUrl = userType === 'student'
-      ? `/StudentProfilePage?userId=${userId}`
-      : `/BusinessProfilePage?userId=${userId}`;
+      ? `/StudentProfilePage/${userId}`
+      : `/BusinessProfilePage/${userId}`;
 
     // Determine if this is a featured card
     const isFeatured = index < featuredCards.length;

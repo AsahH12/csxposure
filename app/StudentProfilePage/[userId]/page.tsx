@@ -1,14 +1,14 @@
 'use client';
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { doc, getDoc, collection, query, where, getDocs, addDoc } from "firebase/firestore";
-import { db, auth } from "../../firebaseconfig";
+import { db, auth } from "../../../firebaseconfig";
 //import './studentProfile.css';
 import Link from 'next/link'
-import ChatOverlay from "../Components/ChatOverlay";
+import ChatOverlay from "../../Components/ChatOverlay";
 import styles from './studentProfile.module.css';
 import socialButtons from './socialButtons.module.css';
-import Footer from "../Components/footer";
+import Footer from "../../Components/footer";
 
 const getFirstImage = (images?: string[] | string): string | null => {
   if (!images) return null;
@@ -20,8 +20,8 @@ const getFirstImage = (images?: string[] | string): string | null => {
 
 const StudentProfilePage: React.FC = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const userId = searchParams.get("userId");
+  const params = useParams();
+const userId = params?.userId as string;
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -200,7 +200,7 @@ const StudentProfilePage: React.FC = () => {
   };
   
   const handleClick = (projectId: string) => {
-    router.push(`/StudentProjectPage?id=${projectId}`);
+    router.push(`/StudentProjectPage/${projectId}`);
   };
   
   if (loading) return <div>Loading...</div>;
@@ -212,7 +212,7 @@ const StudentProfilePage: React.FC = () => {
           <div className={styles.projectSection}>
             <div className={styles.projectGrid}>
               {projects.map((project) => (
-                <Link key={project.id} className={styles.projectLink} href={`/StudentProjectPage?id=${project.id}`}>
+                <Link key={project.id} className={styles.projectLink} href={`/StudentProjectPage/${project.id}`}>
                   <div className={styles.projectCard}>
                     <div className={styles.projectImageWrapper}>
                       {getFirstImage(project.images) ? (

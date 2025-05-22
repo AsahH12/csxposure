@@ -1,16 +1,16 @@
 'use client';
 import React, { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../firebaseconfig";
+import { db } from "../../../firebaseconfig";
 import "./studentProject.module.css";
 import styles from "./studentProject.module.css";
-import Footer from "../Components/footer";
+import Footer from "../../Components/footer";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const StudentProjectPage: React.FC = () => {
-  const searchParams = useSearchParams();
-  const projectId = searchParams.get("id");
+  const params = useParams();
+  const projectId = params?.ProjectId as string;
   
   const [projectName, setProjectName] = useState("");
   const [description, setDescription] = useState("");
