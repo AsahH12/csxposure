@@ -71,9 +71,8 @@ export async function GET(req: NextRequest) {
                 const resolved = await Promise.all(topUserPromises);
                 topUsers = resolved.filter(Boolean);
             }
-        }
-
-        if (topUsers.length === 0) {
+        } else {
+        
             const usersCollection = collection(db, "users");
             const userQuery = query(usersCollection, where("userType", "!=", "business"), limit(100));
             const userDocs = await getDocs(userQuery);
@@ -150,8 +149,10 @@ export async function GET(req: NextRequest) {
             addTopUser("App", "App");
             addTopUser("Website", "Website");
 
+            console.log("Featured Cards:", featuredCards);
+
             topUsers = featuredCards;
-            await setDoc(featuredRef, {
+            setDoc(featuredRef, {
                         lastUpdated: new Date(),
                         users: topUsers,
                       });

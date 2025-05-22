@@ -536,7 +536,6 @@ const ProfileEditPage: React.FC = () => {
               <div className={styles.charCounter}>
                 {bio.length}/600 characters
               </div>
-
             </div>
 
             {/* Link Input Section */}

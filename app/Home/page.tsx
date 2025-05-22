@@ -67,6 +67,7 @@ const HomePage: React.FC = () => {
         const data = await res.json();
         if (res.ok) {
           setFeaturedCards(data.featuredUsers);
+          console.log("Featured users loaded:", data.featuredUsers);
         } else {
           console.error("API error:", data.error);
         }
