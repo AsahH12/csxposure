@@ -204,7 +204,7 @@ const ProfileEditPage: React.FC = () => {
             const projectDocRef = doc(db, "Projects", projectId);
             const projectDocSnap = await getDoc(projectDocRef);
             if (projectDocSnap.exists()) {
-              return { projectId, ...projectDocSnap.data() as Project };
+              return { id: projectId, ...projectDocSnap.data() as Project };
             }
             return null;
           });
