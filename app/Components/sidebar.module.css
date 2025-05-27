@@ -320,18 +320,41 @@
   bottom: 20px;
   left: 20px;
   z-index: 1000;
-  width: 50px;
   height: 50px;
-  border-radius: 50%;
-  background-color: #007bff; /* Bootstrap primary */
+  border-radius: 25px;
+  background-color: #007bff;
   color: white;
-  font-size: 28px;
+  font-size: 20px;
   border: none;
   cursor: pointer;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.3s ease;
+  transition: width 0.3s ease, background-color 0.3s ease, padding 0.3s ease;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  width: 50px;
 }
 
 .fab:hover {
   background-color: #0056b3;
+  width: 200px;
+}
+
+.fabIcon {
+  font-size: 28px;
+  margin-right: 10px;
+  flex-shrink: 0;
+  transform: translate(-3px, -2px); /* Move up and left */
+}
+
+.fabLabel {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  font-size: 16px;
+}
+
+.fab:hover .fabLabel {
+  opacity: 1;
 }

@@ -472,7 +472,8 @@ const Sidebar: React.FC<SidebarProps> = ({
           onClick={toggleChat}
           aria-label="Create Discussion Post"
         >
-          +
+          <span className={styles.fabIcon}>+</span>
+          <span className={styles.fabLabel}>Add Discussion Post</span>
         </button>
       ) : (
         <Link href="/Authentication" passHref>
@@ -480,10 +481,12 @@ const Sidebar: React.FC<SidebarProps> = ({
             className={styles.fab}
             aria-label="Sign In to Create Discussion Post"
           >
-            +
+            <span className={styles.fabIcon}>+</span>
+            <span className={styles.fabLabel}>Add Discussion Post</span>
           </button>
         </Link>
       )}
+
       {isChatOpen && <ChatOverlay
         onClose={toggleChat}
         startWithDiscussionForm={true} // ← Open directly to "Create Discussion"
