@@ -19,7 +19,7 @@ const Navbar: React.FC = () => {
   const [firstName, setFirstName] = useState<string | null>(null);
   const [lastName, setLastName] = useState<string | null>(null);
   const [userType, setUserType] = useState<string | null>(null);
-  const { profileImage } = useContext(UserContext)!;  
+  const { profileImage, setProfileImage } = useContext(UserContext)!;  
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false); // Set default to false
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
 
